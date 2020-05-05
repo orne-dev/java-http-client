@@ -16,7 +16,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 
 /**
  * Abstract status independent operation for {@code HttpServiceClient} based on
- * HTTP POST requests with URL encoding entity.
+ * HTTP PUT requests with URL encoding entity.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
@@ -25,15 +25,15 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
  * @param <R> El execution result type
  * @since 0.1
  */
-public abstract class AbstractStatusIndependentUrlEncodedPostOperation<P, E, R>
-extends AbstractStatusIndependentPostOperation<P, E, R> {
+public abstract class AbstractStatusIndependentUrlEncodedPutOperation<P, E, R>
+extends AbstractStatusIndependentPutOperation<P, E, R> {
 
     /**
      * Creates a new instance.
      * 
      * @param operationURI The relative URI of the operation
      */
-    public AbstractStatusIndependentUrlEncodedPostOperation(
+    public AbstractStatusIndependentUrlEncodedPutOperation(
             final URI operationURI) {
         super(operationURI);
     }
