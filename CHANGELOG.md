@@ -18,3 +18,4 @@
 01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentOperation`
 01. :gift: Added class `dev.orne.http.client.VoidResponseHandler`
+01. :gift: Added class `dev.orne.http.client.XMLResponseHandler`
