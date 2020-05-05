@@ -50,6 +50,7 @@
     <apache.httpclient.version>4.5.12</apache.httpclient.version>
 
     <jsr305.version>3.0.2</jsr305.version>
+    <fasterxml.jackson.version>2.9.9</fasterxml.jackson.version>
   </properties>
 
   <dependencies>
@@ -82,6 +83,12 @@
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <version>${jsr305.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${fasterxml.jackson.version}</version>
       <optional>true</optional>
     </dependency>
 
