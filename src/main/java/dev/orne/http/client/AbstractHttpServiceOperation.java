@@ -54,8 +54,10 @@ public abstract class AbstractHttpServiceOperation<
         R> {
 
     /** The relative URI of the operation. */
+    @Nonnull
     private final URI relativeURI;
     /** The response handler. */
+    @Nullable
     private ResponseHandler<E> responseHandler;
 
     /**
@@ -64,6 +66,7 @@ public abstract class AbstractHttpServiceOperation<
      * @param operationURI The relative URI of the operation
      */
     public AbstractHttpServiceOperation(
+            @Nonnull
             final URI operationURI) {
         super();
         if (operationURI == null) {
@@ -77,6 +80,7 @@ public abstract class AbstractHttpServiceOperation<
      * 
      * @return The relative URI of the operation
      */
+    @Nonnull
     public URI getRelativeURI() {
         return this.relativeURI;
     }
@@ -91,8 +95,11 @@ public abstract class AbstractHttpServiceOperation<
      * @param value The variable value
      */
     protected void replacePathVariable(
+            @Nonnull
             final URIBuilder builder,
+            @Nonnull
             final String varName,
+            @Nonnull
             final String value) {
         final List<String> pathSegments = builder.getPathSegments();
         final List<String> resultPathSegments = new ArrayList<>(
@@ -115,9 +122,13 @@ public abstract class AbstractHttpServiceOperation<
      * @throws HttpClientException If an exception occurs executing the
      * request
      */
+    @Nullable
     protected R executeHttpRequest(
+            @Nullable
             final P params,
+            @Nonnull
             final HttpRequest request,
+            @Nonnull
             final HttpServiceClient client)
     throws HttpClientException {
         try {
@@ -134,6 +145,7 @@ public abstract class AbstractHttpServiceOperation<
     /**
      * @return The response handler for this operation
      */
+    @Nonnull
     protected ResponseHandler<E> getResponseHandler() {
         synchronized (this) {
             if (this.responseHandler == null) {
@@ -148,6 +160,7 @@ public abstract class AbstractHttpServiceOperation<
      * 
      * @return The response handler for this operation
      */
+    @Nonnull
     protected abstract ResponseHandler<E> createResponseHandler();
 
     /**
@@ -164,7 +177,9 @@ public abstract class AbstractHttpServiceOperation<
      */
     @Nullable
     protected E extractResponseEntity(
+            @Nonnull
             HttpRequest request,
+            @Nonnull
             HttpResponse response)
     throws HttpClientException {
         try {

@@ -7,6 +7,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -32,6 +35,7 @@ extends AbstractStatusIndependentOperation<P, E, R> {
      * @param operationURI The relative URI of the operation
      */
     public AbstractStatusIndependentPostOperation(
+            @Nonnull
             final URI operationURI) {
         super(operationURI);
     }
@@ -44,8 +48,11 @@ extends AbstractStatusIndependentOperation<P, E, R> {
      * @throws HttpClientException If an exception occurs generating the
      * request
      */
+    @Nonnull
     protected HttpPost createRequest(
+            @Nullable
             final P params,
+            @Nonnull
             final HttpServiceClient client)
     throws HttpClientException {
         final URIBuilder uriBuilder = new URIBuilder(
@@ -73,6 +80,9 @@ extends AbstractStatusIndependentOperation<P, E, R> {
      * @throws HttpClientException If an exception occurs generating the
      * entity
      */
-    protected abstract HttpEntity createEntity(P params)
+    @Nullable
+    protected abstract HttpEntity createEntity(
+            @Nullable
+            P params)
     throws HttpClientException;
 }

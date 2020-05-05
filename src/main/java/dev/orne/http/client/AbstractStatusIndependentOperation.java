@@ -55,6 +55,7 @@ implements StatusIndependentOperation<P, R> {
      * @param operationURI The relative URI of the operation
      */
     public AbstractStatusIndependentOperation(
+            @Nonnull
             final URI operationURI) {
         super(operationURI);
     }
@@ -105,8 +106,9 @@ implements StatusIndependentOperation<P, R> {
      * @throws HttpClientException If an error occurs generating the
      * request URI
      */
+    @Nonnull
     protected URI getRequestURI(
-            @Nonnull
+            @Nullable
             final P params,
             @Nonnull
             final HttpServiceClient client)
@@ -144,7 +146,9 @@ implements StatusIndependentOperation<P, R> {
      * values
      */
     protected void replacePathVariables(
+            @Nonnull
             final URIBuilder builder,
+            @Nullable
             final P params)
     throws HttpClientException {
         // Do nothing by default. Override if needed
@@ -158,7 +162,10 @@ implements StatusIndependentOperation<P, R> {
      * @throws HttpClientException If an exception occurs generating the
      * parameters
      */
-    protected List<NameValuePair> createParams(P params)
+    @Nonnull
+    protected List<NameValuePair> createParams(
+            @Nullable
+            final P params)
     throws HttpClientException {
         return new ArrayList<>();
     }
@@ -171,7 +178,10 @@ implements StatusIndependentOperation<P, R> {
      * @throws HttpClientException If an exception occurs generating the
      * headers
      */
-    protected List<Header> createHeaders(P params)
+    @Nonnull
+    protected List<Header> createHeaders(
+            @Nullable
+            final P params)
     throws HttpClientException {
         return new ArrayList<>();
     }

@@ -7,6 +7,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -32,6 +35,7 @@ extends AbstractStatusDependentOperation<P, E, R, S> {
      * @param operationURI The relative URI of the operation
      */
     public AbstractStatusDependentGetOperation(
+            @Nonnull
             final URI operationURI) {
         super(operationURI);
     }
@@ -40,8 +44,11 @@ extends AbstractStatusDependentOperation<P, E, R, S> {
      * {@inheritDoc}
      */
     @Override
+    @Nonnull
     protected HttpGet createRequest(
+            @Nullable
             final P params,
+            @Nonnull
             final StatedHttpServiceClient<S> client)
     throws HttpClientException {
         final URIBuilder uriBuilder = new URIBuilder(

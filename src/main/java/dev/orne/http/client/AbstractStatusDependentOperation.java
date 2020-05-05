@@ -56,6 +56,7 @@ implements StatusDependentOperation<P, R, S> {
      * @param operationURI The relative URI of the operation
      */
     public AbstractStatusDependentOperation(
+            @Nonnull
             final URI operationURI) {
         super(operationURI);
     }
@@ -106,15 +107,16 @@ implements StatusDependentOperation<P, R, S> {
      * @throws HttpClientException If an error occurs generating the
      * request URI
      */
+    @Nonnull
     protected URI getRequestURI(
-            @Nonnull
+            @Nullable
             final P params,
             @Nonnull
             final StatedHttpServiceClient<S> client)
     throws HttpClientException {
         final URI absoluteURI = client.getBaseURI().resolve(getRelativeURI());
         final URIBuilder builder = new URIBuilder(absoluteURI);
-        replacePathVariables(builder, params, client.getStatus());
+        replacePathVariables(builder, params, client.ensureInitialized());
         try {
             return builder.build();
         } catch (final URISyntaxException use) {
@@ -147,8 +149,11 @@ implements StatusDependentOperation<P, R, S> {
      * values
      */
     protected void replacePathVariables(
+            @Nonnull
             final URIBuilder builder,
+            @Nullable
             final P params,
+            @Nonnull
             final S status)
     throws HttpClientException {
         // Do nothing by default. Override if needed
@@ -163,7 +168,12 @@ implements StatusDependentOperation<P, R, S> {
      * @throws HttpClientException If an exception occurs generating the
      * parameters
      */
-    protected List<NameValuePair> createParams(P params, S status)
+    @Nonnull
+    protected List<NameValuePair> createParams(
+            @Nullable
+            final P params,
+            @Nonnull
+            final S status)
     throws HttpClientException {
         return new ArrayList<>();
     }
@@ -177,7 +187,12 @@ implements StatusDependentOperation<P, R, S> {
      * @throws HttpClientException If an exception occurs generating the
      * headers
      */
-    protected List<Header> createHeaders(P params, S status)
+    @Nonnull
+    protected List<Header> createHeaders(
+            @Nullable
+            final P params,
+            @Nonnull
+            final S status)
     throws HttpClientException {
         return new ArrayList<>();
     }
