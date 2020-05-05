@@ -16,7 +16,9 @@
 01. :gift: Added exception `dev.orne.http.client.HttpAuthenticationFailedException`
 01. :gift: Added class `dev.orne.http.client.AbstractHttpServiceOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentOperation`
+01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentGetOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentOperation`
 01. :gift: Added class `dev.orne.http.client.VoidResponseHandler`
 01. :gift: Added class `dev.orne.http.client.XMLResponseHandler`
 01. :gift: Added class `dev.orne.http.client.JSONResponseHandler`
+
