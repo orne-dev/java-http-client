@@ -11,13 +11,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.utils.URIBuilder;
 
 /**
  * Abstract status independent operation for {@code HttpServiceClient} based on
- * HTTP POST requests.
+ * HTTP DELETE requests.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
@@ -26,7 +25,7 @@ import org.apache.http.client.utils.URIBuilder;
  * @param <R> El execution result type
  * @since 0.1
  */
-public abstract class AbstractStatusIndependentPostOperation<P, E, R>
+public abstract class AbstractStatusIndependentDeleteOperation<P, E, R>
 extends AbstractStatusIndependentOperation<P, E, R> {
 
     /**
@@ -34,7 +33,7 @@ extends AbstractStatusIndependentOperation<P, E, R> {
      * 
      * @param operationURI The relative URI of the operation
      */
-    public AbstractStatusIndependentPostOperation(
+    public AbstractStatusIndependentDeleteOperation(
             @Nonnull
             final URI operationURI) {
         super(operationURI);
@@ -45,7 +44,7 @@ extends AbstractStatusIndependentOperation<P, E, R> {
      */
     @Override
     @Nonnull
-    protected HttpPost createRequest(
+    protected HttpDelete createRequest(
             @Nullable
             final P params,
             @Nonnull
@@ -54,9 +53,9 @@ extends AbstractStatusIndependentOperation<P, E, R> {
         final URIBuilder uriBuilder = new URIBuilder(
                 getRequestURI(params, client));
         uriBuilder.addParameters(createParams(params));
-        final HttpPost request;
+        final HttpDelete request;
         try {
-            request = new HttpPost(uriBuilder.build());
+            request = new HttpDelete(uriBuilder.build());
         } catch (final URISyntaxException use) {
             throw new HttpClientException(use);
         }
@@ -64,21 +63,6 @@ extends AbstractStatusIndependentOperation<P, E, R> {
         for (final Header header : requestHeaders) {
             request.addHeader(header);
         }
-        request.setEntity(createEntity(params));
         return request;
     }
-
-    /**
-     * Creates the HTTP request entity.
-     * 
-     * @param params The operation execution parameters
-     * @return The generated HTTP entity
-     * @throws HttpClientException If an exception occurs generating the
-     * entity
-     */
-    @Nullable
-    protected abstract HttpEntity createEntity(
-            @Nullable
-            P params)
-    throws HttpClientException;
 }

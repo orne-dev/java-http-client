@@ -40,13 +40,7 @@ extends AbstractStatusDependentPutOperation<P, E, R, S> {
     }
 
     /**
-     * Creates the HTTP request entity.
-     * 
-     * @param params The operation execution parameters
-     * @param status The client status
-     * @return The generated HTTP entity
-     * @throws HttpClientException If an exception occurs generating the
-     * entity
+     * {@inheritDoc}
      */
     @Override
     @Nullable

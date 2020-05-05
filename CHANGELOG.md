@@ -21,12 +21,14 @@
 01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentUrlEncodedPutOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentPostOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentUrlEncodedPostOperation`
+01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentDeleteOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentGetOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentPutOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentUrlEncodedPutOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentPostOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentUrlEncodedPostOperation`
+01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentDeleteOperation`
 01. :gift: Added class `dev.orne.http.client.VoidResponseHandler`
 01. :gift: Added class `dev.orne.http.client.XMLResponseHandler`
 01. :gift: Added class `dev.orne.http.client.JSONResponseHandler`

@@ -42,12 +42,7 @@ extends AbstractStatusDependentOperation<P, E, R, S> {
     }
 
     /**
-     * Creates a new HTTP POST request.
-     * 
-     * @param params The operation execution parameters
-     * @return The generated HTTP POST request
-     * @throws HttpClientException If an exception occurs generating the
-     * request
+     * {@inheritDoc}
      */
     @Override
     @Nonnull
