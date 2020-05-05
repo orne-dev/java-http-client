@@ -16,6 +16,7 @@
 01. :gift: Added exception `dev.orne.http.client.HttpAuthenticationFailedException`
 01. :gift: Added interface `dev.orne.http.client.AuthenticableHttpServiceClient`
 01. :gift: Added exception `dev.orne.http.client.HttpAuthenticationExpiredException`
+01. :gift: Added class `dev.orne.http.client.BaseAuthenticableHttpServiceClient`
 01. :gift: Added class `dev.orne.http.client.AbstractHttpServiceOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusIndependentGetOperation`
