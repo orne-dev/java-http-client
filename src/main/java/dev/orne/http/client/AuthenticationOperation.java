@@ -31,29 +31,30 @@ import javax.annotation.Nullable;
 import org.apache.http.client.HttpClient;
 
 /**
- * Operation for {@code HttpServiceClient} that initializes client's status.
+ * Operation for {@code HttpServiceClient} that authenticates on HTTP service.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
+ * @param <P> El authentication parameters type
+ * @param <R> El authentication result type
  * @param <S> The client status type
  * @since 0.1
  */
-public interface StatusInitOperation<S>
-extends StatusIndependentOperation<Void, S> {
+public interface AuthenticationOperation<P, R, S>
+extends StatusDependentOperation<P, R, S> {
 
     /**
-     * Executes the operation.
-     * 
-     * @param params The operation execution parameters
-     * @param client The client to execute the operation
-     * @return The initialized state
-     * @throws HttpClientException If the is an error executing the operation
+     * {@inheritDoc}
+     * @throws HttpAuthenticationFailedException If the authentication attempt
+     * failed
      */
     @Override
-    @Nonnull
-    public S execute(
+    @Nullable
+    public R execute(
             @Nullable
-            Void params,
+            P params,
+            @Nonnull
+            S status,
             @Nonnull
             HttpClient client)
     throws HttpClientException;

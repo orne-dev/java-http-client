@@ -11,3 +11,5 @@
 01. :gift: Added interface `dev.orne.http.client.AuthenticableClientStatus`
 01. :gift: Added interface `dev.orne.http.client.AuthenticatedOperation`
 01. :gift: Added exception `dev.orne.http.client.HttpAuthenticationRequiredException`
+01. :gift: Added interface `dev.orne.http.client.AuthenticationOperation`
+01. :gift: Added exception `dev.orne.http.client.HttpAuthenticationFailedException`
