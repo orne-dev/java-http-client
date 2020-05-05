@@ -21,37 +21,26 @@ package dev.orne.http.client;
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
  * #L%
  */
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.apache.http.client.HttpClient;
-
 /**
- * Operation for {@code HttpServiceClient} independent of client's
- * status.
+ * Interface for status of HTTP service clients able to authenticate against
+ * the HTTP service.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
- * @param <P> El execution parameters type
- * @param <R> El execution result type
  * @since 0.1
  */
-public interface StatusIndependentOperation<P, R> {
+public interface AuthenticableClientStatus {
 
     /**
-     * Executes the operation.
+     * Returns {@code true} if the client is authenticated in the HTTP service.
      * 
-     * @param params The operation execution parameters
-     * @param client The client to execute the operation
-     * @return The operation execution result
-     * @throws HttpClientException If there is an error executing the operation
+     * @return If the client is authenticated
      */
-    @Nullable
-    public R execute(
-            @Nullable
-            P params,
-            @Nonnull
-            HttpClient client)
-    throws HttpClientException;
+    boolean isAuthenticated();
+
+    /**
+     * Resets the authentication information of this state. A new authentication
+     * operation must be done on next authenticated operation.
+     */
+    void resetAuthentication();
 }

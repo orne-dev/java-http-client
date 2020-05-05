@@ -1,5 +1,10 @@
 package dev.orne.http.client;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.apache.http.client.HttpClient;
+
 /*-
  * #%L
  * Orne HTTP Client
@@ -22,35 +27,35 @@ package dev.orne.http.client;
  * #L%
  */
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.apache.http.client.HttpClient;
-
 /**
- * Operation for {@code HttpServiceClient} independent of client's
- * status.
+ * Operation for {@code HttpServiceClient} dependent of clients status
+ * that requires the client to be authenticated before execution the
+ * operation.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
  * @param <P> El execution parameters type
  * @param <R> El execution result type
+ * @param <S> The authenticable client status type
  * @since 0.1
  */
-public interface StatusIndependentOperation<P, R> {
+public interface AuthenticatedOperation<
+        P,
+        R,
+        S extends AuthenticableClientStatus>
+extends StatusDependentOperation<P, R, S> {
 
     /**
-     * Executes the operation.
-     * 
-     * @param params The operation execution parameters
-     * @param client The client to execute the operation
-     * @return The operation execution result
-     * @throws HttpClientException If there is an error executing the operation
+     * {@inheritDoc}
+     * @throws HttpAuthenticationRequiredException If client is not
+     * authenticated
      */
-    @Nullable
-    public R execute(
+    @Override
+    R execute(
             @Nullable
             P params,
+            @Nonnull
+            S status,
             @Nonnull
             HttpClient client)
     throws HttpClientException;

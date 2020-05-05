@@ -43,7 +43,7 @@ public interface StatusDependentOperation<P, R, S> {
      * @param status The client status type
      * @param client The client to execute the operation
      * @return The operation execution result
-     * @throws HttpClientException If the is an error executing the operation
+     * @throws HttpClientException If there is an error executing the operation
      */
     public R execute(P params, S status, HttpClient client)
     throws HttpClientException;
