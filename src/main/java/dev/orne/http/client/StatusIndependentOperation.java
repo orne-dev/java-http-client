@@ -37,7 +37,7 @@ import org.apache.http.client.HttpClient;
  * @param <R> El execution result type
  * @since 0.1
  */
-public interface StatusIndependientOperation<P, R> {
+public interface StatusIndependentOperation<P, R> {
 
     /**
      * Executes the operation.

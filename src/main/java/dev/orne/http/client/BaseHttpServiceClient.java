@@ -149,7 +149,7 @@ implements HttpServiceClient {
     @Nullable
     public <P, R> R execute(
             @Nonnull
-            final StatusIndependientOperation<P, R> operation,
+            final StatusIndependentOperation<P, R> operation,
             @Nullable
             final P params)
     throws HttpClientException {
