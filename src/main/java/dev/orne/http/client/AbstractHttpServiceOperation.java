@@ -37,6 +37,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract operation for {@code HttpServiceClient}.
@@ -59,6 +61,9 @@ public abstract class AbstractHttpServiceOperation<
     /** The response handler. */
     @Nullable
     private ResponseHandler<E> responseHandler;
+    /** The logger for this instance's actual class. */
+    @Nullable
+    private Logger logger;
 
     /**
      * Creates a new instance.
@@ -294,5 +299,20 @@ public abstract class AbstractHttpServiceOperation<
                     exception);
         }
         return result;
+    }
+
+    /**
+     * Returns the logger for this instance's actual class.
+     * 
+     * @return The logger for this instance's actual class
+     */
+    @Nonnull
+    protected Logger getLogger() {
+        synchronized (this) {
+            if (this.logger == null) {
+                this.logger = LoggerFactory.getLogger(getClass());
+            }
+            return this.logger;
+        }
     }
 }
