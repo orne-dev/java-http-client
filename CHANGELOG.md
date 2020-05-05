@@ -32,4 +32,4 @@
 01. :gift: Added class `dev.orne.http.client.VoidResponseHandler`
 01. :gift: Added class `dev.orne.http.client.XMLResponseHandler`
 01. :gift: Added class `dev.orne.http.client.JSONResponseHandler`
-
+01. :gift: Added exception `dev.orne.http.client.HttpAuthenticationRequiredException`
