@@ -35,6 +35,8 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base HTTP service client.
@@ -47,13 +49,20 @@ public class BaseHttpServiceClient
 implements HttpServiceClient {
 
     /** The HTTP service's host. */
+    @Nonnull
     private final HttpHost host;
     /** The HTTP service's base URI. */
+    @Nonnull
     private final URI baseURI;
     /** The HTTP client's cookie store. */
+    @Nonnull
     private final CookieStore cookieStore;
     /** The HTTP client. */
+    @Nonnull
     private final CloseableHttpClient client;
+    /** The logger for this instance's actual class. */
+    @Nullable
+    private Logger logger;
 
     /**
      * Creates a new instance.
@@ -164,5 +173,20 @@ implements HttpServiceClient {
     throws IOException {
         this.client.close();
         this.cookieStore.clear();
+    }
+
+    /**
+     * Returns the logger for this instance's actual class.
+     * 
+     * @return The logger for this instance's actual class
+     */
+    @Nonnull
+    protected Logger getLogger() {
+        synchronized (this) {
+            if (this.logger == null) {
+                this.logger = LoggerFactory.getLogger(getClass());
+            }
+            return this.logger;
+        }
     }
 }
