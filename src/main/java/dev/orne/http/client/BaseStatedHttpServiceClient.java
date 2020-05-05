@@ -72,7 +72,8 @@ implements StatedHttpServiceClient<S> {
             @Nullable
             final P params)
     throws HttpClientException {
-        return operation.execute(params, ensureInitialized(), this);
+        ensureInitialized();
+        return operation.execute(params, this);
     }
 
     /**

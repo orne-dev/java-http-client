@@ -52,8 +52,6 @@ extends StatusDependentOperation<P, R, S> {
             @Nullable
             P params,
             @Nonnull
-            S status,
-            @Nonnull
             StatedHttpServiceClient<S> client)
     throws HttpClientException;
 }
