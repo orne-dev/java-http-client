@@ -100,11 +100,12 @@ implements StatedHttpServiceClient<S> {
     public S initializeStatus()
     throws HttpClientException {
         synchronized (this) {
-            getLogger().info("Initializing client status");
+            getLogger().debug("Initializing client status...");
             final S newState = this.statusInitOperation.execute(
                     null,
                     this);
             this.status = newState;
+            getLogger().debug("Client status initialized.");
             return newState;
         }
     }
