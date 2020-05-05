@@ -38,13 +38,6 @@ public class VoidResponseHandler
 extends AbstractResponseHandler<Void> {
 
     /**
-     * Creates a new instance.
-     */
-    public VoidResponseHandler() {
-        super();
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
