@@ -3,8 +3,6 @@ package dev.orne.http.client;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.http.client.HttpClient;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -57,6 +55,6 @@ extends StatusDependentOperation<P, R, S> {
             @Nonnull
             S status,
             @Nonnull
-            HttpClient client)
+            StatedHttpServiceClient<S> client)
     throws HttpClientException;
 }

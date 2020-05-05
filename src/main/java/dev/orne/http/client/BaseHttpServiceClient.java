@@ -153,7 +153,7 @@ implements HttpServiceClient {
             @Nullable
             final P params)
     throws HttpClientException {
-        return operation.execute(params, getClient());
+        return operation.execute(params, this);
     }
 
     /**

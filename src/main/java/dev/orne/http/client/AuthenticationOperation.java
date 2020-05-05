@@ -28,8 +28,6 @@ package dev.orne.http.client;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.http.client.HttpClient;
-
 /**
  * Operation for {@code HttpServiceClient} that authenticates on HTTP service.
  * 
@@ -56,6 +54,6 @@ extends StatusDependentOperation<P, R, S> {
             @Nonnull
             S status,
             @Nonnull
-            HttpClient client)
+            StatedHttpServiceClient<S> client)
     throws HttpClientException;
 }

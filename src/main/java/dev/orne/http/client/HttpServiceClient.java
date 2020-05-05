@@ -25,6 +25,9 @@ package dev.orne.http.client;
 import java.io.Closeable;
 import java.net.URI;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -42,20 +45,42 @@ extends Closeable {
     /**
      * @return The HTTP service's host
      */
+    @Nonnull
     HttpHost getHost();
 
     /**
      * @return The HTTP service's base URI
      */
+    @Nonnull
     URI getBaseURI();
 
     /**
      * @return The HTTP client's cookie store
      */
+    @Nonnull
     CookieStore getCookieStore();
 
     /**
      * @return The HTTP client
      */
+    @Nonnull
     CloseableHttpClient getClient();
+
+    /**
+     * Executes the specified status unaware operation for this HTTP service.
+     * 
+     * @param <P> The operation's parameter type
+     * @param <R> The operation execution's result type
+     * @param operation The operation to execute
+     * @param params The operation parameter
+     * @return The operation execution's result
+     * @throws HttpClientException If an error occurs executing the operation
+     */
+    @Nullable
+    <P, R> R execute(
+            @Nonnull
+            final StatusIndependentOperation<P, R> operation,
+            @Nullable
+            final P params)
+    throws HttpClientException;
 }

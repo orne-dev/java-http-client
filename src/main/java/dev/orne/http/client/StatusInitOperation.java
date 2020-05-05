@@ -28,8 +28,6 @@ package dev.orne.http.client;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.http.client.HttpClient;
-
 /**
  * Operation for {@code HttpServiceClient} that initializes client's status.
  * 
@@ -55,6 +53,6 @@ extends StatusIndependentOperation<Void, S> {
             @Nullable
             Void params,
             @Nonnull
-            HttpClient client)
+            HttpServiceClient client)
     throws HttpClientException;
 }

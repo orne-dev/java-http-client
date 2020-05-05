@@ -1,5 +1,8 @@
 package dev.orne.http.client;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /*-
  * #%L
  * Orne HTTP Client
@@ -22,43 +25,36 @@ package dev.orne.http.client;
  * #L%
  */
 
-import java.net.URL;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
- * Base HTTP service client with client status.
+ * HTTP service client interface with client status..
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
  * @param <S> The client status type
  * @since 0.1
  */
-public class StatedHttpServiceClient<S>
-extends BaseHttpServiceClient {
-
-    /** The status initialization operation. */
-    @Nonnull
-    private final StatusInitOperation<S> statusInitOperation;
-    /** The client's status. */
-    @Nullable
-    private S status;
+public interface StatedHttpServiceClient<S>
+extends HttpServiceClient {
 
     /**
-     * Creates a new instance.
+     * Ensures that this client's status has been initialized.
      * 
-     * @param baseURL The HTTP service's base URL
-     * @param statusInitOperation The status initialization operation
+     * @return The client's status, never {@code null}
+     * @throws HttpClientException If an error occurs initializing the status
      */
-    public StatedHttpServiceClient(
-            @Nonnull
-            final URL baseURL,
-            @Nonnull
-            final StatusInitOperation<S> statusInitOperation) {
-        super(baseURL);
-        this.statusInitOperation = statusInitOperation;
-    }
+    @Nonnull
+    public S ensureInitialized()
+    throws HttpClientException;
+
+    /**
+     * Initializes client's status.
+     * 
+     * @return The new client status
+     * @throws HttpClientException If an error occurs initializing the status
+     */
+    @Nonnull
+    public S initializeStatus()
+    throws HttpClientException;
 
     /**
      * Executes the specified status aware operation for this HTTP service
@@ -77,69 +73,18 @@ extends BaseHttpServiceClient {
             final StatusDependentOperation<P, R, S> operation,
             @Nullable
             final P params)
-    throws HttpClientException {
-        return operation.execute(params, ensureInitialized(), getClient());
-    }
+    throws HttpClientException;
 
     /**
-     * Ensures that this client's status has been initialized.
+     * Returns the client's current state.
      * 
-     * @return The client's status, never {@code null}
-     * @throws HttpClientException If an error occurs initializing the status
-     */
-    @Nonnull
-    public S ensureInitialized()
-    throws HttpClientException {
-        synchronized (this) {
-            S result = getStatus();
-            if (result == null) {
-                result = initializeStatus();
-            }
-            return result;
-        }
-    }
-
-    /**
-     * Initializes client's status.
-     * 
-     * @return The new client status
-     * @throws HttpClientException If an error occurs initializing the status
-     */
-    @Nonnull
-    public S initializeStatus()
-    throws HttpClientException {
-        synchronized (this) {
-            final S newState = this.statusInitOperation.execute(
-                    null,
-                    getClient());
-            this.status = newState;
-            return newState;
-        }
-    }
-
-    /**
-     * Returns the client's status.
-     * 
-     * @return The client's status
+     * @return The client's current state
      */
     @Nullable
-    public S getStatus() {
-        synchronized (this) {
-            return this.status;
-        }
-    }
+    S getStatus();
 
     /**
-     * Sets the client's status. Setting to {@code null} forces client
-     * status reset on next status dependent call.
-     * 
-     * @param status The client's status
+     * Resets the client's state.
      */
-    public void setStatus(
-            @Nullable
-            final S status) {
-        synchronized (this) {
-            this.status = status;
-        }
-    }
+    void resetState();
 }

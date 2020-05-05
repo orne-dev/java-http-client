@@ -5,9 +5,10 @@
 01. :gift: Added exception `dev.orne.http.client.HttpResponseException`
 01. :gift: Added interface `dev.orne.http.client.StatusIndependentOperation`
 01. :gift: Added class `dev.orne.http.client.BaseHttpServiceClient`
+01. :gift: Added interface `dev.orne.http.client.StatedHttpServiceClient`
 01. :gift: Added interface `dev.orne.http.client.StatusDependentOperation`
 01. :gift: Added interface `dev.orne.http.client.StatusInitOperation`
-01. :gift: Added class `dev.orne.http.client.StatedHttpServiceClient`
+01. :gift: Added class `dev.orne.http.client.BaseStatedHttpServiceClient`
 01. :gift: Added interface `dev.orne.http.client.AuthenticableClientStatus`
 01. :gift: Added interface `dev.orne.http.client.AuthenticatedOperation`
 01. :gift: Added exception `dev.orne.http.client.HttpAuthenticationRequiredException`

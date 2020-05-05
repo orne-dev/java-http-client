@@ -25,8 +25,6 @@ import javax.annotation.Nullable;
  * #L%
  */
 
-import org.apache.http.client.HttpClient;
-
 /**
  * Operation for {@code HttpServiceClient} dependent of clients status.
  * 
@@ -55,6 +53,6 @@ public interface StatusDependentOperation<P, R, S> {
             @Nonnull
             S status,
             @Nonnull
-            HttpClient client)
+            StatedHttpServiceClient<S> client)
     throws HttpClientException;
 }
