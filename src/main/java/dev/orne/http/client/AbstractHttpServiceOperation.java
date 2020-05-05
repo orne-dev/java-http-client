@@ -136,9 +136,8 @@ public abstract class AbstractHttpServiceOperation<
             @Nonnull
             final HttpServiceClient client)
     throws HttpClientException {
-        try {
-            final CloseableHttpResponse response = client.getClient().execute(
-                    client.getHost(), request);
+        try (final CloseableHttpResponse response = client.getClient().execute(
+                client.getHost(), request)) {
             return processHttpResponse(params, client, request, response);
         } catch (final ClientProtocolException cpe) {
             throw processException(params, client, request, null, cpe);
@@ -233,12 +232,6 @@ public abstract class AbstractHttpServiceOperation<
             return processHttpResponse(params, client, request, response, responseEntity);
         } catch (final HttpClientException hce) {
             throw processException(params, client, request, response, hce);
-        } finally {
-            try {
-                response.close();
-            } catch (final IOException ignored) {
-                // Ignore close error
-            }
         }
     }
 
