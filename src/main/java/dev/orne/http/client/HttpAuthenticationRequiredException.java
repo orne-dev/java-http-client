@@ -3,6 +3,8 @@
  */
 package dev.orne.http.client;
 
+import javax.annotation.Nullable;
+
 /*-
  * #%L
  * Orne HTTP Client
@@ -51,7 +53,9 @@ extends HttpResponseException {
      * @param response The offending HTTP response
      */
     public HttpAuthenticationRequiredException(
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(request, response);
     }
@@ -67,8 +71,11 @@ extends HttpResponseException {
      * @param response The offending HTTP response
      */
     public HttpAuthenticationRequiredException(
+            @Nullable
             final String message,
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(message, request, response);
     }
@@ -89,8 +96,11 @@ extends HttpResponseException {
      * @param response The offending HTTP response
      */
     public HttpAuthenticationRequiredException(
+            @Nullable
             final Throwable cause,
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(cause, request, response);
     }
@@ -111,9 +121,13 @@ extends HttpResponseException {
      * @param response The offending HTTP response
      */
     public HttpAuthenticationRequiredException(
+            @Nullable
             final String message,
+            @Nullable
             final Throwable cause,
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(message, cause, request, response);
     }
@@ -134,11 +148,15 @@ extends HttpResponseException {
      * @param response The offending HTTP response
      */
     public HttpAuthenticationRequiredException(
+            @Nullable
             final String message,
+            @Nullable
             final Throwable cause,
             final boolean enableSuppression,
             final boolean writableStackTrace,
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(message, cause, enableSuppression, writableStackTrace, request, response);
     }

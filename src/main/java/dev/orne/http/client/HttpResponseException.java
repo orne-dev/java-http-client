@@ -1,5 +1,7 @@
 package dev.orne.http.client;
 
+import javax.annotation.Nullable;
+
 /*-
  * #%L
  * Orne HTTP Client
@@ -40,8 +42,10 @@ extends HttpClientException {
     private static final long serialVersionUID = 1L;
 
     /** The original HTTP request. */
+    @Nullable
     private final transient HttpRequest request;
     /** The offending HTTP response. */
+    @Nullable
     private final transient HttpResponse response;
 
     /**
@@ -53,7 +57,9 @@ extends HttpClientException {
      * @param response The offending HTTP response
      */
     public HttpResponseException(
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super();
         this.request = request;
@@ -71,8 +77,11 @@ extends HttpClientException {
      * @param response The offending HTTP response
      */
     public HttpResponseException(
+            @Nullable
             final String message,
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(message);
         this.request = request;
@@ -95,8 +104,11 @@ extends HttpClientException {
      * @param response The offending HTTP response
      */
     public HttpResponseException(
+            @Nullable
             final Throwable cause,
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(cause);
         this.request = request;
@@ -119,9 +131,13 @@ extends HttpClientException {
      * @param response The offending HTTP response
      */
     public HttpResponseException(
+            @Nullable
             final String message,
+            @Nullable
             final Throwable cause,
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(message, cause);
         this.request = request;
@@ -144,11 +160,15 @@ extends HttpClientException {
      * @param response The offending HTTP response
      */
     public HttpResponseException(
+            @Nullable
             final String message,
+            @Nullable
             final Throwable cause,
             final boolean enableSuppression,
             final boolean writableStackTrace,
+            @Nullable
             final HttpRequest request,
+            @Nullable
             final HttpResponse response) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.request = request;
@@ -156,16 +176,22 @@ extends HttpClientException {
     }
 
     /**
+     * Returns the original HTTP request.
+     * 
      * @return The original HTTP request
      */
+    @Nullable
     public HttpRequest getRequest() {
-        return request;
+        return this.request;
     }
 
     /**
+     * Returns the offending HTTP response.
+     * 
      * @return The offending HTTP response
      */
+    @Nullable
     public HttpResponse getResponse() {
-        return response;
+        return this.response;
     }
 }
