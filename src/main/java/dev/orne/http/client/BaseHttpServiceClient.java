@@ -89,6 +89,28 @@ implements HttpServiceClient {
     }
 
     /**
+     * Creates a new instance.
+     * 
+     * @param host The HTTP service's host
+     * @param baseURI The HTTP service's base URI
+     */
+    protected BaseHttpServiceClient(
+            @Nonnull
+            final HttpHost host,
+            @Nonnull
+            final URI baseURI,
+            @Nonnull
+            final CookieStore cookieStore,
+            @Nonnull
+            final CloseableHttpClient client) {
+        super();
+        this.host = host;
+        this.baseURI = baseURI;
+        this.cookieStore = cookieStore;
+        this.client = client;
+    }
+
+    /**
      * <p>Configures the requests build by the HTTP client.
      * The implementations should override this method to configure their
      * requests if needed.</p>
