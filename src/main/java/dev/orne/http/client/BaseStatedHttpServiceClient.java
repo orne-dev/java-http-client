@@ -1,5 +1,7 @@
 package dev.orne.http.client;
 
+import java.net.URI;
+
 /*-
  * #%L
  * Orne HTTP Client
@@ -26,6 +28,10 @@ import java.net.URL;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import org.apache.http.HttpHost;
+import org.apache.http.client.CookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 /**
  * Base HTTP service client with client status.
@@ -58,7 +64,43 @@ implements StatedHttpServiceClient<S> {
             @Nonnull
             final StatusInitOperation<S> statusInitOperation) {
         super(baseURL);
+        if (statusInitOperation == null) {
+            throw new IllegalArgumentException("Parameter 'statusInitOperation' is required.");
+        }
         this.statusInitOperation = statusInitOperation;
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param host The HTTP service's host
+     * @param baseURI The HTTP service's base URI
+     * @param cookieStore The HTTP client's cookie store
+     * @param client The HTTP client
+     * @param statusInitOperation The status initialization operation
+     */
+    protected BaseStatedHttpServiceClient(
+            @Nonnull
+            final HttpHost host,
+            @Nonnull
+            final URI baseURI,
+            @Nonnull
+            final CookieStore cookieStore,
+            @Nonnull
+            final CloseableHttpClient client,
+            @Nonnull
+            final StatusInitOperation<S> statusInitOperation) {
+        super(host, baseURI, cookieStore, client);
+        this.statusInitOperation = statusInitOperation;
+    }
+
+    /**
+     * Returns the status initialization operation.
+     * 
+     * @return The status initialization operation
+     */
+    protected StatusInitOperation<S> getStatusInitOperation() {
+        return this.statusInitOperation;
     }
 
     /**
@@ -125,7 +167,7 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    public void resetState() {
+    public void resetStatus() {
         setStatus(null);
     }
 

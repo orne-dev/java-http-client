@@ -86,5 +86,5 @@ extends HttpServiceClient {
     /**
      * Resets the client's state.
      */
-    void resetState();
+    void resetStatus();
 }

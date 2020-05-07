@@ -93,6 +93,8 @@ implements HttpServiceClient {
      * 
      * @param host The HTTP service's host
      * @param baseURI The HTTP service's base URI
+     * @param cookieStore The HTTP client's cookie store
+     * @param client The HTTP client
      */
     protected BaseHttpServiceClient(
             @Nonnull

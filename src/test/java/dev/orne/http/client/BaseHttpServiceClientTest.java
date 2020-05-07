@@ -3,9 +3,10 @@ package dev.orne.http.client;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+
+import javax.annotation.Nonnull;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
@@ -44,7 +45,7 @@ public class BaseHttpServiceClientTest {
      */
     @Test
     public void testConstructor()
-    throws IOException {
+    throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";
         final int port = 3654;
@@ -73,22 +74,58 @@ public class BaseHttpServiceClientTest {
     }
 
     /**
+     * Creates an instance from specified URL.
+     * 
+     * @param baseURL The HTTP service's base URL
+     * @return The created instance
+     */
+    protected BaseHttpServiceClient createClientFromUrl(
+            @Nonnull
+            final URL url) {
+        return new BaseHttpServiceClient(url);
+    }
+
+    /**
+     * Creates an instance from specified parts.
+     * 
+     * @param host The HTTP service's host
+     * @param baseURI The HTTP service's base URI
+     * @param cookieStore The HTTP client's cookie store
+     * @param client The HTTP client
+     * @return The created instance
+     */
+    protected BaseHttpServiceClient createClientFromParts(
+            @Nonnull
+            final HttpHost mockHost,
+            @Nonnull
+            final URI mockBaseUri,
+            @Nonnull
+            final CookieStore mockCookieStore,
+            @Nonnull
+            final CloseableHttpClient mockClient) {
+        return new BaseHttpServiceClient(
+                mockHost,
+                mockBaseUri,
+                mockCookieStore,
+                mockClient);
+    }
+
+    /**
      * Test for {@link BaseHttpServiceClient#close()}.
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCloseable()
-    throws IOException {
+    public void testClose()
+    throws Throwable {
         final HttpHost mockHost = new HttpHost("example.org");
         final URI mockBaseUri = URI.create("some/path");
         final CookieStore mockCookieStore = mock(CookieStore.class);
         final CloseableHttpClient mockClient = mock(CloseableHttpClient.class);
-        try (final BaseHttpServiceClient client =
-                new BaseHttpServiceClient(
-                    mockHost,
-                    mockBaseUri,
-                    mockCookieStore,
-                    mockClient)) {
+        try (final BaseHttpServiceClient client = createClientFromParts(
+                mockHost,
+                mockBaseUri,
+                mockCookieStore,
+                mockClient)) {
             then(mockCookieStore).should(times(0)).clear();
             then(mockClient).should(times(0)).close();
         }
@@ -103,16 +140,12 @@ public class BaseHttpServiceClientTest {
     @Test
     public void testExecuteNullParam()
     throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
+        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusIndependentOperation<Object, Object> operation =
                 mock(StatusIndependentOperation.class);
         final Object mockResult = new Object();
-        try (final BaseHttpServiceClient client = new BaseHttpServiceClient(url)) {
+        try (final BaseHttpServiceClient client = createClientFromUrl(url)) {
             given(operation.execute(null, client)).willReturn(mockResult);
             final Object result = client.execute(operation, null);
             assertNotNull(result);
@@ -128,17 +161,13 @@ public class BaseHttpServiceClientTest {
     @Test
     public void testExecute()
     throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
+        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusIndependentOperation<Object, Object> operation =
                 mock(StatusIndependentOperation.class);
         final Object mockParam = new Object();
         final Object mockResult = new Object();
-        try (final BaseHttpServiceClient client = new BaseHttpServiceClient(url)) {
+        try (final BaseHttpServiceClient client = createClientFromUrl(url)) {
             given(operation.execute(mockParam, client)).willReturn(mockResult);
             final Object result = client.execute(operation, mockParam);
             assertNotNull(result);
@@ -154,18 +183,13 @@ public class BaseHttpServiceClientTest {
     @Test
     public void testExecuteFailed()
     throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
+        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusIndependentOperation<Object, Object> operation =
                 mock(StatusIndependentOperation.class);
-        final HttpClientException mockResult =
-                mock(HttpClientException.class);
+        final HttpClientException mockResult = new HttpClientException();
         final Object mockParam = new Object();
-        try (final BaseHttpServiceClient client = new BaseHttpServiceClient(url)) {
+        try (final BaseHttpServiceClient client = createClientFromUrl(url)) {
             given(operation.execute(mockParam, client)).willThrow(mockResult);
             final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
                 client.execute(operation, mockParam);
@@ -183,15 +207,11 @@ public class BaseHttpServiceClientTest {
     @Test
     public void testLogger()
     throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
-        try (final BaseHttpServiceClient client = new BaseHttpServiceClient(url)) {
+        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
+        try (final BaseHttpServiceClient client = createClientFromUrl(url)) {
             final Logger logger = client.getLogger();
             assertNotNull(logger);
-            assertSame(LoggerFactory.getLogger(BaseHttpServiceClient.class), logger);
+            assertSame(LoggerFactory.getLogger(client.getClass()), logger);
         }
     }
 }
