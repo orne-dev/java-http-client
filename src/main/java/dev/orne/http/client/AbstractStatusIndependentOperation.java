@@ -23,7 +23,6 @@ package dev.orne.http.client;
  */
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,17 +47,6 @@ import org.apache.http.client.utils.URIBuilder;
 public abstract class AbstractStatusIndependentOperation<P, E, R>
 extends AbstractHttpServiceOperation<P, E, R>
 implements StatusIndependentOperation<P, R> {
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param operationURI The relative URI of the operation
-     */
-    public AbstractStatusIndependentOperation(
-            @Nonnull
-            final URI operationURI) {
-        super(operationURI);
-    }
 
     /**
      * {@inheritDoc}
@@ -113,15 +101,20 @@ implements StatusIndependentOperation<P, R> {
             @Nonnull
             final HttpServiceClient client)
     throws HttpClientException {
-        final URI absoluteURI = client.getBaseURI().resolve(getRelativeURI());
-        final URIBuilder builder = new URIBuilder(absoluteURI);
-        replacePathVariables(builder, params);
-        try {
-            return builder.build();
-        } catch (final URISyntaxException use) {
-            throw new HttpClientException(use);
-        }
+        return client.getBaseURI().resolve(
+                getRelativeURI(params));
     }
+
+    /**
+     * Returns the relative URI of the operation.
+     * 
+     * @param params The request parameters
+     * @return The relative URI of the operation
+     */
+    @Nonnull
+    protected abstract URI getRelativeURI(
+            @Nullable
+            P params);
 
     /**
      * <p>Replaces the variables of the operation URI with the values for this

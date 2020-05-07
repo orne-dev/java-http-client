@@ -3,7 +3,6 @@
  */
 package dev.orne.http.client;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -28,16 +27,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
  */
 public abstract class AbstractStatusDependentUrlEncodedPutOperation<P, E, R, S>
 extends AbstractStatusDependentPutOperation<P, E, R, S> {
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param operationURI The relative URI of the operation
-     */
-    public AbstractStatusDependentUrlEncodedPutOperation(
-            final URI operationURI) {
-        super(operationURI);
-    }
 
     /**
      * {@inheritDoc}

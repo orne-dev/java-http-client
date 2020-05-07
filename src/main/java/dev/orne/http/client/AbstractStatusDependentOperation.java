@@ -23,7 +23,6 @@ package dev.orne.http.client;
  */
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,17 +48,6 @@ import org.apache.http.client.utils.URIBuilder;
 public abstract class AbstractStatusDependentOperation<P, E, R, S>
 extends AbstractHttpServiceOperation<P, E, R>
 implements StatusDependentOperation<P, R, S> {
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param operationURI The relative URI of the operation
-     */
-    public AbstractStatusDependentOperation(
-            @Nonnull
-            final URI operationURI) {
-        super(operationURI);
-    }
 
     /**
      * {@inheritDoc}
@@ -114,15 +102,23 @@ implements StatusDependentOperation<P, R, S> {
             @Nonnull
             final StatedHttpServiceClient<S> client)
     throws HttpClientException {
-        final URI absoluteURI = client.getBaseURI().resolve(getRelativeURI());
-        final URIBuilder builder = new URIBuilder(absoluteURI);
-        replacePathVariables(builder, params, client.ensureInitialized());
-        try {
-            return builder.build();
-        } catch (final URISyntaxException use) {
-            throw new HttpClientException(use);
-        }
+        return client.getBaseURI().resolve(
+                getRelativeURI(params, client.ensureInitialized()));
     }
+
+    /**
+     * Returns the relative URI of the operation.
+     * 
+     * @param params The request parameters
+     * @param status The client status
+     * @return The relative URI of the operation
+     */
+    @Nonnull
+    protected abstract URI getRelativeURI(
+            @Nullable
+            P params,
+            @Nonnull
+            S status);
 
     /**
      * <p>Replaces the variables of the operation URI with the values for this

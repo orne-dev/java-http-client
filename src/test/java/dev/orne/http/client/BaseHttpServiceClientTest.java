@@ -181,7 +181,7 @@ public class BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testetLogger()
+    public void testLogger()
     throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";

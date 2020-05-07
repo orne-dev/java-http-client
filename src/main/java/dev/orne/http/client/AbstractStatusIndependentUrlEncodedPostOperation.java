@@ -3,7 +3,6 @@
  */
 package dev.orne.http.client;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -27,16 +26,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
  */
 public abstract class AbstractStatusIndependentUrlEncodedPostOperation<P, E, R>
 extends AbstractStatusIndependentPostOperation<P, E, R> {
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param operationURI The relative URI of the operation
-     */
-    public AbstractStatusIndependentUrlEncodedPostOperation(
-            final URI operationURI) {
-        super(operationURI);
-    }
 
     /**
      * {@inheritDoc}

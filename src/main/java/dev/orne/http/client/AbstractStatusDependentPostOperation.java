@@ -3,7 +3,6 @@
  */
 package dev.orne.http.client;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -29,17 +28,6 @@ import org.apache.http.client.utils.URIBuilder;
  */
 public abstract class AbstractStatusDependentPostOperation<P, E, R, S>
 extends AbstractStatusDependentOperation<P, E, R, S> {
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param operationURI The relative URI of the operation
-     */
-    public AbstractStatusDependentPostOperation(
-            @Nonnull
-            final URI operationURI) {
-        super(operationURI);
-    }
 
     /**
      * {@inheritDoc}

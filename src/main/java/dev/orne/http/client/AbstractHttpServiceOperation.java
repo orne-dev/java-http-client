@@ -23,9 +23,6 @@ package dev.orne.http.client;
  */
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,11 +30,10 @@ import javax.annotation.Nullable;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,67 +52,12 @@ public abstract class AbstractHttpServiceOperation<
         E,
         R> {
 
-    /** The relative URI of the operation. */
-    @Nonnull
-    private final URI relativeURI;
     /** The response handler. */
     @Nullable
     private ResponseHandler<E> responseHandler;
     /** The logger for this instance's actual class. */
     @Nullable
     private Logger logger;
-
-    /**
-     * Creates a new instance.
-     * 
-     * @param operationURI The relative URI of the operation
-     */
-    public AbstractHttpServiceOperation(
-            @Nonnull
-            final URI operationURI) {
-        super();
-        if (operationURI == null) {
-            throw new IllegalArgumentException("Parameter 'operationURI' is required.");
-        }
-        this.relativeURI = operationURI;
-    }
-
-    /**
-     * Returns the relative URI of the operation.
-     * 
-     * @return The relative URI of the operation
-     */
-    @Nonnull
-    public URI getRelativeURI() {
-        return this.relativeURI;
-    }
-
-    /**
-     * Replaces in the URI's request path the variable passed as argument
-     * with the value passed as argument. The variable must be in the form
-     * {@code \u007BvarName\u007D} to be replaced.
-     * 
-     * @param builder The URI builder
-     * @param varName The variable name
-     * @param value The variable value
-     */
-    protected void replacePathVariable(
-            @Nonnull
-            final URIBuilder builder,
-            @Nonnull
-            final String varName,
-            @Nonnull
-            final String value) {
-        final List<String> pathSegments = builder.getPathSegments();
-        final List<String> resultPathSegments = new ArrayList<>(
-                pathSegments.size());
-        for (final String pathSegment : pathSegments) {
-            resultPathSegments.add(pathSegment.replaceAll(
-                    "\\{" + varName + "\\}",
-                    value));
-        }
-        builder.setPathSegments(resultPathSegments);
-    }
 
     /**
      * Executes the operation's HTTP request.
@@ -138,20 +79,47 @@ public abstract class AbstractHttpServiceOperation<
             final HttpServiceClient client)
     throws HttpClientException {
         try (final CloseableHttpResponse response = client.getClient().execute(
-                client.getHost(), request)) {
+                client.getHost(),
+                request,
+                getHttpContext(params, client))) {
             return processHttpResponse(params, client, request, response);
-        } catch (final ClientProtocolException cpe) {
-            throw processException(params, client, request, null, cpe);
         } catch (final IOException ioe) {
             throw processException(params, client, request, null, ioe);
         }
     }
 
     /**
+     * Returns the HTTP context to use in the request for the specified
+     * parameters and client. Default implementation returns {@code null}.
+     * 
+     * @param params The operation execution parameters
+     * @param client The HTTP service client to use on execution
+     * @return The HTTP context, or {@code null} to use the default one
+     * @throws HttpClientException If an exception occurs creating the
+     * HTTP context
+     */
+    @Nullable
+    protected HttpContext getHttpContext(
+            @Nullable
+            P params,
+            @Nonnull
+            HttpServiceClient client)
+    throws HttpClientException {
+        return null;
+    }
+
+    /**
+     * Returns the response handler for this operation. Multiple
+     * calls to this method should return the same response handler
+     * instance.
+     * 
      * @return The response handler for this operation
+     * @throws HttpClientException If an exception occurs creating the
+     * response handler
      */
     @Nonnull
-    protected ResponseHandler<E> getResponseHandler() {
+    protected ResponseHandler<E> getResponseHandler()
+    throws HttpClientException {
         synchronized (this) {
             if (this.responseHandler == null) {
                 this.responseHandler = createResponseHandler();
@@ -164,9 +132,12 @@ public abstract class AbstractHttpServiceOperation<
      * Creates a new instance of response handler for this operation.
      * 
      * @return The response handler for this operation
+     * @throws HttpClientException If an exception occurs creating the
+     * response handler
      */
     @Nonnull
-    protected abstract ResponseHandler<E> createResponseHandler();
+    protected abstract ResponseHandler<E> createResponseHandler()
+    throws HttpClientException;
 
     /**
      * Extracts the entity from the server's HTTP response.
@@ -178,6 +149,10 @@ public abstract class AbstractHttpServiceOperation<
      */
     @Nullable
     protected E extractResponseEntity(
+            @Nullable
+            P params,
+            @Nonnull
+            HttpServiceClient client,
             @Nonnull
             HttpRequest request,
             @Nonnull
@@ -186,47 +161,9 @@ public abstract class AbstractHttpServiceOperation<
         try {
             return getResponseHandler().handleResponse(response);
         } catch (final HttpResponseException hre) {
-            return processHttpResponseException(hre, request, response);
-        } catch (final ClientProtocolException cpe) {
-            throw new HttpClientException(
-                    "Client protocol exception while connecting to server.",
-                    cpe);
+            return processHttpResponseException(params, client, request, response, hre);
         } catch (final IOException ioe) {
-            throw new HttpClientException(
-                    "IO error while connecting to server.",
-                    ioe);
-        }
-    }
-
-    /**
-     * Process the HTTP response exception relative to a rejected request.
-     * 
-     * @param hre The HTTP response exception
-     * @param request The HTTP request
-     * @param response The HTTP response
-     * @return The fallback entity
-     * @throws HttpClientException If the rejected HTTP request has no
-     * special meaning and cannot be extracted to a valid entity
-     * @throws AuthenticationRequiredException If the server responded with
-     * an {@code 401 Unauthorized} status code
-     */
-    @Nullable
-    protected E processHttpResponseException(
-            @Nonnull
-            final HttpResponseException hre,
-            @Nonnull
-            final HttpRequest request,
-            @Nonnull
-            final HttpResponse response)
-    throws HttpClientException {
-        if (hre.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-            throw new AuthenticationRequiredException(
-                    "Authentication required",
-                    hre);
-        } else {
-            throw new HttpClientException(
-                    "Rejected HTTP request",
-                    hre);
+            throw processException(params, client, request, response, ioe);
         }
     }
 
@@ -250,14 +187,10 @@ public abstract class AbstractHttpServiceOperation<
             @Nonnull
             HttpRequest request,
             @Nonnull
-            CloseableHttpResponse response)
+            HttpResponse response)
     throws HttpClientException {
-        try {
-            final E responseEntity = extractResponseEntity(request, response);
-            return processHttpResponse(params, client, request, response, responseEntity);
-        } catch (final HttpClientException hce) {
-            throw processException(params, client, request, response, hce);
-        }
+        final E responseEntity = extractResponseEntity(params, client, request, response);
+        return processResponseEntity(params, client, request, response, responseEntity);
     }
 
     /**
@@ -273,7 +206,7 @@ public abstract class AbstractHttpServiceOperation<
      * response
      */
     @Nullable
-    protected abstract R processHttpResponse(
+    protected abstract R processResponseEntity(
             @Nullable
             P params,
             @Nonnull
@@ -317,6 +250,44 @@ public abstract class AbstractHttpServiceOperation<
                     exception);
         }
         return result;
+    }
+
+    /**
+     * Process the HTTP response exception relative to a rejected request.
+     * 
+     * @param params The operation execution parameters
+     * @param client The client the operation tried to execute for
+     * @param request The HTTP request
+     * @param response The HTTP response
+     * @param exception The HTTP response exception
+     * @return The fallback entity
+     * @throws HttpClientException If the rejected HTTP request has no
+     * special meaning and cannot be extracted to a valid entity
+     * @throws AuthenticationRequiredException If the server responded with
+     * an {@code 401 Unauthorized} status code
+     */
+    @Nullable
+    protected E processHttpResponseException(
+            @Nullable
+            P params,
+            @Nonnull
+            HttpServiceClient client,
+            @Nonnull
+            final HttpRequest request,
+            @Nonnull
+            final HttpResponse response,
+            @Nonnull
+            final HttpResponseException exception)
+    throws HttpClientException {
+        if (exception.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+            throw new AuthenticationRequiredException(
+                    "Authentication required",
+                    exception);
+        } else {
+            throw new HttpClientException(
+                    "Rejected HTTP request",
+                    exception);
+        }
     }
 
     /**
