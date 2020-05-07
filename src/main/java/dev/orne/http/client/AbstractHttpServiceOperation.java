@@ -34,6 +34,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.utils.URIBuilder;
@@ -170,14 +171,10 @@ public abstract class AbstractHttpServiceOperation<
     /**
      * Extracts the entity from the server's HTTP response.
      * 
-     * @param request The original HTTP request
+     * @param request The HTTP request
      * @param response The HTTP response
      * @return The response's entity
      * @throws HttpClientException If an error occurs extracting the entity
-     * @throws HttpResponseException If the server responded with an error
-     * status code
-     * @throws HttpAuthenticationRequiredException If the server responded with
-     * an {@code 401 Unauthorized} status code
      */
     @Nullable
     protected E extractResponseEntity(
@@ -188,20 +185,48 @@ public abstract class AbstractHttpServiceOperation<
     throws HttpClientException {
         try {
             return getResponseHandler().handleResponse(response);
-        } catch (final org.apache.http.client.HttpResponseException hre) {
-            if (hre.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-                throw new HttpAuthenticationRequiredException("Authentication required",
-                        hre, request, response);
-            } else {
-                throw new HttpResponseException("Rejected HTTP request",
-                        hre, request, response);
-            }
+        } catch (final HttpResponseException hre) {
+            return processHttpResponseException(hre, request, response);
         } catch (final ClientProtocolException cpe) {
-            throw new HttpResponseException("Client protocol exception while connecting to server.",
-                    cpe, request, response);
+            throw new HttpClientException(
+                    "Client protocol exception while connecting to server.",
+                    cpe);
         } catch (final IOException ioe) {
-            throw new HttpResponseException("IO error while connecting to server.",
-                    ioe, request, response);
+            throw new HttpClientException(
+                    "IO error while connecting to server.",
+                    ioe);
+        }
+    }
+
+    /**
+     * Process the HTTP response exception relative to a rejected request.
+     * 
+     * @param hre The HTTP response exception
+     * @param request The HTTP request
+     * @param response The HTTP response
+     * @return The fallback entity
+     * @throws HttpClientException If the rejected HTTP request has no
+     * special meaning and cannot be extracted to a valid entity
+     * @throws AuthenticationRequiredException If the server responded with
+     * an {@code 401 Unauthorized} status code
+     */
+    @Nullable
+    protected E processHttpResponseException(
+            @Nonnull
+            final HttpResponseException hre,
+            @Nonnull
+            final HttpRequest request,
+            @Nonnull
+            final HttpResponse response)
+    throws HttpClientException {
+        if (hre.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
+            throw new AuthenticationRequiredException(
+                    "Authentication required",
+                    hre);
+        } else {
+            throw new HttpClientException(
+                    "Rejected HTTP request",
+                    hre);
         }
     }
 

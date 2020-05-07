@@ -43,7 +43,7 @@ extends StatusDependentOperation<P, R, S> {
 
     /**
      * {@inheritDoc}
-     * @throws HttpAuthenticationFailedException If the authentication attempt
+     * @throws AuthenticationFailedException If the authentication attempt
      * failed
      */
     @Override

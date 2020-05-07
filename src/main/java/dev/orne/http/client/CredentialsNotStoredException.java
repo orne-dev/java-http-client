@@ -24,18 +24,16 @@ import javax.annotation.Nullable;
  * #L%
  */
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-
 /**
- * HTTP service client error for failed authentication attempts.
+ * HTTP service client error for authentication attempt without credentials
+ * when no credentials were stored by the client.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
  * @since 0.1
  */
-public class HttpAuthenticationFailedException
-extends HttpResponseException {
+public class CredentialsNotStoredException
+extends AuthenticationRequiredException {
 
     /** The Serial Version UID. */
     private static final long serialVersionUID = 1L;
@@ -44,16 +42,9 @@ extends HttpResponseException {
      * Constructs a new exception with {@code null} as its detail message.
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
-     * 
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpAuthenticationFailedException(
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
-        super(request, response);
+    public CredentialsNotStoredException() {
+        super();
     }
 
     /**
@@ -63,17 +54,11 @@ extends HttpResponseException {
      *
      * @param   message   the detail message. The detail message is saved for
      *          later retrieval by the {@link #getMessage()} method.
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpAuthenticationFailedException(
+    public CredentialsNotStoredException(
             @Nullable
-            final String message,
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
-        super(message, request, response);
+            final String message) {
+        super(message);
     }
 
     /**
@@ -88,17 +73,11 @@ extends HttpResponseException {
      *         {@link #getCause()} method).  (A <tt>null</tt> value is
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpAuthenticationFailedException(
+    public CredentialsNotStoredException(
             @Nullable
-            final Throwable cause,
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
-        super(cause, request, response);
+            final Throwable cause) {
+        super(cause);
     }
 
     /**
@@ -113,19 +92,13 @@ extends HttpResponseException {
      *         {@link #getCause()} method).  (A <tt>null</tt> value is
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpAuthenticationFailedException(
+    public CredentialsNotStoredException(
             @Nullable
             final String message,
             @Nullable
-            final Throwable cause,
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
-        super(message, cause, request, response);
+            final Throwable cause) {
+        super(message, cause);
     }
 
     /**
@@ -140,20 +113,14 @@ extends HttpResponseException {
      *                          or disabled
      * @param writableStackTrace whether or not the stack trace should
      *                           be writable
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpAuthenticationFailedException(
+    public CredentialsNotStoredException(
             @Nullable
             final String message,
             @Nullable
             final Throwable cause,
             final boolean enableSuppression,
-            final boolean writableStackTrace,
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
-        super(message, cause, enableSuppression, writableStackTrace, request, response);
+            final boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

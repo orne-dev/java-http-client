@@ -45,7 +45,7 @@ extends StatusDependentOperation<P, R, S> {
 
     /**
      * {@inheritDoc}
-     * @throws HttpAuthenticationRequiredException If client is not
+     * @throws AuthenticationRequiredException If client is not
      * authenticated
      */
     @Override

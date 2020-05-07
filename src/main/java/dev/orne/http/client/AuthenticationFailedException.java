@@ -24,46 +24,26 @@ import javax.annotation.Nullable;
  * #L%
  */
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-
 /**
- * Exception for HTTP service client caused by an unexpected HTTP
- * response.
+ * HTTP service client error for failed authentication attempts.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
  * @since 0.1
  */
-public class HttpResponseException
-extends HttpClientException {
+public class AuthenticationFailedException
+extends AuthenticationException {
 
     /** The Serial Version UID. */
     private static final long serialVersionUID = 1L;
-
-    /** The original HTTP request. */
-    @Nullable
-    private final transient HttpRequest request;
-    /** The offending HTTP response. */
-    @Nullable
-    private final transient HttpResponse response;
 
     /**
      * Constructs a new exception with {@code null} as its detail message.
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
-     * 
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpResponseException(
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
+    public AuthenticationFailedException() {
         super();
-        this.request = request;
-        this.response = response;
     }
 
     /**
@@ -73,19 +53,11 @@ extends HttpClientException {
      *
      * @param   message   the detail message. The detail message is saved for
      *          later retrieval by the {@link #getMessage()} method.
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpResponseException(
+    public AuthenticationFailedException(
             @Nullable
-            final String message,
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
+            final String message) {
         super(message);
-        this.request = request;
-        this.response = response;
     }
 
     /**
@@ -100,19 +72,11 @@ extends HttpClientException {
      *         {@link #getCause()} method).  (A <tt>null</tt> value is
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpResponseException(
+    public AuthenticationFailedException(
             @Nullable
-            final Throwable cause,
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
+            final Throwable cause) {
         super(cause);
-        this.request = request;
-        this.response = response;
     }
 
     /**
@@ -127,21 +91,13 @@ extends HttpClientException {
      *         {@link #getCause()} method).  (A <tt>null</tt> value is
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpResponseException(
+    public AuthenticationFailedException(
             @Nullable
             final String message,
             @Nullable
-            final Throwable cause,
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
+            final Throwable cause) {
         super(message, cause);
-        this.request = request;
-        this.response = response;
     }
 
     /**
@@ -156,42 +112,14 @@ extends HttpClientException {
      *                          or disabled
      * @param writableStackTrace whether or not the stack trace should
      *                           be writable
-     * @param request The original HTTP request
-     * @param response The offending HTTP response
      */
-    public HttpResponseException(
+    public AuthenticationFailedException(
             @Nullable
             final String message,
             @Nullable
             final Throwable cause,
             final boolean enableSuppression,
-            final boolean writableStackTrace,
-            @Nullable
-            final HttpRequest request,
-            @Nullable
-            final HttpResponse response) {
+            final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
-        this.request = request;
-        this.response = response;
-    }
-
-    /**
-     * Returns the original HTTP request.
-     * 
-     * @return The original HTTP request
-     */
-    @Nullable
-    public HttpRequest getRequest() {
-        return this.request;
-    }
-
-    /**
-     * Returns the offending HTTP response.
-     * 
-     * @return The offending HTTP response
-     */
-    @Nullable
-    public HttpResponse getResponse() {
-        return this.response;
     }
 }

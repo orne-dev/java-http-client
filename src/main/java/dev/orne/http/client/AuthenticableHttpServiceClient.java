@@ -106,7 +106,7 @@ extends StatedHttpServiceClient<S> {
      * Authenticates against the HTTP service using the stored credentials.
      * If no credentials
      * 
-     * @throws HttpAuthenticationRequiredException If no credentials have
+     * @throws AuthenticationRequiredException If no credentials have
      * been store with a previous call to {@link #authenticate(Object)}
      * @throws HttpClientException If an error occurs during the authentication
      * process

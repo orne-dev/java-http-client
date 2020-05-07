@@ -121,8 +121,9 @@ implements AuthenticableHttpServiceClient<S, C> {
         }
         try {
             return super.execute(operation, params);
-        } catch (final HttpAuthenticationExpiredException aee) {
-            if (this.authenticationAutoRenewalEnabled && this.storedCredentials != null) {
+        } catch (final AuthenticationExpiredException aee) {
+            if (this.authenticationAutoRenewalEnabled &&
+                    this.storedCredentials != null) {
                 getLogger().debug("Session expired...");
                 authenticate();
                 return super.execute(operation, params);
@@ -158,9 +159,15 @@ implements AuthenticableHttpServiceClient<S, C> {
                 this.storedCredentials = credentials;
             }
             getLogger().debug("Authenticating...");
-            this.authenticationOperation.execute(
-                    credentials,
-                    this);
+            try {
+                this.authenticationOperation.execute(
+                        credentials,
+                        this);
+            } catch (final CredentialsInvalidException cie) {
+                getLogger().debug("Invalid credentials discarded.");
+                this.storedCredentials = null;
+                throw cie;
+            }
             getLogger().debug("Authenticated.");
         }
     }
@@ -174,15 +181,19 @@ implements AuthenticableHttpServiceClient<S, C> {
         synchronized (this) {
             if (this.storedCredentials != null) {
                 getLogger().debug("Authenticating with stored credentials...");
-                this.authenticationOperation.execute(
-                        this.storedCredentials,
-                        this);
+                try {
+                    this.authenticationOperation.execute(
+                            this.storedCredentials,
+                            this);
+                } catch (final CredentialsInvalidException cie) {
+                    getLogger().debug("Invalid credentials discarded.");
+                    this.storedCredentials = null;
+                    throw cie;
+                }
                 getLogger().debug("Authenticated.");
             } else {
-                throw new HttpAuthenticationRequiredException(
-                        "No stored credentials. Call authenticate(credentials) first.",
-                        null,
-                        null);
+                throw new CredentialsNotStoredException(
+                        "No stored credentials. Call authenticate(credentials) first.");
             }
         }
     }
