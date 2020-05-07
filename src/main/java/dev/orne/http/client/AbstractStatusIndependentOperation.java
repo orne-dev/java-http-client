@@ -23,7 +23,7 @@ package dev.orne.http.client;
  */
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
 
 /**
  * Abstract status independent operation for {@code HttpServiceClient}.
@@ -110,42 +109,14 @@ implements StatusIndependentOperation<P, R> {
      * 
      * @param params The request parameters
      * @return The relative URI of the operation
+     * @throws HttpClientException If an error occurs generating the
+     * relative URI
      */
     @Nonnull
     protected abstract URI getRelativeURI(
             @Nullable
-            P params);
-
-    /**
-     * <p>Replaces the variables of the operation URI with the values for this
-     * request, based in the request parameters. Operations with variables in
-     * their URI must override this method to replace variables with the
-     * appropriate values with calls to {@code replacePathVariable()}.</p>
-     * 
-     * <p>For example:</P>
-     * <pre>
-     * {@literal @}Override
-     * protected void replacePathVariables(
-     *         final URIBuilder builder,
-     *         final Params params)
-     * throws HttpClientException {
-     *     replacePathVariable(builder, "myVar", params.getMyVarValue());
-     * }
-     * </pre>
-     * 
-     * @param builder The URI builder
-     * @param params The request params
-     * @throws HttpClientException If an error occurs obtaining the variable
-     * values
-     */
-    protected void replacePathVariables(
-            @Nonnull
-            final URIBuilder builder,
-            @Nullable
-            final P params)
-    throws HttpClientException {
-        // Do nothing by default. Override if needed
-    }
+            P params)
+    throws HttpClientException;
 
     /**
      * Creates the request parameters.
@@ -160,7 +131,7 @@ implements StatusIndependentOperation<P, R> {
             @Nullable
             final P params)
     throws HttpClientException {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     /**
@@ -176,6 +147,6 @@ implements StatusIndependentOperation<P, R> {
             @Nullable
             final P params)
     throws HttpClientException {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 }

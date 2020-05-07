@@ -23,7 +23,7 @@ package dev.orne.http.client;
  */
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
 
 /**
  * Abstract status dependent operation for {@code StatedHttpServiceClient}.
@@ -112,48 +111,16 @@ implements StatusDependentOperation<P, R, S> {
      * @param params The request parameters
      * @param status The client status
      * @return The relative URI of the operation
+     * @throws HttpClientException If an error occurs generating the
+     * relative URI
      */
     @Nonnull
     protected abstract URI getRelativeURI(
             @Nullable
             P params,
             @Nonnull
-            S status);
-
-    /**
-     * <p>Replaces the variables of the operation URI with the values for this
-     * request, based in the request parameters. Operations with variables in
-     * their URI must override this method to replace variables with the
-     * appropriate values with calls to {@code replacePathVariable()}.</p>
-     * 
-     * <p>For example:</P>
-     * <pre>
-     * {@literal @}Override
-     * protected void replacePathVariables(
-     *         final URIBuilder builder,
-     *         final Params params,
-     *         final Status status)
-     * throws HttpClientException {
-     *     replacePathVariable(builder, "myVar", params.getMyVarValue());
-     * }
-     * </pre>
-     * 
-     * @param builder The URI builder
-     * @param params The request parameters
-     * @param status The client status
-     * @throws HttpClientException If an error occurs obtaining the variable
-     * values
-     */
-    protected void replacePathVariables(
-            @Nonnull
-            final URIBuilder builder,
-            @Nullable
-            final P params,
-            @Nonnull
-            final S status)
-    throws HttpClientException {
-        // Do nothing by default. Override if needed
-    }
+            S status)
+    throws HttpClientException;
 
     /**
      * Creates the request parameters.
@@ -171,7 +138,7 @@ implements StatusDependentOperation<P, R, S> {
             @Nonnull
             final S status)
     throws HttpClientException {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     /**
@@ -190,6 +157,6 @@ implements StatusDependentOperation<P, R, S> {
             @Nonnull
             final S status)
     throws HttpClientException {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 }

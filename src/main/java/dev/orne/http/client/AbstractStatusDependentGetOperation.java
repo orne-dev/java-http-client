@@ -41,14 +41,15 @@ extends AbstractStatusDependentOperation<P, E, R, S> {
     throws HttpClientException {
         final URIBuilder uriBuilder = new URIBuilder(
                 getRequestURI(params, client));
-        uriBuilder.addParameters(createParams(params, client.getStatus()));
+        final S status = client.ensureInitialized();
+        uriBuilder.addParameters(createParams(params, status));
         final HttpGet request;
         try {
             request = new HttpGet(uriBuilder.build());
         } catch (final URISyntaxException use) {
             throw new HttpClientException(use);
         }
-        final List<Header> requestHeaders = createHeaders(params, client.getStatus());
+        final List<Header> requestHeaders = createHeaders(params, status);
         for (final Header header : requestHeaders) {
             request.addHeader(header);
         }
