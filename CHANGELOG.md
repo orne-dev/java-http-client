@@ -35,6 +35,7 @@
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentUrlEncodedPostOperation`
 01. :gift: Added class `dev.orne.http.client.AbstractStatusDependentDeleteOperation`
 01. :gift: Added class `dev.orne.http.client.VoidResponseHandler`
-01. :gift: Added class `dev.orne.http.client.XMLResponseHandler`
-01. :gift: Added class `dev.orne.http.client.JSONResponseHandler`
+01. :gift: Added class `dev.orne.http.client.AbstractMimeTypeResponseHandler`
+01. :gift: Added class `dev.orne.http.client.JaxbXMLResponseHandler`
+01. :gift: Added class `dev.orne.http.client.JacksonJSONResponseHandlerTest`
 

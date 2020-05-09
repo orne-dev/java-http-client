@@ -3,8 +3,6 @@ package dev.orne.http.client;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.io.IOException;
-
 import org.apache.http.HttpEntity;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -26,7 +24,7 @@ public class VoidResponseHandlerTest {
      */
     @Test
     public void testHandleEntityNullEntity()
-    throws IOException {
+    throws Throwable {
         final VoidResponseHandler handler = new VoidResponseHandler();
         final Object result = handler.handleEntity(null);
         assertNull(result);
@@ -38,7 +36,7 @@ public class VoidResponseHandlerTest {
      */
     @Test
     public void testHandleEntity()
-    throws IOException {
+    throws Throwable {
         final VoidResponseHandler handler = new VoidResponseHandler();
         final HttpEntity mockEntity = mock(HttpEntity.class);
         final Object result = handler.handleEntity(mockEntity);
