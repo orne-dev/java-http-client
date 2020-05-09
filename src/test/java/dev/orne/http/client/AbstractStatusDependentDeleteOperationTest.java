@@ -13,29 +13,29 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for {@code AbstractStatusDependentGetOperation}.
+ * Unit tests for {@code AbstractStatusDependentDeleteOperation}.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
  * @since 0.1
- * @see AbstractStatusDependentGetOperation
+ * @see AbstractStatusDependentDeleteOperation
  */
 @Tag("ut")
-public class AbstractStatusDependentGetOperationTest
+public class AbstractStatusDependentDeleteOperationTest
 extends AbstractStatusDependentOperationTest {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected AbstractStatusDependentGetOperation<Object, Object, Object, Object> createOperation() {
+    protected AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> createOperation() {
         return new TestStatusIndependentOperation();
     }
 
@@ -44,17 +44,17 @@ extends AbstractStatusDependentOperationTest {
      */
     @Override
     protected HttpRequest createMockHttpRequest() {
-        return mock(HttpGet.class);
+        return mock(HttpDelete.class);
     }
 
     /**
-     * Test for {@link AbstractStatusDependentGetOperation#createRequest(Object, HttpServiceClient)}.
+     * Test for {@link AbstractStatusDependentDeleteOperation#createRequest(Object, HttpServiceClient)}.
      * @throws Throwable Should not happen
      */
     @Test
     public void testCreateRequest()
     throws Throwable {
-        final AbstractStatusDependentGetOperation<Object, Object, Object, Object> operation =
+        final AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> operation =
                 spy(createOperation());
         final Object params = new Object();
         @SuppressWarnings("unchecked")
@@ -70,7 +70,7 @@ extends AbstractStatusDependentOperationTest {
         willReturn(requestUri).given(operation).getRequestURI(params, client);
         willReturn(requestParams).given(operation).createParams(params, mockStatus);
         willReturn(requestHeaders).given(operation).createHeaders(params, mockStatus);
-        final HttpGet result = operation.createRequest(params, client);
+        final HttpDelete result = operation.createRequest(params, client);
         assertNotNull(result);
         assertNotNull(result.getURI());
         assertEquals(expectedUri, result.getURI());
@@ -84,13 +84,13 @@ extends AbstractStatusDependentOperationTest {
     }
 
     /**
-     * Test for {@link AbstractStatusDependentGetOperation#createRequest(Object, HttpServiceClient)}.
+     * Test for {@link AbstractStatusDependentDeleteOperation#createRequest(Object, HttpServiceClient)}.
      * @throws Throwable Should not happen
      */
     @Test
     public void testCreateRequestGetUriFail()
     throws Throwable {
-        final AbstractStatusDependentGetOperation<Object, Object, Object, Object> operation =
+        final AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> operation =
                 spy(createOperation());
         final Object params = new Object();
         @SuppressWarnings("unchecked")
@@ -114,13 +114,13 @@ extends AbstractStatusDependentOperationTest {
     }
 
     /**
-     * Test for {@link AbstractStatusDependentGetOperation#createRequest(Object, HttpServiceClient)}.
+     * Test for {@link AbstractStatusDependentDeleteOperation#createRequest(Object, HttpServiceClient)}.
      * @throws Throwable Should not happen
      */
     @Test
     public void testCreateRequestGetParamsFail()
     throws Throwable {
-        final AbstractStatusDependentGetOperation<Object, Object, Object, Object> operation =
+        final AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> operation =
                 spy(createOperation());
         final Object params = new Object();
         @SuppressWarnings("unchecked")
@@ -143,13 +143,13 @@ extends AbstractStatusDependentOperationTest {
     }
 
     /**
-     * Test for {@link AbstractStatusDependentGetOperation#createRequest(Object, HttpServiceClient)}.
+     * Test for {@link AbstractStatusDependentDeleteOperation#createRequest(Object, HttpServiceClient)}.
      * @throws Throwable Should not happen
      */
     @Test
     public void testCreateRequestGetHeadersFail()
     throws Throwable {
-        final AbstractStatusDependentGetOperation<Object, Object, Object, Object> operation =
+        final AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> operation =
                 spy(createOperation());
         final Object params = new Object();
         @SuppressWarnings("unchecked")
@@ -172,11 +172,11 @@ extends AbstractStatusDependentOperationTest {
     }
 
     /**
-     * Mock implementation of {@code AbstractStatusDependentGetOperation}
+     * Mock implementation of {@code AbstractStatusDependentDeleteOperation}
      * for testing.
      */
     private static class TestStatusIndependentOperation
-    extends AbstractStatusDependentGetOperation<Object, Object, Object, Object> {
+    extends AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> {
 
         /**
          * Mock implementation.

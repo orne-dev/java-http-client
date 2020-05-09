@@ -170,6 +170,17 @@ extends AbstractStatusIndependentOperationTest {
          * {@inheritDoc}
          */
         @Override
+        protected URI getRelativeURI(
+                final Object params)
+        throws HttpClientException {
+            return null;
+        }
+
+        /**
+         * Mock implementation.
+         * {@inheritDoc}
+         */
+        @Override
         protected ResponseHandler<Object> createResponseHandler()
         throws HttpClientException {
             return null;
@@ -186,17 +197,6 @@ extends AbstractStatusIndependentOperationTest {
                 final HttpRequest request,
                 final HttpResponse response,
                 final Object responseEntity)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected URI getRelativeURI(
-                final Object params)
         throws HttpClientException {
             return null;
         }

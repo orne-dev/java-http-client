@@ -10,7 +10,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.utils.URIBuilder;
 
@@ -56,21 +55,4 @@ extends AbstractStatusDependentOperation<P, E, R, S> {
         }
         return request;
     }
-
-    /**
-     * Creates the HTTP request entity.
-     * 
-     * @param params The operation execution parameters
-     * @param status The client status
-     * @return The generated HTTP entity
-     * @throws HttpClientException If an exception occurs generating the
-     * entity
-     */
-    @Nullable
-    protected abstract HttpEntity createEntity(
-            @Nullable
-            P params,
-            @Nonnull
-            S status)
-    throws HttpClientException;
 }

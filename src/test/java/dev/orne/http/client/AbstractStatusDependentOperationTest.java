@@ -243,22 +243,9 @@ extends AbstractHttpServiceOperationTest {
          * {@inheritDoc}
          */
         @Override
-        protected ResponseHandler<Object> createResponseHandler()
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object processResponseEntity(
+        protected URI getRelativeURI(
                 final Object params,
-                final HttpServiceClient client,
-                final HttpRequest request,
-                final HttpResponse response,
-                final Object responseEntity)
+                final Object status)
         throws HttpClientException {
             return null;
         }
@@ -280,9 +267,22 @@ extends AbstractHttpServiceOperationTest {
          * {@inheritDoc}
          */
         @Override
-        protected URI getRelativeURI(
+        protected ResponseHandler<Object> createResponseHandler()
+        throws HttpClientException {
+            return null;
+        }
+
+        /**
+         * Mock implementation.
+         * {@inheritDoc}
+         */
+        @Override
+        protected Object processResponseEntity(
                 final Object params,
-                final Object status)
+                final HttpServiceClient client,
+                final HttpRequest request,
+                final HttpResponse response,
+                final Object responseEntity)
         throws HttpClientException {
             return null;
         }
