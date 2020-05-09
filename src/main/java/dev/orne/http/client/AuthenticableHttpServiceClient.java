@@ -80,12 +80,11 @@ extends StatedHttpServiceClient<S> {
      * call to {@link #authenticate(Object)} tries to authenticate with stored
      * credentials.
      * 
-     * @return If the client is authenticated
      * @throws HttpClientException If an error occurs during the authentication
      * process
      */
     @Nonnull
-    boolean ensureAuthenticated()
+    void ensureAuthenticated()
     throws HttpClientException;
 
     /**

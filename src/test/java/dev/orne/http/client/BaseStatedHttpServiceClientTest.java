@@ -60,7 +60,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullOp()
+    public void testConstructorNullInitOp()
     throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";
@@ -116,7 +116,7 @@ extends BaseHttpServiceClientTest {
      * {@inheritDoc}
      */
     @Override
-    protected BaseHttpServiceClient createClientFromUrl(
+    protected BaseStatedHttpServiceClient<? extends Object> createClientFromUrl(
             @Nonnull
             final URL url) {
         @SuppressWarnings("unchecked")
@@ -127,12 +127,12 @@ extends BaseHttpServiceClientTest {
     /**
      * {@inheritDoc}
      */
-    protected BaseStatedHttpServiceClient<Object> createClientFromUrlAndInitOp(
+    protected <T extends Object> BaseStatedHttpServiceClient<T> createClientFromUrlAndInitOp(
             @Nonnull
             final URL url,
             @Nonnull
-            final StatusInitOperation<Object> mockInitOp) {
-        return new BaseStatedHttpServiceClient<Object>(url, mockInitOp);
+            final StatusInitOperation<T> mockInitOp) {
+        return new BaseStatedHttpServiceClient<T>(url, mockInitOp);
     }
 
     /**
@@ -156,6 +156,15 @@ extends BaseHttpServiceClientTest {
                 mockCookieStore,
                 mockClient,
                 mockInitOp);
+    }
+
+    /**
+     * Creates a mock status for testing.
+     * 
+     * @return The created mock status
+     */
+    protected Object createMockStatus() {
+        return mock(Object.class);
     }
 
     /**
@@ -200,12 +209,12 @@ extends BaseHttpServiceClientTest {
         @SuppressWarnings("unchecked")
         final StatusDependentOperation<Object, Object, Object> operation =
                 mock(StatusDependentOperation.class);
-        final Object mockState = new Object();
+        final Object mockStatus = createMockStatus();
         final Object mockResult = new Object();
         try (final BaseStatedHttpServiceClient<Object> client =
                 createClientFromUrlAndInitOp(url, mockInitOp)) {
             final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(mockState).given(clientSpy).ensureInitialized();
+            willReturn(mockStatus).given(clientSpy).ensureInitialized();
             given(operation.execute(null, clientSpy)).willReturn(mockResult);
             final Object result = clientSpy.execute(operation, null);
             assertNotNull(result);
@@ -231,12 +240,12 @@ extends BaseHttpServiceClientTest {
         final StatusDependentOperation<Object, Object, Object> operation =
                 mock(StatusDependentOperation.class);
         final Object mockParam = new Object();
-        final Object mockState = new Object();
+        final Object mockStatus = createMockStatus();
         final Object mockResult = new Object();
         try (final BaseStatedHttpServiceClient<Object> client =
                 createClientFromUrlAndInitOp(url, mockInitOp)) {
             final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(mockState).given(clientSpy).ensureInitialized();
+            willReturn(mockStatus).given(clientSpy).ensureInitialized();
             given(operation.execute(mockParam, clientSpy)).willReturn(mockResult);
             final Object result = clientSpy.execute(operation, mockParam);
             assertNotNull(result);
@@ -263,11 +272,11 @@ extends BaseHttpServiceClientTest {
                 mock(StatusDependentOperation.class);
         final HttpClientException mockResult = new HttpClientException();
         final Object mockParam = new Object();
-        final Object mockState = new Object();
+        final Object mockStatus = createMockStatus();
         try (final BaseStatedHttpServiceClient<Object> client =
                 createClientFromUrlAndInitOp(url, mockInitOp)) {
             final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(mockState).given(clientSpy).ensureInitialized();
+            willReturn(mockStatus).given(clientSpy).ensureInitialized();
             given(operation.execute(mockParam, clientSpy)).willThrow(mockResult);
             final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
                 clientSpy.execute(operation, mockParam);
@@ -291,11 +300,11 @@ extends BaseHttpServiceClientTest {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockState = new Object();
+        final Object mockStatus = createMockStatus();
         try (final BaseStatedHttpServiceClient<Object> client =
                 createClientFromUrlAndInitOp(url, mockInitOp)) {
-            client.setStatus(mockState);
-            assertSame(mockState, client.getStatus());
+            client.setStatus(mockStatus);
+            assertSame(mockStatus, client.getStatus());
             then(mockInitOp).shouldHaveNoInteractions();
         }
     }
@@ -310,10 +319,10 @@ extends BaseHttpServiceClientTest {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockState = new Object();
+        final Object mockStatus = createMockStatus();
         try (final BaseStatedHttpServiceClient<Object> client =
                 createClientFromUrlAndInitOp(url, mockInitOp)) {
-            client.setStatus(mockState);
+            client.setStatus(mockStatus);
             client.resetStatus();
             assertNull(client.getStatus());
             then(mockInitOp).shouldHaveNoInteractions();
@@ -330,14 +339,14 @@ extends BaseHttpServiceClientTest {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockState = new Object();
+        final Object mockStatus = createMockStatus();
         try (final BaseStatedHttpServiceClient<Object> client =
                 createClientFromUrlAndInitOp(url, mockInitOp)) {
-            given(mockInitOp.execute(any(), same(client))).willReturn(mockState);
+            given(mockInitOp.execute(any(), same(client))).willReturn(mockStatus);
             final Object result = client.initializeStatus();
             assertNotNull(result);
-            assertSame(mockState, result);
-            assertSame(mockState, client.getStatus());
+            assertSame(mockStatus, result);
+            assertSame(mockStatus, client.getStatus());
             then(mockInitOp).should(times(1)).execute(any(), same(client));
         }
     }
@@ -352,15 +361,15 @@ extends BaseHttpServiceClientTest {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockState = new Object();
+        final Object mockStatus = createMockStatus();
         try (final BaseStatedHttpServiceClient<Object> client =
                 createClientFromUrlAndInitOp(url, mockInitOp)) {
             final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
             willReturn(null).given(clientSpy).getStatus();
-            willReturn(mockState).given(clientSpy).initializeStatus();
+            willReturn(mockStatus).given(clientSpy).initializeStatus();
             final Object result = clientSpy.ensureInitialized();
             assertNotNull(result);
-            assertSame(mockState, result);
+            assertSame(mockStatus, result);
             final InOrder callOrder = inOrder(clientSpy);
             callOrder.verify(clientSpy, times(1)).getStatus();
             callOrder.verify(clientSpy, times(1)).initializeStatus();
@@ -377,14 +386,14 @@ extends BaseHttpServiceClientTest {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockState = new Object();
+        final Object mockStatus = createMockStatus();
         try (final BaseStatedHttpServiceClient<Object> client =
                 createClientFromUrlAndInitOp(url, mockInitOp)) {
             final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(mockState).given(clientSpy).getStatus();
+            willReturn(mockStatus).given(clientSpy).getStatus();
             final Object result = clientSpy.ensureInitialized();
             assertNotNull(result);
-            assertSame(mockState, result);
+            assertSame(mockStatus, result);
             then(clientSpy).should(times(1)).getStatus();
             then(clientSpy).should(never()).initializeStatus();
         }

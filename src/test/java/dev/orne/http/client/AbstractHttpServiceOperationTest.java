@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -40,6 +41,63 @@ public class AbstractHttpServiceOperationTest {
      */
     protected AbstractHttpServiceOperation<Object, Object, Object> createOperation() {
         return new TestHttpServiceOperation();
+    }
+
+    /**
+     * Test for {@link AbstractHttpServiceOperation#resolveRequestURI(URI, HttpServiceClient)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    public void testResolveRequestURI()
+    throws Throwable {
+        final AbstractHttpServiceOperation<Object, Object, Object> operation =
+                createOperation();
+        final URI requestURI = URI.create("op/path?q=test#frag");
+        final URI clientBaseURI = URI.create("http://example.org/base/path/");
+        final URI expectedURI = URI.create("http://example.org/base/path/op/path?q=test#frag");
+        final HttpServiceClient client = mock(HttpServiceClient.class);
+        given(client.getBaseURI()).willReturn(clientBaseURI);
+        final URI result = operation.resolveRequestURI(requestURI, client);
+        assertNotNull(result);
+        assertEquals(expectedURI, result);
+    }
+
+    /**
+     * Test for {@link AbstractHttpServiceOperation#resolveRequestURI(URI, HttpServiceClient)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    public void testResolveRequestURIAbsolute()
+    throws Throwable {
+        final AbstractHttpServiceOperation<Object, Object, Object> operation =
+                createOperation();
+        final URI requestURI = URI.create("/op/path?q=test#frag");
+        final URI clientBaseURI = URI.create("http://example.org/base/path");
+        final URI expectedURI = URI.create("http://example.org/op/path?q=test#frag");
+        final HttpServiceClient client = mock(HttpServiceClient.class);
+        given(client.getBaseURI()).willReturn(clientBaseURI);
+        final URI result = operation.resolveRequestURI(requestURI, client);
+        assertNotNull(result);
+        assertEquals(expectedURI, result);
+    }
+
+    /**
+     * Test for {@link AbstractHttpServiceOperation#resolveRequestURI(URI, HttpServiceClient)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    public void testResolveRequestURIAbsoluteHost()
+    throws Throwable {
+        final AbstractHttpServiceOperation<Object, Object, Object> operation =
+                createOperation();
+        final URI requestURI = URI.create("http://other.example.org/op/path?q=test#frag");
+        final URI clientBaseURI = URI.create("http://example.org/base/path");
+        final URI expectedURI = URI.create("http://other.example.org/op/path?q=test#frag");
+        final HttpServiceClient client = mock(HttpServiceClient.class);
+        given(client.getBaseURI()).willReturn(clientBaseURI);
+        final URI result = operation.resolveRequestURI(requestURI, client);
+        assertNotNull(result);
+        assertEquals(expectedURI, result);
     }
 
     /**

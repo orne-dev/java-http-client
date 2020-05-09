@@ -3,16 +3,13 @@
  */
 package dev.orne.http.client;
 
-import java.net.URISyntaxException;
-import java.util.List;
+import java.net.URI;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
 
 /**
  * Abstract status independent operation for {@code HttpServiceClient} based on
@@ -34,24 +31,12 @@ extends AbstractStatusIndependentOperation<P, E, R> {
     @Override
     @Nonnull
     protected HttpPost createRequest(
-            @Nullable
-            final P params,
             @Nonnull
-            final HttpServiceClient client)
+            final URI requestURI,
+            @Nullable
+            final P params)
     throws HttpClientException {
-        final URIBuilder uriBuilder = new URIBuilder(
-                getRequestURI(params, client));
-        uriBuilder.addParameters(createParams(params));
-        final HttpPost request;
-        try {
-            request = new HttpPost(uriBuilder.build());
-        } catch (final URISyntaxException use) {
-            throw new HttpClientException(use);
-        }
-        final List<Header> requestHeaders = createHeaders(params);
-        for (final Header header : requestHeaders) {
-            request.addHeader(header);
-        }
+        final HttpPost request = new HttpPost(requestURI);
         request.setEntity(createEntity(params));
         return request;
     }

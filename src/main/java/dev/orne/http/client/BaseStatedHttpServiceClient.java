@@ -110,7 +110,7 @@ implements StatedHttpServiceClient<S> {
     @Nullable
     public <P, R> R execute(
             @Nonnull
-            final StatusDependentOperation<P, R, S> operation,
+            final StatusDependentOperation<P, R, ? super S> operation,
             @Nullable
             final P params)
     throws HttpClientException {
@@ -123,15 +123,13 @@ implements StatedHttpServiceClient<S> {
      */
     @Override
     @Nonnull
-    public S ensureInitialized()
+    public synchronized S ensureInitialized()
     throws HttpClientException {
-        synchronized (this) {
-            S result = getStatus();
-            if (result == null) {
-                result = initializeStatus();
-            }
-            return result;
+        S result = getStatus();
+        if (result == null) {
+            result = initializeStatus();
         }
+        return result;
     }
 
     /**
@@ -139,17 +137,15 @@ implements StatedHttpServiceClient<S> {
      */
     @Override
     @Nonnull
-    public S initializeStatus()
+    public synchronized S initializeStatus()
     throws HttpClientException {
-        synchronized (this) {
-            getLogger().debug("Initializing client status...");
-            final S newState = this.statusInitOperation.execute(
-                    null,
-                    this);
-            this.status = newState;
-            getLogger().debug("Client status initialized.");
-            return newState;
-        }
+        getLogger().debug("Initializing client status...");
+        final S newState = this.statusInitOperation.execute(
+                null,
+                this);
+        this.status = newState;
+        getLogger().debug("Client status initialized.");
+        return newState;
     }
 
     /**
@@ -157,17 +153,15 @@ implements StatedHttpServiceClient<S> {
      */
     @Override
     @Nullable
-    public S getStatus() {
-        synchronized (this) {
-            return this.status;
-        }
+    public synchronized S getStatus() {
+        return this.status;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void resetStatus() {
+    public synchronized void resetStatus() {
         setStatus(null);
     }
 
@@ -177,11 +171,9 @@ implements StatedHttpServiceClient<S> {
      * 
      * @param status The client's status
      */
-    public void setStatus(
+    public synchronized void setStatus(
             @Nullable
             final S status) {
-        synchronized (this) {
-            this.status = status;
-        }
+        this.status = status;
     }
 }

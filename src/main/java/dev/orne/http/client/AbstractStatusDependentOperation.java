@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
-import org.apache.http.NameValuePair;
 
 /**
  * Abstract status dependent operation for {@code StatedHttpServiceClient}.
@@ -57,9 +56,20 @@ implements StatusDependentOperation<P, R, S> {
             @Nullable
             final P params,
             @Nonnull
-            final StatedHttpServiceClient<S> client)
+            final StatedHttpServiceClient<? extends S> client)
     throws HttpClientException {
-        final HttpRequest request = createRequest(params, client);
+        final S status = client.ensureInitialized();
+        final URI requestURI = resolveRequestURI(
+                getRequestURI(params, status),
+                client);
+        final HttpRequest request = createRequest(
+                requestURI,
+                params,
+                status);
+        final List<Header> requestHeaders = createHeaders(params, status);
+        for (final Header header : requestHeaders) {
+            request.addHeader(header);
+        }
         return executeHttpRequest(params, request, client);
     }
 
@@ -67,79 +77,38 @@ implements StatusDependentOperation<P, R, S> {
      * Creates the HTTP request for the execution.
      * 
      * @param params The operation execution parameters
-     * @param client The client to execute the operation for
+     * @param status The client status
      * @return The HTTP request to perform
      * @throws HttpClientException If an exception occurs generating the
      * request
      */
     @Nonnull
     protected abstract HttpRequest createRequest(
+            @Nonnull
+            final URI requestURI,
             @Nullable
             final P params,
-            @Nonnull
-            final StatedHttpServiceClient<S> client)
-    throws HttpClientException;
-
-    /**
-     * Returns the URI for this request based on the operation URI.
-     * The default implementation returns the operation URI unchanged.
-     * If the URI contains template parameters in the form of
-     * {@code \u007BvarName\u007D} calls to
-     * {@code replacePathVariable(builder, varName, value)}
-     * in an overridden version of {@code replacePathVariables()}.
-     * 
-     * @param params The request parameters
-     * @param client The client to execute the operation for
-     * @return The request final URI
-     * @throws HttpClientException If an error occurs generating the
-     * request URI
-     */
-    @Nonnull
-    protected URI getRequestURI(
-            @Nullable
-            final P params,
-            @Nonnull
-            final StatedHttpServiceClient<S> client)
-    throws HttpClientException {
-        return client.getBaseURI().resolve(
-                getRelativeURI(params, client.ensureInitialized()));
-    }
-
-    /**
-     * Returns the relative URI of the operation.
-     * 
-     * @param params The request parameters
-     * @param status The client status
-     * @return The relative URI of the operation
-     * @throws HttpClientException If an error occurs generating the
-     * relative URI
-     */
-    @Nonnull
-    protected abstract URI getRelativeURI(
-            @Nullable
-            P params,
             @Nonnull
             S status)
     throws HttpClientException;
 
     /**
-     * Creates the request parameters.
+     * Returns the operation execution  request URI. The URI should be
+     * relative to client's base URI.
      * 
-     * @param params The operation execution parameters
+     * @param params The request parameters
      * @param status The client status
-     * @return The request parameters
-     * @throws HttpClientException If an exception occurs generating the
-     * parameters
+     * @return The relative URI of the operation execution request
+     * @throws HttpClientException If an error occurs generating the
+     * relative URI
      */
     @Nonnull
-    protected List<NameValuePair> createParams(
+    protected abstract URI getRequestURI(
             @Nullable
-            final P params,
+            P params,
             @Nonnull
-            final S status)
-    throws HttpClientException {
-        return Collections.emptyList();
-    }
+            S status)
+    throws HttpClientException;
 
     /**
      * Creates the request headers.

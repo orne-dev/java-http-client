@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
-import org.apache.http.NameValuePair;
 
 /**
  * Abstract status independent operation for {@code HttpServiceClient}.
@@ -58,7 +57,16 @@ implements StatusIndependentOperation<P, R> {
             @Nonnull
             final HttpServiceClient client)
     throws HttpClientException {
-        final HttpRequest request = createRequest(params, client);
+        final URI requestURI = resolveRequestURI(
+                getRequestURI(params),
+                client);
+        final HttpRequest request = createRequest(
+                requestURI,
+                params);
+        final List<Header> requestHeaders = createHeaders(params);
+        for (final Header header : requestHeaders) {
+            request.addHeader(header);
+        }
         return executeHttpRequest(params, request, client);
     }
 
@@ -66,73 +74,32 @@ implements StatusIndependentOperation<P, R> {
      * Creates the HTTP request for the execution.
      * 
      * @param params The operation execution parameters
-     * @param client The client to execute the operation for
      * @return The HTTP request to perform
      * @throws HttpClientException If an exception occurs generating the
      * request
      */
     @Nonnull
     protected abstract HttpRequest createRequest(
-            @Nullable
-            final P params,
             @Nonnull
-            final HttpServiceClient client)
+            final URI requestURI,
+            @Nullable
+            final P params)
     throws HttpClientException;
 
     /**
-     * Returns the URI for this request based on the operation URI.
-     * The default implementation returns the operation URI unchanged.
-     * If the URI contains template parameters in the form of
-     * {@code \u007BvarName\u007D} calls to
-     * {@code replacePathVariable(builder, varName, value)}
-     * in an overridden version of {@code replacePathVariables()}.
+     * Returns the operation execution  request URI. The URI should be
+     * relative to client's base URI.
      * 
      * @param params The request parameters
-     * @param client The client to execute the operation for
-     * @return The request final URI
-     * @throws HttpClientException If an error occurs generating the
-     * request URI
-     */
-    @Nonnull
-    protected URI getRequestURI(
-            @Nullable
-            final P params,
-            @Nonnull
-            final HttpServiceClient client)
-    throws HttpClientException {
-        return client.getBaseURI().resolve(
-                getRelativeURI(params));
-    }
-
-    /**
-     * Returns the relative URI of the operation.
-     * 
-     * @param params The request parameters
-     * @return The relative URI of the operation
+     * @return The relative URI of the operation execution request
      * @throws HttpClientException If an error occurs generating the
      * relative URI
      */
     @Nonnull
-    protected abstract URI getRelativeURI(
+    protected abstract URI getRequestURI(
             @Nullable
             P params)
     throws HttpClientException;
-
-    /**
-     * Creates the request parameters.
-     * 
-     * @param params The operation execution parameters
-     * @return The request parameters
-     * @throws HttpClientException If an exception occurs generating the
-     * parameters
-     */
-    @Nonnull
-    protected List<NameValuePair> createParams(
-            @Nullable
-            final P params)
-    throws HttpClientException {
-        return Collections.emptyList();
-    }
 
     /**
      * Creates the request headers.

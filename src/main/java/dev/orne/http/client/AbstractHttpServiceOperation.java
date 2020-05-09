@@ -23,6 +23,7 @@ package dev.orne.http.client;
  */
 
 import java.io.IOException;
+import java.net.URI;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -58,6 +59,25 @@ public abstract class AbstractHttpServiceOperation<
     /** The logger for this instance's actual class. */
     @Nullable
     private Logger logger;
+
+    /**
+     * Returns the operation execution request URI against client's base URI.
+     * 
+     * @param requestURI The operation execution request URI
+     * @param client The client to execute the operation for
+     * @return The operation execution request absolute URI
+     * @throws HttpClientException If an error occurs generating the
+     * execution request URI
+     */
+    @Nonnull
+    protected URI resolveRequestURI(
+            @Nonnull
+            final URI requestURI,
+            @Nonnull
+            final HttpServiceClient client)
+    throws HttpClientException {
+        return client.getBaseURI().resolve(requestURI);
+    }
 
     /**
      * Executes the operation's HTTP request.

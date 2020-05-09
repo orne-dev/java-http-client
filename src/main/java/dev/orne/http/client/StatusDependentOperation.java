@@ -51,6 +51,6 @@ public interface StatusDependentOperation<P, R, S> {
             @Nullable
             P params,
             @Nonnull
-            StatedHttpServiceClient<S> client)
+            StatedHttpServiceClient<? extends S> client)
     throws HttpClientException;
 }

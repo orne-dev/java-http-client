@@ -70,7 +70,7 @@ extends HttpServiceClient {
     @Nullable
     public <P, R> R execute(
             @Nonnull
-            final StatusDependentOperation<P, R, S> operation,
+            final StatusDependentOperation<P, R, ? super S> operation,
             @Nullable
             final P params)
     throws HttpClientException;

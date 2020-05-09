@@ -1,5 +1,7 @@
 package dev.orne.http.client;
 
+import java.net.URI;
+
 /*-
  * #%L
  * Orne HTTP Client
@@ -27,6 +29,10 @@ import java.net.URL;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.http.HttpHost;
+import org.apache.http.client.CookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+
 /**
  * Base HTTP service client able to authenticate against
  * the HTTP service.
@@ -47,7 +53,7 @@ implements AuthenticableHttpServiceClient<S, C> {
     private final AuthenticationOperation<C, ?, S> authenticationOperation;
     /** If credentials should be stored. */
     private boolean credentialsStoringEnabled;
-    /** Stored credentials. */
+    /** The stored credentials. */
     @Nullable
     private C storedCredentials;
     /** If expired authentications should be renewed automatically. */
@@ -68,7 +74,66 @@ implements AuthenticableHttpServiceClient<S, C> {
             @Nonnull
             AuthenticationOperation<C, ?, S> authenticationOperation) {
         super(baseURL, statusInitOperation);
+        if (authenticationOperation == null) {
+            throw new IllegalArgumentException("Parameter 'authenticationOperation' is required.");
+        }
         this.authenticationOperation = authenticationOperation;
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param host The HTTP service's host
+     * @param baseURI The HTTP service's base URI
+     * @param cookieStore The HTTP client's cookie store
+     * @param client The HTTP client
+     * @param statusInitOperation The status initialization operation
+     * @param authenticationOperation The authentication operation
+     */
+    protected BaseAuthenticableHttpServiceClient(
+            @Nonnull
+            final HttpHost host,
+            @Nonnull
+            final URI baseURI,
+            @Nonnull
+            final CookieStore cookieStore,
+            @Nonnull
+            final CloseableHttpClient client,
+            @Nonnull
+            final StatusInitOperation<S> statusInitOperation,
+            @Nonnull
+            AuthenticationOperation<C, ?, S> authenticationOperation) {
+        super(host, baseURI, cookieStore, client, statusInitOperation);
+        this.authenticationOperation = authenticationOperation;
+    }
+
+    /**
+     * Returns the authentication operation.
+     * 
+     * @return The authentication operation
+     */
+    protected AuthenticationOperation<C, ?, S> getAuthenticationOperation() {
+        return this.authenticationOperation;
+    }
+
+    /**
+     * Returns {@code true} if any credentials are stored.
+     * 
+     * @return If stored credentials exists
+     */
+    protected final synchronized boolean hasStoredCredentials() {
+        return this.storedCredentials != null;
+    }
+
+    /**
+     * Stores the specified credentials for later usage in
+     * {@link #authenticate()} calls.
+     * 
+     * @param credentials The credentials to store
+     */
+    protected final synchronized void setStoredCredentials(
+            final C credentials) {
+        this.storedCredentials = credentials;
     }
 
     /**
@@ -109,10 +174,59 @@ implements AuthenticableHttpServiceClient<S, C> {
      * {@inheritDoc}
      */
     @Override
+    public synchronized void authenticate()
+    throws HttpClientException {
+        if (this.storedCredentials != null) {
+            getLogger().debug("Authenticating with stored credentials...");
+            try {
+                super.execute(this.authenticationOperation, this.storedCredentials);
+            } catch (final CredentialsInvalidException cie) {
+                getLogger().debug("Invalid credentials discarded.");
+                this.storedCredentials = null;
+                throw cie;
+            }
+            getLogger().debug("Authenticated.");
+        } else {
+            throw new CredentialsNotStoredException(
+                    "No stored credentials. Call authenticate(credentials) first.");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void authenticate(
+            @Nonnull
+            final C credentials)
+    throws HttpClientException {
+        getLogger().debug("Authenticating...");
+        super.execute(this.authenticationOperation, credentials);
+        getLogger().debug("Authenticated.");
+        if (this.credentialsStoringEnabled) {
+            getLogger().debug("Storing credentials...");
+            this.storedCredentials = credentials;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void ensureAuthenticated()
+    throws HttpClientException {
+        if (!ensureInitialized().isAuthenticated()) {
+            authenticate();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @Nullable
     public <P, R> R execute(
             @Nonnull
-            final StatusDependentOperation<P, R, S> operation,
+            final StatusDependentOperation<P, R, ? super S> operation,
             @Nullable
             final P params)
     throws HttpClientException {
@@ -122,6 +236,7 @@ implements AuthenticableHttpServiceClient<S, C> {
         try {
             return super.execute(operation, params);
         } catch (final AuthenticationExpiredException aee) {
+            ensureInitialized().resetAuthentication();
             if (this.authenticationAutoRenewalEnabled &&
                     this.storedCredentials != null) {
                 getLogger().debug("Session expired...");
@@ -129,72 +244,6 @@ implements AuthenticableHttpServiceClient<S, C> {
                 return super.execute(operation, params);
             }
             throw aee;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean ensureAuthenticated()
-    throws HttpClientException {
-        synchronized (this) {
-            if (!getStatus().isAuthenticated()) {
-                authenticate();
-            }
-            return getStatus().isAuthenticated();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void authenticate(
-            @Nonnull
-            final C credentials)
-    throws HttpClientException {
-        synchronized (this) {
-            if (this.credentialsStoringEnabled) {
-                getLogger().debug("Storing credentials...");
-                this.storedCredentials = credentials;
-            }
-            getLogger().debug("Authenticating...");
-            try {
-                this.authenticationOperation.execute(
-                        credentials,
-                        this);
-            } catch (final CredentialsInvalidException cie) {
-                getLogger().debug("Invalid credentials discarded.");
-                this.storedCredentials = null;
-                throw cie;
-            }
-            getLogger().debug("Authenticated.");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void authenticate()
-    throws HttpClientException {
-        synchronized (this) {
-            if (this.storedCredentials != null) {
-                getLogger().debug("Authenticating with stored credentials...");
-                try {
-                    this.authenticationOperation.execute(
-                            this.storedCredentials,
-                            this);
-                } catch (final CredentialsInvalidException cie) {
-                    getLogger().debug("Invalid credentials discarded.");
-                    this.storedCredentials = null;
-                    throw cie;
-                }
-                getLogger().debug("Authenticated.");
-            } else {
-                throw new CredentialsNotStoredException(
-                        "No stored credentials. Call authenticate(credentials) first.");
-            }
         }
     }
 }

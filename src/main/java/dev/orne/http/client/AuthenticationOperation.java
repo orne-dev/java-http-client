@@ -29,7 +29,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Operation for {@code HttpServiceClient} that authenticates on HTTP service.
+ * <p>Operation for {@code HttpServiceClient} that authenticates on HTTP
+ * service.</p>
+ * 
+ * <p>Operation <b>must</b> modify client status after successful
+ * authentication to modify the future results of
+ * {@link AuthenticableClientStatus#isAuthenticated()} calls.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
@@ -38,7 +43,10 @@ import javax.annotation.Nullable;
  * @param <S> The client status type
  * @since 0.1
  */
-public interface AuthenticationOperation<P, R, S>
+public interface AuthenticationOperation<
+        P,
+        R,
+        S extends AuthenticableClientStatus>
 extends StatusDependentOperation<P, R, S> {
 
     /**
@@ -52,6 +60,6 @@ extends StatusDependentOperation<P, R, S> {
             @Nullable
             P params,
             @Nonnull
-            StatedHttpServiceClient<S> client)
+            StatedHttpServiceClient<? extends S> client)
     throws HttpClientException;
 }

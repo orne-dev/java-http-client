@@ -3,13 +3,13 @@
  */
 package dev.orne.http.client;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 
@@ -33,15 +33,35 @@ extends AbstractStatusDependentPutOperation<P, E, R, S> {
      */
     @Override
     @Nullable
-    protected HttpEntity createEntity(
+    protected UrlEncodedFormEntity createEntity(
             @Nullable
             final P params,
             @Nonnull
-            final S state)
+            final S status)
     throws HttpClientException {
         final List<NameValuePair> requestParams = createEntityParams(
-                params, state);
-        return new UrlEncodedFormEntity(requestParams, StandardCharsets.UTF_8);
+                params, status);
+        return new UrlEncodedFormEntity(requestParams,
+                getEntityCharset(params, status));
+    }
+
+    /**
+     * Returns the {@code Charset} to use in request entity.
+     * 
+     * @param params The operation execution parameters
+     * @param status The client status
+     * @return The {@code Charset} to use in request entity
+     * @throws HttpClientException If an exception occurs resolving the
+     * entity's {@code Charset}
+     */
+    @Nonnull
+    protected Charset getEntityCharset(
+            @Nullable
+            final P params,
+            @Nonnull
+            final S status)
+    throws HttpClientException {
+        return StandardCharsets.UTF_8;
     }
 
     /**
@@ -58,6 +78,6 @@ extends AbstractStatusDependentPutOperation<P, E, R, S> {
             @Nullable
             P params,
             @Nonnull
-            final S state)
+            final S status)
     throws HttpClientException;
 }
