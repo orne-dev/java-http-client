@@ -32,15 +32,20 @@ import org.slf4j.LoggerFactory;
  * @see AbstractHttpServiceOperation
  */
 @Tag("ut")
-public class AbstractHttpServiceOperationTest {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+class AbstractHttpServiceOperationTest {
 
     /**
      * Creates the operation to be tested.
      * 
      * @return The operation created
      */
-    protected AbstractHttpServiceOperation<Object, Object, Object> createOperation() {
-        return new TestHttpServiceOperation();
+    protected AbstractHttpServiceOperation createOperation() {
+        return spy(AbstractHttpServiceOperation.class);
+    }
+
+    protected HttpServiceClient createMockClient() {
+        return mock(HttpServiceClient.class);
     }
 
     /**
@@ -48,14 +53,13 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testResolveRequestURI()
+    void testResolveRequestURI()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                createOperation();
+        final AbstractHttpServiceOperation operation = createOperation();
         final URI requestURI = URI.create("op/path?q=test#frag");
         final URI clientBaseURI = URI.create("http://example.org/base/path/");
         final URI expectedURI = URI.create("http://example.org/base/path/op/path?q=test#frag");
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         given(client.getBaseURI()).willReturn(clientBaseURI);
         final URI result = operation.resolveRequestURI(requestURI, client);
         assertNotNull(result);
@@ -67,14 +71,13 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testResolveRequestURIAbsolute()
+    void testResolveRequestURIAbsolute()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                createOperation();
+        final AbstractHttpServiceOperation operation = createOperation();
         final URI requestURI = URI.create("/op/path?q=test#frag");
         final URI clientBaseURI = URI.create("http://example.org/base/path");
         final URI expectedURI = URI.create("http://example.org/op/path?q=test#frag");
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         given(client.getBaseURI()).willReturn(clientBaseURI);
         final URI result = operation.resolveRequestURI(requestURI, client);
         assertNotNull(result);
@@ -86,14 +89,13 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testResolveRequestURIAbsoluteHost()
+    void testResolveRequestURIAbsoluteHost()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                createOperation();
+        final AbstractHttpServiceOperation operation = createOperation();
         final URI requestURI = URI.create("http://other.example.org/op/path?q=test#frag");
         final URI clientBaseURI = URI.create("http://example.org/base/path");
         final URI expectedURI = URI.create("http://other.example.org/op/path?q=test#frag");
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         given(client.getBaseURI()).willReturn(clientBaseURI);
         final URI result = operation.resolveRequestURI(requestURI, client);
         assertNotNull(result);
@@ -105,12 +107,11 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testGetHttpContext()
+    void testGetHttpContext()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                createOperation();
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpContext result = operation.getHttpContext(params, client);
         assertNull(result);
         then(client).shouldHaveNoInteractions();
@@ -121,11 +122,10 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteHttpRequest()
+    void testExecuteHttpRequest()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final AbstractHttpServiceOperation operation = createOperation();
+        final HttpServiceClient client = createMockClient();
         final CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         final HttpHost httpHost = new HttpHost("example.org");
         final HttpRequest httpRequest = mock(HttpRequest.class);
@@ -163,11 +163,10 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteHttpRequestContextCreationError()
+    void testExecuteHttpRequestContextCreationError()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final AbstractHttpServiceOperation operation = createOperation();
+        final HttpServiceClient client = createMockClient();
         final CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         final HttpHost httpHost = new HttpHost("example.org");
         final HttpRequest httpRequest = mock(HttpRequest.class);
@@ -192,11 +191,10 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteHttpRequestIOException()
+    void testExecuteHttpRequestIOException()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final AbstractHttpServiceOperation operation = createOperation();
+        final HttpServiceClient client = createMockClient();
         final CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         final HttpHost httpHost = new HttpHost("example.org");
         final HttpRequest httpRequest = mock(HttpRequest.class);
@@ -239,10 +237,9 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testGetResponseHandler()
+    void testGetResponseHandler()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final ResponseHandler<?> handler = mock(ResponseHandler.class);
         willReturn(handler).given(operation).createResponseHandler();
         final ResponseHandler<?> result = operation.getResponseHandler();
@@ -256,10 +253,9 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testGetResponseHandlerCreationFailed()
+    void testGetResponseHandlerCreationFailed()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final HttpClientException expectedException = new HttpClientException();
         willThrow(expectedException).given(operation).createResponseHandler();
         final HttpClientException result = assertThrows(HttpClientException.class, () -> {
@@ -275,10 +271,9 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testGetResponseHandlerMultipleTimes()
+    void testGetResponseHandlerMultipleTimes()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final ResponseHandler<?> handler = mock(ResponseHandler.class);
         willReturn(handler).given(operation).createResponseHandler();
         final ResponseHandler<?> firstResult = operation.getResponseHandler();
@@ -301,15 +296,13 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExtractResponseEntity()
+    void testExtractResponseEntity()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
-        @SuppressWarnings("unchecked")
         final ResponseHandler<Object> handler = mock(ResponseHandler.class);
         final Object expectedResult = new Object();
         willReturn(handler).given(operation).getResponseHandler();
@@ -327,15 +320,13 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExtractResponseEntityHttpResponseException()
+    void testExtractResponseEntityHttpResponseException()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
-        @SuppressWarnings("unchecked")
         final ResponseHandler<Object> handler = mock(ResponseHandler.class);
         final HttpResponseException handlerException = new HttpResponseException(
                 -1, "Mock exception");
@@ -369,15 +360,13 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExtractResponseEntityHttpResponseExceptionFallback()
+    void testExtractResponseEntityHttpResponseExceptionFallback()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
-        @SuppressWarnings("unchecked")
         final ResponseHandler<Object> handler = mock(ResponseHandler.class);
         final HttpResponseException handlerException = new HttpResponseException(
                 -1, "Mock exception");
@@ -409,15 +398,13 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExtractResponseEntityIOException()
+    void testExtractResponseEntityIOException()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
-        @SuppressWarnings("unchecked")
         final ResponseHandler<Object> handler = mock(ResponseHandler.class);
         final IOException handlerException = new IOException();
         final HttpClientException expectedException = new HttpClientException();
@@ -450,12 +437,11 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testProcessHttpResponse()
+    void testProcessHttpResponse()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
         final Object entity = new Object();
@@ -479,12 +465,11 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testProcessHttpResponseExtractFail()
+    void testProcessHttpResponseExtractFail()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
         final HttpClientException expectedException = new HttpClientException();
@@ -506,12 +491,11 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testProcessHttpResponseProcessFail()
+    void testProcessHttpResponseProcessFail()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
         final Object entity = new Object();
@@ -536,12 +520,11 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testProcessException()
+    void testProcessException()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
         final Exception exception = new Exception();
@@ -556,12 +539,11 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testProcessExceptionHttpClientException()
+    void testProcessExceptionHttpClientException()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
         final HttpClientException exception = new HttpClientException();
@@ -576,12 +558,11 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testProcessHttpResponseException()
+    void testProcessHttpResponseException()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
         final HttpResponseException exception = new HttpResponseException(
@@ -599,12 +580,11 @@ public class AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testProcessHttpResponseExceptionUnauthorized()
+    void testProcessHttpResponseExceptionUnauthorized()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractHttpServiceOperation operation = createOperation();
         final Object params = new Object();
-        final HttpServiceClient client = mock(HttpServiceClient.class);
+        final HttpServiceClient client = createMockClient();
         final HttpRequest httpRequest = mock(HttpRequest.class);
         final HttpResponse httpResponse = mock(HttpResponse.class);
         final HttpResponseException exception = new HttpResponseException(
@@ -624,43 +604,10 @@ public class AbstractHttpServiceOperationTest {
     @Test
     public void testLogger()
     throws Throwable {
-        final AbstractHttpServiceOperation<Object, Object, Object> operation =
+        final AbstractHttpServiceOperation<?, ?, ?, ?> operation =
                 createOperation();
         final Logger logger = operation.getLogger();
         assertNotNull(logger);
         assertSame(LoggerFactory.getLogger(operation.getClass()), logger);
-    }
-
-    /**
-     * Mock implementation of {@code AbstractHttpServiceOperation}
-     * for testing.
-     */
-    private static class TestHttpServiceOperation
-    extends AbstractHttpServiceOperation<Object, Object, Object> {
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected ResponseHandler<Object> createResponseHandler()
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object processResponseEntity(
-                final Object params,
-                final HttpServiceClient client,
-                final HttpRequest request,
-                final HttpResponse response,
-                final Object responseEntity)
-        throws HttpClientException {
-            return null;
-        }
     }
 }

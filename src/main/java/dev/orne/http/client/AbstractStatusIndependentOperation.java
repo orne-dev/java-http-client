@@ -43,7 +43,7 @@ import org.apache.http.HttpRequest;
  * @since 0.1
  */
 public abstract class AbstractStatusIndependentOperation<P, E, R>
-extends AbstractHttpServiceOperation<P, E, R>
+extends AbstractHttpServiceOperation<P, E, R, HttpServiceClient>
 implements StatusIndependentOperation<P, R> {
 
     /**

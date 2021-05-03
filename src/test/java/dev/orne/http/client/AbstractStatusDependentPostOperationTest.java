@@ -7,8 +7,6 @@ import java.net.URI;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,15 +20,16 @@ import org.junit.jupiter.api.Test;
  * @see AbstractStatusDependentPostOperation
  */
 @Tag("ut")
-public class AbstractStatusDependentPostOperationTest
+class AbstractStatusDependentPostOperationTest
 extends AbstractStatusDependentOperationTest {
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected AbstractStatusDependentPostOperation<Object, Object, Object, Object> createOperation() {
-        return new TestStatusIndependentOperation();
+        return spy(AbstractStatusDependentPostOperation.class);
     }
 
     /**
@@ -55,10 +54,10 @@ extends AbstractStatusDependentOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateRequest()
+    void testCreateRequest()
     throws Throwable {
         final AbstractStatusDependentPostOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Object status = new Object();
         final URI requestURI = URI.create("http://example.org/some/path");
@@ -78,10 +77,10 @@ extends AbstractStatusDependentOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateRequestCreateEntityFail()
+    void testCreateRequestCreateEntityFail()
     throws Throwable {
         final AbstractStatusDependentPostOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Object status = new Object();
         final URI requestURI = URI.create("http://example.org/some/path");
@@ -93,62 +92,5 @@ extends AbstractStatusDependentOperationTest {
         assertNotNull(result);
         assertSame(mockException, result);
         then(operation).should(times(1)).createEntity(params, status);
-    }
-
-    /**
-     * Mock implementation of {@code AbstractStatusDependentPostOperation}
-     * for testing.
-     */
-    private static class TestStatusIndependentOperation
-    extends AbstractStatusDependentPostOperation<Object, Object, Object, Object> {
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected URI getRequestURI(
-                final Object params,
-                final Object status)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected HttpEntity createEntity(
-                final Object params,
-                final Object status)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected ResponseHandler<Object> createResponseHandler()
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object processResponseEntity(
-                final Object params,
-                final HttpServiceClient client,
-                final HttpRequest request,
-                final HttpResponse response,
-                final Object responseEntity)
-        throws HttpClientException {
-            return null;
-        }
     }
 }

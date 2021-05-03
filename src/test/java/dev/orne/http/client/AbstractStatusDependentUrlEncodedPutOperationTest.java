@@ -3,16 +3,12 @@ package dev.orne.http.client;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
@@ -29,15 +25,16 @@ import org.junit.jupiter.api.Test;
  * @see AbstractStatusDependentUrlEncodedPutOperation
  */
 @Tag("ut")
-public class AbstractStatusDependentUrlEncodedPutOperationTest
+class AbstractStatusDependentUrlEncodedPutOperationTest
 extends AbstractStatusDependentPutOperationTest {
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected AbstractStatusDependentUrlEncodedPutOperation<Object, Object, Object, Object> createOperation() {
-        return new TestStatusIndependentOperation();
+        return spy(AbstractStatusDependentUrlEncodedPutOperation.class);
     }
 
     /**
@@ -54,10 +51,10 @@ extends AbstractStatusDependentPutOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateEntity()
+    void testCreateEntity()
     throws Throwable {
         final AbstractStatusDependentUrlEncodedPutOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Object status = new Object();
         final List<NameValuePair> entityParams = Arrays.asList(
@@ -74,7 +71,6 @@ extends AbstractStatusDependentPutOperationTest {
         assertNotNull(result);
         assertNotNull(result.getContentType());
         assertEquals(expectedContentType.toString(), result.getContentType().getValue());
-        assertNotNull(result.getContentLength());
         assertEquals(expectedContentLength, result.getContentLength());
         then(operation).should(times(1)).createEntityParams(params, status);
         then(operation).should(times(1)).getEntityCharset(params, status);
@@ -85,10 +81,10 @@ extends AbstractStatusDependentPutOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateEntityCreateEntityParamsFail()
+    void testCreateEntityCreateEntityParamsFail()
     throws Throwable {
         final AbstractStatusDependentUrlEncodedPutOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Object status = new Object();
         final Charset entityCharset = StandardCharsets.US_ASCII;
@@ -108,10 +104,10 @@ extends AbstractStatusDependentPutOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateEntityGetEntityCharsetFail()
+    void testCreateEntityGetEntityCharsetFail()
     throws Throwable {
         final AbstractStatusDependentUrlEncodedPutOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Object status = new Object();
         final List<NameValuePair> entityParams = Arrays.asList(
@@ -132,72 +128,15 @@ extends AbstractStatusDependentPutOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testGetEntityCharset()
+    void testGetEntityCharset()
     throws Throwable {
         final AbstractStatusDependentUrlEncodedPutOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Object status = new Object();
         final Charset expectedResult = StandardCharsets.UTF_8;
         final Charset result = operation.getEntityCharset(params, status);
         assertNotNull(result);
         assertSame(expectedResult, result);
-    }
-
-    /**
-     * Mock implementation of {@code AbstractStatusDependentUrlEncodedPutOperation}
-     * for testing.
-     */
-    private static class TestStatusIndependentOperation
-    extends AbstractStatusDependentUrlEncodedPutOperation<Object, Object, Object, Object> {
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected URI getRequestURI(
-                final Object params,
-                final Object status)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected List<NameValuePair> createEntityParams(
-                final Object params,
-                final Object status)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected ResponseHandler<Object> createResponseHandler()
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object processResponseEntity(
-                final Object params,
-                final HttpServiceClient client,
-                final HttpRequest request,
-                final HttpResponse response,
-                final Object responseEntity)
-        throws HttpClientException {
-            return null;
-        }
     }
 }

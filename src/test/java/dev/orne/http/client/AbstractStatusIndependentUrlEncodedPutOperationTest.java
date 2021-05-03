@@ -3,16 +3,12 @@ package dev.orne.http.client;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
@@ -29,15 +25,16 @@ import org.junit.jupiter.api.Test;
  * @see AbstractStatusIndependentUrlEncodedPutOperation
  */
 @Tag("ut")
-public class AbstractStatusIndependentUrlEncodedPutOperationTest
+class AbstractStatusIndependentUrlEncodedPutOperationTest
 extends AbstractStatusIndependentPutOperationTest {
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected AbstractStatusIndependentUrlEncodedPutOperation<Object, Object, Object> createOperation() {
-        return new TestStatusIndependentOperation();
+        return spy(AbstractStatusIndependentUrlEncodedPutOperation.class);
     }
 
     /**
@@ -54,10 +51,10 @@ extends AbstractStatusIndependentPutOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateEntity()
+    void testCreateEntity()
     throws Throwable {
         final AbstractStatusIndependentUrlEncodedPutOperation<Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final List<NameValuePair> entityParams = Arrays.asList(
                 new BasicNameValuePair("oneEntityParam", "oneValue"),
@@ -73,7 +70,6 @@ extends AbstractStatusIndependentPutOperationTest {
         assertNotNull(result);
         assertNotNull(result.getContentType());
         assertEquals(expectedContentType.toString(), result.getContentType().getValue());
-        assertNotNull(result.getContentLength());
         assertEquals(expectedContentLength, result.getContentLength());
         then(operation).should(times(1)).createEntityParams(params);
         then(operation).should(times(1)).getEntityCharset(params);
@@ -84,10 +80,10 @@ extends AbstractStatusIndependentPutOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateEntityCreateEntityParamsFail()
+    void testCreateEntityCreateEntityParamsFail()
     throws Throwable {
         final AbstractStatusIndependentUrlEncodedPutOperation<Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Charset entityCharset = StandardCharsets.US_ASCII;
         final HttpClientException mockException = new HttpClientException();
@@ -106,10 +102,10 @@ extends AbstractStatusIndependentPutOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateEntityGetEntityCharsetFail()
+    void testCreateEntityGetEntityCharsetFail()
     throws Throwable {
         final AbstractStatusIndependentUrlEncodedPutOperation<Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final List<NameValuePair> entityParams = Arrays.asList(
                 new BasicNameValuePair("oneEntityParam", "oneValue"),
@@ -129,69 +125,14 @@ extends AbstractStatusIndependentPutOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testGetEntityCharset()
+    void testGetEntityCharset()
     throws Throwable {
         final AbstractStatusIndependentUrlEncodedPutOperation<Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Charset expectedResult = StandardCharsets.UTF_8;
         final Charset result = operation.getEntityCharset(params);
         assertNotNull(result);
         assertSame(expectedResult, result);
-    }
-
-    /**
-     * Mock implementation of {@code AbstractStatusIndependentUrlEncodedPutOperation}
-     * for testing.
-     */
-    private static class TestStatusIndependentOperation
-    extends AbstractStatusIndependentUrlEncodedPutOperation<Object, Object, Object> {
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected URI getRequestURI(
-                final Object params)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected List<NameValuePair> createEntityParams(
-                final Object params)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected ResponseHandler<Object> createResponseHandler()
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object processResponseEntity(
-                final Object params,
-                final HttpServiceClient client,
-                final HttpRequest request,
-                final HttpResponse response,
-                final Object responseEntity)
-        throws HttpClientException {
-            return null;
-        }
     }
 }

@@ -7,8 +7,6 @@ import static org.mockito.Mockito.mock;
 import java.net.URI;
 
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,15 +20,16 @@ import org.junit.jupiter.api.Test;
  * @see AbstractStatusDependentDeleteOperation
  */
 @Tag("ut")
-public class AbstractStatusDependentDeleteOperationTest
+class AbstractStatusDependentDeleteOperationTest
 extends AbstractStatusDependentOperationTest {
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> createOperation() {
-        return new TestStatusIndependentOperation();
+        return spy(AbstractStatusDependentDeleteOperation.class);
     }
 
     /**
@@ -46,10 +45,10 @@ extends AbstractStatusDependentOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateRequest()
+    void testCreateRequest()
     throws Throwable {
         final AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+                createOperation();
         final Object params = new Object();
         final Object status = new Object();
         final URI requestURI = URI.create("http://example.org/some/path");
@@ -57,50 +56,5 @@ extends AbstractStatusDependentOperationTest {
         assertNotNull(result);
         assertNotNull(result.getURI());
         assertEquals(requestURI, result.getURI());
-    }
-
-    /**
-     * Mock implementation of {@code AbstractStatusDependentDeleteOperation}
-     * for testing.
-     */
-    private static class TestStatusIndependentOperation
-    extends AbstractStatusDependentDeleteOperation<Object, Object, Object, Object> {
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected URI getRequestURI(
-                final Object params,
-                final Object status)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected ResponseHandler<Object> createResponseHandler()
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object processResponseEntity(
-                final Object params,
-                final HttpServiceClient client,
-                final HttpRequest request,
-                final HttpResponse response,
-                final Object responseEntity)
-        throws HttpClientException {
-            return null;
-        }
     }
 }

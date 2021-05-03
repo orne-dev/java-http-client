@@ -43,15 +43,17 @@ import org.slf4j.LoggerFactory;
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
  * @version 1.0, 2020-05
- * @param <P> El execution parameters type
- * @param <E> El HTTP response entity type
- * @param <R> El execution result type
+ * @param <P> The execution parameters type
+ * @param <E> The HTTP response entity type
+ * @param <R> The execution result type
+ * @param <C> The client type
  * @since 0.1
  */
 public abstract class AbstractHttpServiceOperation<
         P,
         E,
-        R> {
+        R,
+        C extends HttpServiceClient> {
 
     /** The response handler. */
     @Nullable
@@ -74,7 +76,7 @@ public abstract class AbstractHttpServiceOperation<
             @Nonnull
             final URI requestURI,
             @Nonnull
-            final HttpServiceClient client)
+            final C client)
     throws HttpClientException {
         return client.getBaseURI().resolve(requestURI);
     }
@@ -96,7 +98,7 @@ public abstract class AbstractHttpServiceOperation<
             @Nonnull
             final HttpRequest request,
             @Nonnull
-            final HttpServiceClient client)
+            final C client)
     throws HttpClientException {
         try (final CloseableHttpResponse response = client.getClient().execute(
                 client.getHost(),
@@ -123,7 +125,7 @@ public abstract class AbstractHttpServiceOperation<
             @Nullable
             P params,
             @Nonnull
-            HttpServiceClient client)
+            C client)
     throws HttpClientException {
         return null;
     }
@@ -172,7 +174,7 @@ public abstract class AbstractHttpServiceOperation<
             @Nullable
             P params,
             @Nonnull
-            HttpServiceClient client,
+            C client,
             @Nonnull
             HttpRequest request,
             @Nonnull
@@ -203,7 +205,7 @@ public abstract class AbstractHttpServiceOperation<
             @Nullable
             P params,
             @Nonnull
-            HttpServiceClient client,
+            C client,
             @Nonnull
             HttpRequest request,
             @Nonnull
@@ -230,7 +232,7 @@ public abstract class AbstractHttpServiceOperation<
             @Nullable
             P params,
             @Nonnull
-            HttpServiceClient client,
+            C client,
             @Nonnull
             HttpRequest request,
             @Nonnull
@@ -254,7 +256,7 @@ public abstract class AbstractHttpServiceOperation<
             @Nullable
             P params,
             @Nonnull
-            HttpServiceClient client,
+            C client,
             @Nonnull
             HttpRequest request,
             @Nullable
@@ -291,7 +293,7 @@ public abstract class AbstractHttpServiceOperation<
             @Nullable
             P params,
             @Nonnull
-            HttpServiceClient client,
+            C client,
             @Nonnull
             final HttpRequest request,
             @Nonnull

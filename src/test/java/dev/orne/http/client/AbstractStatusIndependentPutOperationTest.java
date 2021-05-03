@@ -7,8 +7,6 @@ import java.net.URI;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPut;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,15 +20,16 @@ import org.junit.jupiter.api.Test;
  * @see AbstractStatusIndependentPutOperation
  */
 @Tag("ut")
-public class AbstractStatusIndependentPutOperationTest
+class AbstractStatusIndependentPutOperationTest
 extends AbstractStatusIndependentOperationTest {
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected AbstractStatusIndependentPutOperation<Object, Object, Object> createOperation() {
-        return new TestStatusIndependentOperation();
+        return spy(AbstractStatusIndependentPutOperation.class);
     }
 
     /**
@@ -55,10 +54,9 @@ extends AbstractStatusIndependentOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateRequest()
+    void testCreateRequest()
     throws Throwable {
-        final AbstractStatusIndependentPutOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusIndependentPutOperation<Object, Object, Object> operation = createOperation();
         final Object params = new Object();
         final URI requestURI = URI.create("http://example.org/some/path");
         final HttpEntity entity = createMockEntity();
@@ -77,10 +75,9 @@ extends AbstractStatusIndependentOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateRequestCreateEntityFail()
+    void testCreateRequestCreateEntityFail()
     throws Throwable {
-        final AbstractStatusIndependentPutOperation<Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusIndependentPutOperation<Object, Object, Object> operation = createOperation();
         final Object params = new Object();
         final URI requestURI = URI.create("http://example.org/some/path");
         final HttpClientException mockException = new HttpClientException();
@@ -91,60 +88,5 @@ extends AbstractStatusIndependentOperationTest {
         assertNotNull(result);
         assertSame(mockException, result);
         then(operation).should(times(1)).createEntity(params);
-    }
-
-    /**
-     * Mock implementation of {@code AbstractStatusIndependentPutOperation}
-     * for testing.
-     */
-    private static class TestStatusIndependentOperation
-    extends AbstractStatusIndependentPutOperation<Object, Object, Object> {
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected URI getRequestURI(
-                final Object params)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected HttpEntity createEntity(
-                final Object params)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected ResponseHandler<Object> createResponseHandler()
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object processResponseEntity(
-                final Object params,
-                final HttpServiceClient client,
-                final HttpRequest request,
-                final HttpResponse response,
-                final Object responseEntity)
-        throws HttpClientException {
-            return null;
-        }
     }
 }

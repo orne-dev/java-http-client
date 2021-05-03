@@ -9,8 +9,6 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.message.BasicHeader;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -24,15 +22,22 @@ import org.junit.jupiter.api.Test;
  * @see AbstractStatusDependentOperation
  */
 @Tag("ut")
-public class AbstractStatusDependentOperationTest
+class AbstractStatusDependentOperationTest
 extends AbstractHttpServiceOperationTest {
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected AbstractStatusDependentOperation<Object, Object, Object, Object> createOperation() {
-        return new TestStatusIndependentOperation();
+        return spy(AbstractStatusDependentOperation.class);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected StatedHttpServiceClient<Object> createMockClient() {
+        return mock(StatedHttpServiceClient.class);
     }
 
     /**
@@ -49,13 +54,11 @@ extends AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecute()
+    void testExecute()
     throws Throwable {
-        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation = createOperation();
         final Object params = new Object();
-        @SuppressWarnings("unchecked")
-        final StatedHttpServiceClient<Object> client = mock(StatedHttpServiceClient.class);
+        final StatedHttpServiceClient<Object> client = createMockClient();
         final Object status = new Object();
         final URI operationURI = URI.create("/mockURI");
         final URI requestURI = URI.create("http://example.org/mockURI");
@@ -88,13 +91,11 @@ extends AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteGetRequestURIFails()
+    void testExecuteGetRequestURIFails()
     throws Throwable {
-        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation = createOperation();
         final Object params = new Object();
-        @SuppressWarnings("unchecked")
-        final StatedHttpServiceClient<Object> client = mock(StatedHttpServiceClient.class);
+        final StatedHttpServiceClient<Object> client = createMockClient();
         final Object status = new Object();
         final List<Header> requestHeaders = Arrays.asList(
                 new BasicHeader("someHeader", "headerValue"),
@@ -119,13 +120,11 @@ extends AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteResolveRequestURIFails()
+    void testExecuteResolveRequestURIFails()
     throws Throwable {
-        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation = createOperation();
         final Object params = new Object();
-        @SuppressWarnings("unchecked")
-        final StatedHttpServiceClient<Object> client = mock(StatedHttpServiceClient.class);
+        final StatedHttpServiceClient<Object> client = createMockClient();
         final Object status = new Object();
         final URI operationURI = URI.create("/mockURI");
         final List<Header> requestHeaders = Arrays.asList(
@@ -152,13 +151,11 @@ extends AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteCreateRequestFails()
+    void testExecuteCreateRequestFails()
     throws Throwable {
-        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation = createOperation();
         final Object params = new Object();
-        @SuppressWarnings("unchecked")
-        final StatedHttpServiceClient<Object> client = mock(StatedHttpServiceClient.class);
+        final StatedHttpServiceClient<Object> client = createMockClient();
         final Object status = new Object();
         final URI operationURI = URI.create("/mockURI");
         final URI requestURI = URI.create("http://example.org/mockURI");
@@ -187,13 +184,11 @@ extends AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteCreateHeadersFails()
+    void testExecuteCreateHeadersFails()
     throws Throwable {
-        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation = createOperation();
         final Object params = new Object();
-        @SuppressWarnings("unchecked")
-        final StatedHttpServiceClient<Object> client = mock(StatedHttpServiceClient.class);
+        final StatedHttpServiceClient<Object> client = createMockClient();
         final Object status = new Object();
         final URI operationURI = URI.create("/mockURI");
         final URI requestURI = URI.create("http://example.org/mockURI");
@@ -218,13 +213,11 @@ extends AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteExecuteRequestFails()
+    void testExecuteExecuteRequestFails()
     throws Throwable {
-        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation = createOperation();
         final Object params = new Object();
-        @SuppressWarnings("unchecked")
-        final StatedHttpServiceClient<Object> client = mock(StatedHttpServiceClient.class);
+        final StatedHttpServiceClient<Object> client = createMockClient();
         final Object status = new Object();
         final URI operationURI = URI.create("/mockURI");
         final URI requestURI = URI.create("http://example.org/mockURI");
@@ -259,72 +252,13 @@ extends AbstractHttpServiceOperationTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateHeaders()
+    void testCreateHeaders()
     throws Throwable {
-        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation =
-                spy(createOperation());
+        final AbstractStatusDependentOperation<Object, Object, Object, Object> operation = createOperation();
         final Object params = new Object();
         final Object mockStatus = new Object();
         final List<Header> result = operation.createHeaders(params, mockStatus);
         assertNotNull(result);
         assertTrue(result.isEmpty());
-    }
-
-    /**
-     * Mock implementation of {@code AbstractStatusDependentOperation}
-     * for testing.
-     */
-    private static class TestStatusIndependentOperation
-    extends AbstractStatusDependentOperation<Object, Object, Object, Object> {
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected URI getRequestURI(
-                final Object params,
-                final Object status)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected HttpRequest createRequest(
-                final URI requestURI,
-                final Object params,
-                final Object status)
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected ResponseHandler<Object> createResponseHandler()
-        throws HttpClientException {
-            return null;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        protected Object processResponseEntity(
-                final Object params,
-                final HttpServiceClient client,
-                final HttpRequest request,
-                final HttpResponse response,
-                final Object responseEntity)
-        throws HttpClientException {
-            return null;
-        }
     }
 }
