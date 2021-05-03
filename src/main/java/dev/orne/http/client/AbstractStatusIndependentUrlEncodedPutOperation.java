@@ -1,14 +1,10 @@
-/**
- * 
- */
 package dev.orne.http.client;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -31,14 +27,18 @@ extends AbstractStatusIndependentPutOperation<P, E, R> {
      * {@inheritDoc}
      */
     @Override
-    @Nullable
     protected UrlEncodedFormEntity createEntity(
-            @Nullable
             final P params)
     throws HttpClientException {
         final List<NameValuePair> requestParams = createEntityParams(params);
-        return new UrlEncodedFormEntity(requestParams, 
-                getEntityCharset(params));
+        final UrlEncodedFormEntity entity;
+        if (requestParams == null || requestParams.isEmpty()) {
+            entity = null;
+        } else {
+            entity = new UrlEncodedFormEntity(requestParams, 
+                    getEntityCharset(params));
+        }
+        return entity;
     }
 
     /**
@@ -49,9 +49,7 @@ extends AbstractStatusIndependentPutOperation<P, E, R> {
      * @throws HttpClientException If an exception occurs resolving the
      * entity's {@code Charset}
      */
-    @Nonnull
-    protected Charset getEntityCharset(
-            @Nullable
+    protected @NotNull Charset getEntityCharset(
             final P params)
     throws HttpClientException {
         return StandardCharsets.UTF_8;
@@ -65,9 +63,7 @@ extends AbstractStatusIndependentPutOperation<P, E, R> {
      * @throws HttpClientException If an exception occurs generating the
      * entity parameters
      */
-    @Nonnull
     protected abstract List<NameValuePair> createEntityParams(
-            @Nullable
             P params)
     throws HttpClientException;
 }

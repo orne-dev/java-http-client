@@ -1,12 +1,8 @@
-/**
- * 
- */
 package dev.orne.http.client;
 
 import java.net.URI;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.client.methods.HttpGet;
 
@@ -29,14 +25,10 @@ extends AbstractStatusDependentOperation<P, E, R, S> {
      * {@inheritDoc}
      */
     @Override
-    @Nonnull
-    protected HttpGet createRequest(
-            @Nonnull
-            final URI requestURI,
-            @Nullable
+    protected @NotNull HttpGet createRequest(
+            final @NotNull URI requestURI,
             final P params,
-            @Nonnull
-            final S status)
+            final @NotNull S status)
     throws HttpClientException {
         return new HttpGet(requestURI);
     }

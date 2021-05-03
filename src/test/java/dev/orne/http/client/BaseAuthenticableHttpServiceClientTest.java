@@ -8,7 +8,7 @@ import static org.mockito.Mockito.times;
 import java.net.URI;
 import java.net.URL;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
@@ -28,7 +28,7 @@ import org.mockito.stubbing.Answer;
  * @see BaseAuthenticableHttpServiceClient
  */
 @Tag("ut")
-public class BaseAuthenticableHttpServiceClientTest
+class BaseAuthenticableHttpServiceClientTest
 extends BaseStatedHttpServiceClientTest {
 
     /**
@@ -36,9 +36,9 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullNull()
+    void testConstructorNullNull()
     throws Throwable {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new BaseAuthenticableHttpServiceClient<TestState, Object>(null, null, null);
         });
     }
@@ -48,13 +48,13 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullURL()
+    void testConstructorNullURL()
     throws Throwable {
         @SuppressWarnings("unchecked")
         final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
         @SuppressWarnings("unchecked")
         final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new BaseAuthenticableHttpServiceClient<TestState, Object>(
                     null, mockInitOp, mockAuthOp);
         });
@@ -65,7 +65,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullInitOp()
+    void testConstructorNullInitOp()
     throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";
@@ -74,7 +74,7 @@ extends BaseStatedHttpServiceClientTest {
         final URL url = new URL(schema, host, port, path);
         @SuppressWarnings("unchecked")
         final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new BaseAuthenticableHttpServiceClient<TestState, Object>(
                     url, null, mockAuthOp);
         });
@@ -85,7 +85,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullAuthOp()
+    void testConstructorNullAuthOp()
     throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";
@@ -94,7 +94,7 @@ extends BaseStatedHttpServiceClientTest {
         final URL url = new URL(schema, host, port, path);
         @SuppressWarnings("unchecked")
         final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new BaseAuthenticableHttpServiceClient<TestState, Object>(
                     url, mockInitOp, null);
         });
@@ -105,7 +105,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructor()
+    void testConstructor()
     throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";
@@ -124,7 +124,6 @@ extends BaseStatedHttpServiceClientTest {
             assertEquals(schema, clientHost.getSchemeName());
             assertNotNull(clientHost.getHostName());
             assertEquals(host, clientHost.getHostName());
-            assertNotNull(clientHost.getPort());
             assertEquals(port, clientHost.getPort());
             assertNull(clientHost.getAddress());
             
@@ -154,8 +153,7 @@ extends BaseStatedHttpServiceClientTest {
      */
     @Override
     protected BaseStatedHttpServiceClient<? extends Object> createClientFromUrl(
-            @Nonnull
-            final URL url) {
+            final @NotNull URL url) {
         @SuppressWarnings("unchecked")
         final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
         @SuppressWarnings("unchecked")
@@ -169,10 +167,8 @@ extends BaseStatedHttpServiceClientTest {
      */
     @SuppressWarnings("unchecked")
     protected <T extends Object> BaseStatedHttpServiceClient<T> createClientFromUrlAndInitOp(
-            @Nonnull
-            final URL url,
-            @Nonnull
-            final StatusInitOperation<T> mockInitOp) {
+            final @NotNull URL url,
+            final @NotNull StatusInitOperation<T> mockInitOp) {
         final StatusInitOperation<TestState> castedMockInitOp =
                 (StatusInitOperation<TestState>) mockInitOp;
         final AuthenticationOperation<Object, ?, TestState> mockAuthOp =
@@ -184,12 +180,9 @@ extends BaseStatedHttpServiceClientTest {
      * {@inheritDoc}
      */
     protected <T extends TestState> BaseAuthenticableHttpServiceClient<T, Object> createClientFromUrlAndInitOpAndAuthOp(
-            @Nonnull
-            final URL url,
-            @Nonnull
-            final StatusInitOperation<T> mockInitOp,
-            @Nonnull
-            AuthenticationOperation<Object, ?, T> mockAuthOp) {
+            final @NotNull URL url,
+            final @NotNull StatusInitOperation<T> mockInitOp,
+            final @NotNull AuthenticationOperation<Object, ?, T> mockAuthOp) {
         return new BaseAuthenticableHttpServiceClient<T, Object>(
                 url, mockInitOp, mockAuthOp);
     }
@@ -199,14 +192,10 @@ extends BaseStatedHttpServiceClientTest {
      */
     @Override
     protected BaseHttpServiceClient createClientFromParts(
-            @Nonnull
-            final HttpHost mockHost,
-            @Nonnull
-            final URI mockBaseUri,
-            @Nonnull
-            final CookieStore mockCookieStore,
-            @Nonnull
-            final CloseableHttpClient mockClient) {
+            final @NotNull HttpHost mockHost,
+            final @NotNull URI mockBaseUri,
+            final @NotNull CookieStore mockCookieStore,
+            final @NotNull CloseableHttpClient mockClient) {
         @SuppressWarnings("unchecked")
         final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
         @SuppressWarnings("unchecked")
@@ -243,7 +232,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testSetCredentialsStoringEnabled()
+    void testSetCredentialsStoringEnabled()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -265,7 +254,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testSetAuthenticationAutoRenewalEnabled()
+    void testSetAuthenticationAutoRenewalEnabled()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -287,7 +276,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testSetStoredCredentials()
+    void testSetStoredCredentials()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -309,7 +298,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testAuthenticateCredentials()
+    void testAuthenticateCredentials()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -336,7 +325,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testAuthenticateCredentialsFail()
+    void testAuthenticateCredentialsFail()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -369,7 +358,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testAuthenticateCredentialsStorageEnabled()
+    void testAuthenticateCredentialsStorageEnabled()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -397,7 +386,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testAuthenticateCredentialsStorageEnabledFail()
+    void testAuthenticateCredentialsStorageEnabledFail()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -431,7 +420,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testAuthenticate()
+    void testAuthenticate()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -459,7 +448,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testAuthenticateNoStoredCredentials()
+    void testAuthenticateNoStoredCredentials()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -484,7 +473,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testAuthenticateFail()
+    void testAuthenticateFail()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -518,7 +507,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testAuthenticateInvalidCrendentialsFail()
+    void testAuthenticateInvalidCrendentialsFail()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -552,7 +541,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testEnsureAuthenticated()
+    void testEnsureAuthenticated()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -580,7 +569,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testEnsureAuthenticatedFail()
+    void testEnsureAuthenticatedFail()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -613,7 +602,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testEnsureAuthenticatedAlreadyAuthenticated()
+    void testEnsureAuthenticatedAlreadyAuthenticated()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -641,7 +630,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteAuthenticated()
+    void testExecuteAuthenticated()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -675,7 +664,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteAuthenticatedEnsureAuthenticationFail()
+    void testExecuteAuthenticatedEnsureAuthenticationFail()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -708,7 +697,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteAuthenticatedFail()
+    void testExecuteAuthenticatedFail()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -744,7 +733,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteAuthenticatedExpiredNoAutorenewal()
+    void testExecuteAuthenticatedExpiredNoAutorenewal()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -782,7 +771,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteAuthenticatedExpiredNoStoredCredentials()
+    void testExecuteAuthenticatedExpiredNoStoredCredentials()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -820,7 +809,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteAuthenticatedExpiredAutorenewal()
+    void testExecuteAuthenticatedExpiredAutorenewal()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -873,7 +862,7 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteAuthenticatedExpiredAutorenewalFail()
+    void testExecuteAuthenticatedExpiredAutorenewalFail()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")

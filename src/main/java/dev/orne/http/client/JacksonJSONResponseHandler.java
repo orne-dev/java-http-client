@@ -28,8 +28,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 
@@ -51,9 +52,9 @@ extends AbstractMimeTypeResponseHandler<E> {
             ContentType.create(ContentType.APPLICATION_JSON.getMimeType());
 
     /** The Jackson object mapper to use. */
-    private final ObjectMapper mapper;
+    private final @NotNull ObjectMapper mapper;
     /** The result value type. */
-    private final Class<? extends E> valueType;
+    private final @NotNull Class<? extends E> valueType;
 
     /**
      * Creates a new instance.
@@ -61,14 +62,10 @@ extends AbstractMimeTypeResponseHandler<E> {
      * @param valueType The result value type
      */
     public JacksonJSONResponseHandler(
-            @Nonnull
-            final Class<? extends E> valueType) {
+            final @NotNull Class<? extends E> valueType) {
         super();
-        if (valueType == null) {
-            throw new IllegalArgumentException("Parameter 'valueType' is required.");
-        }
         this.mapper = new ObjectMapper();
-        this.valueType = valueType;
+        this.valueType = Validate.notNull(valueType, "Result value type is required.");
     }
 
     /**
@@ -78,19 +75,11 @@ extends AbstractMimeTypeResponseHandler<E> {
      * @param valueType The result value type
      */
     public JacksonJSONResponseHandler(
-            @Nonnull
-            final ObjectMapper mapper,
-            @Nonnull
-            final Class<? extends E> valueType) {
+            final @NotNull ObjectMapper mapper,
+            final @NotNull Class<? extends E> valueType) {
         super();
-        if (mapper == null) {
-            throw new IllegalArgumentException("Parameter 'mapper' is required.");
-        }
-        if (valueType == null) {
-            throw new IllegalArgumentException("Parameter 'valueType' is required.");
-        }
-        this.mapper = mapper;
-        this.valueType = valueType;
+        this.mapper = Validate.notNull(mapper, "Object mapper is required");;
+        this.valueType = Validate.notNull(valueType, "Result value type is required.");
     }
 
     /**
@@ -107,7 +96,7 @@ extends AbstractMimeTypeResponseHandler<E> {
      * 
      * @return The result value type
      */
-    public Class<? extends E> getValueType() {
+    public @NotNull Class<? extends E> getValueType() {
         return this.valueType;
     }
 
@@ -116,17 +105,15 @@ extends AbstractMimeTypeResponseHandler<E> {
      */
     @Override
     protected boolean isMimeTypeSupported(
-            @Nonnull
-            final String mimeType) {
+            final @NotNull String mimeType) {
         return ContentType.APPLICATION_JSON.getMimeType().equals(mimeType);
     }
 
     /**
      * {@inheritDoc}
      */
-    @Nonnull
     @Override
-    protected ContentType getDefaultContentType() {
+    protected @NotNull ContentType getDefaultContentType() {
         return DEFAULT_CONTENT_TYPE;
     }
 
@@ -158,12 +145,9 @@ extends AbstractMimeTypeResponseHandler<E> {
      * @param contentType The entity's content type
      * @return The reader to use for reading the entity's content
      */
-    @Nonnull
-    protected Reader createReader(
-            @Nonnull
-            final InputStream entityIS,
-            @Nonnull
-            final ContentType contentType) {
+    protected @NotNull Reader createReader(
+            final @NotNull InputStream entityIS,
+            final @NotNull ContentType contentType) {
         final Reader source;
         if (contentType.getCharset() == null) {
             source = new InputStreamReader(

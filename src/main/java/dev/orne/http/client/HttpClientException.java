@@ -1,7 +1,5 @@
 package dev.orne.http.client;
 
-import javax.annotation.Nullable;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -55,7 +53,6 @@ extends Exception {
      *          later retrieval by the {@link #getMessage()} method.
      */
     public HttpClientException(
-            @Nullable
             final String message) {
         super(message);
     }
@@ -74,7 +71,6 @@ extends Exception {
      *         unknown.)
      */
     public HttpClientException(
-            @Nullable
             final Throwable cause) {
         super(cause);
     }
@@ -93,9 +89,7 @@ extends Exception {
      *         unknown.)
      */
     public HttpClientException(
-            @Nullable
             final String message,
-            @Nullable
             final Throwable cause) {
         super(message, cause);
     }
@@ -114,9 +108,7 @@ extends Exception {
      *                           be writable
      */
     public HttpClientException(
-            @Nullable
             final String message,
-            @Nullable
             final Throwable cause,
             final boolean enableSuppression,
             final boolean writableStackTrace) {

@@ -1,8 +1,5 @@
 package dev.orne.http.client;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -25,6 +22,8 @@ import javax.annotation.Nullable;
  * #L%
  */
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Operation for {@code HttpServiceClient} dependent of clients status.
  * 
@@ -46,11 +45,8 @@ public interface StatusDependentOperation<P, R, S> {
      * @return The operation execution result
      * @throws HttpClientException If there is an error executing the operation
      */
-    @Nullable
     public R execute(
-            @Nullable
             P params,
-            @Nonnull
-            StatedHttpServiceClient<? extends S> client)
+            @NotNull StatedHttpServiceClient<? extends S> client)
     throws HttpClientException;
 }

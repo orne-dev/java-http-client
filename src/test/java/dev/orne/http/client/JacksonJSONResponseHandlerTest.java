@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @see JacksonJSONResponseHandler
  */
 @Tag("ut")
-public class JacksonJSONResponseHandlerTest
+class JacksonJSONResponseHandlerTest
 extends AbstractMimeTypeResponseHandlerTest {
 
     /**
@@ -36,9 +36,9 @@ extends AbstractMimeTypeResponseHandlerTest {
      */
     @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void testTypeConstructorNullType()
+    void testTypeConstructorNullType()
     throws Throwable {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new JacksonJSONResponseHandler(null);
         });
     }
@@ -48,7 +48,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testTypeConstructor()
+    void testTypeConstructor()
     throws Throwable  {
         final JacksonJSONResponseHandler<TestBean> handler =
                 new JacksonJSONResponseHandler<>(TestBean.class);
@@ -63,10 +63,10 @@ extends AbstractMimeTypeResponseHandlerTest {
      */
     @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void testMapperConstructorNullType()
+    void testMapperConstructorNullType()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new JacksonJSONResponseHandler(mapper, null);
         });
     }
@@ -77,9 +77,9 @@ extends AbstractMimeTypeResponseHandlerTest {
      */
     @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void testMapperConstructorNullMapper()
+    void testMapperConstructorNullMapper()
     throws Throwable  {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new JacksonJSONResponseHandler(null, TestBean.class);
         });
     }
@@ -89,7 +89,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testMapperConstructor()
+    void testMapperConstructor()
     throws Throwable  {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -120,10 +120,8 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @return The created {@code JacksonJSONResponseHandler} instance
      */
     protected <T> JacksonJSONResponseHandler<T> createHandlerForMapperAndType(
-            @Nonnull
-            final ObjectMapper mapper,
-            @Nonnull
-            final Class<T> targetType) {
+            final @NotNull ObjectMapper mapper,
+            final @NotNull Class<T> targetType) {
         return new JacksonJSONResponseHandler<>(mapper, targetType);
     }
 
@@ -132,7 +130,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityNullEntity()
+    void testHandleEntityNullEntity()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -147,7 +145,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntity()
+    void testHandleEntity()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -176,7 +174,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityGetContentFailIOException()
+    void testHandleEntityGetContentFailIOException()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -199,7 +197,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityGetContentFailUnsupportedOperationException()
+    void testHandleEntityGetContentFailUnsupportedOperationException()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -222,7 +220,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityGetContentTypeFail()
+    void testHandleEntityGetContentTypeFail()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -245,7 +243,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityReadValueFail()
+    void testHandleEntityReadValueFail()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -276,7 +274,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityUnmarshalNullElement()
+    void testHandleEntityUnmarshalNullElement()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -303,7 +301,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testcreateReader()
+    void testcreateReader()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -322,7 +320,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testcreateReaderNoCharset()
+    void testcreateReaderNoCharset()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -340,7 +338,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testIsMimeTypeSupportedXml()
+    void testIsMimeTypeSupportedXml()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -354,7 +352,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testIsMimeTypeSupportedOthers()
+    void testIsMimeTypeSupportedOthers()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =
@@ -375,7 +373,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testGetDefaultContentType()
+    void testGetDefaultContentType()
     throws Throwable {
         final ObjectMapper mapper = mock(ObjectMapper.class);
         final JacksonJSONResponseHandler<TestBean> handler =

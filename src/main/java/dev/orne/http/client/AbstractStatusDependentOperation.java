@@ -26,9 +26,9 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 
@@ -51,14 +51,11 @@ implements StatusDependentOperation<P, R, S> {
      * {@inheritDoc}
      */
     @Override
-    @Nullable
     public R execute(
-            @Nullable
             final P params,
-            @Nonnull
-            final StatedHttpServiceClient<? extends S> client)
+            final @NotNull StatedHttpServiceClient<? extends S> client)
     throws HttpClientException {
-        final S status = client.ensureInitialized();
+        final S status = Validate.notNull(client).ensureInitialized();
         final URI requestURI = resolveRequestURI(
                 getRequestURI(params, status),
                 client);
@@ -82,14 +79,10 @@ implements StatusDependentOperation<P, R, S> {
      * @throws HttpClientException If an exception occurs generating the
      * request
      */
-    @Nonnull
-    protected abstract HttpRequest createRequest(
-            @Nonnull
-            final URI requestURI,
-            @Nullable
-            final P params,
-            @Nonnull
-            S status)
+    protected abstract @NotNull HttpRequest createRequest(
+            @NotNull URI requestURI,
+            P params,
+            @NotNull S status)
     throws HttpClientException;
 
     /**
@@ -102,12 +95,9 @@ implements StatusDependentOperation<P, R, S> {
      * @throws HttpClientException If an error occurs generating the
      * relative URI
      */
-    @Nonnull
-    protected abstract URI getRequestURI(
-            @Nullable
+    protected abstract @NotNull URI getRequestURI(
             P params,
-            @Nonnull
-            S status)
+            @NotNull S status)
     throws HttpClientException;
 
     /**
@@ -119,12 +109,9 @@ implements StatusDependentOperation<P, R, S> {
      * @throws HttpClientException If an exception occurs generating the
      * headers
      */
-    @Nonnull
-    protected List<Header> createHeaders(
-            @Nullable
+    protected @NotNull List<Header> createHeaders(
             final P params,
-            @Nonnull
-            final S status)
+            final @NotNull S status)
     throws HttpClientException {
         return Collections.emptyList();
     }

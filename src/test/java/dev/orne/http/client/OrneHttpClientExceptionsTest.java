@@ -2,7 +2,7 @@ package dev.orne.http.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
  * @see AuthenticationExpiredException
  */
 @Tag("ut")
-public class OrneHttpClientExceptionsTest {
+class OrneHttpClientExceptionsTest {
 
     /** Message for exception testing. */
     private static final String TEST_MESSAGE = "Test message";
@@ -32,7 +32,7 @@ public class OrneHttpClientExceptionsTest {
      * Test for {@link HttpClientException}.
      */
     @Test
-    public void testHttpClientException() {
+    void testHttpClientException() {
         assertEmptyException(new HttpClientException());
         assertMessageException(new HttpClientException(TEST_MESSAGE));
         assertCauseException(new HttpClientException(TEST_CAUSE));
@@ -44,7 +44,7 @@ public class OrneHttpClientExceptionsTest {
      * Test for {@link AuthenticationException}.
      */
     @Test
-    public void testAuthenticationException() {
+    void testAuthenticationException() {
         assertEmptyException(new AuthenticationException());
         assertMessageException(new AuthenticationException(TEST_MESSAGE));
         assertCauseException(new AuthenticationException(TEST_CAUSE));
@@ -57,7 +57,7 @@ public class OrneHttpClientExceptionsTest {
      * Test for {@link AuthenticationFailedException}.
      */
     @Test
-    public void testAuthenticationFailedException() {
+    void testAuthenticationFailedException() {
         assertEmptyException(new AuthenticationFailedException());
         assertMessageException(new AuthenticationFailedException(TEST_MESSAGE));
         assertCauseException(new AuthenticationFailedException(TEST_CAUSE));
@@ -70,7 +70,7 @@ public class OrneHttpClientExceptionsTest {
      * Test for {@link CredentialsInvalidException}.
      */
     @Test
-    public void testCredentialsInvalidException() {
+    void testCredentialsInvalidException() {
         assertEmptyException(new CredentialsInvalidException());
         assertMessageException(new CredentialsInvalidException(TEST_MESSAGE));
         assertCauseException(new CredentialsInvalidException(TEST_CAUSE));
@@ -83,7 +83,7 @@ public class OrneHttpClientExceptionsTest {
      * Test for {@link AuthenticationRequiredException}.
      */
     @Test
-    public void testAuthenticationRequiredException() {
+    void testAuthenticationRequiredException() {
         assertEmptyException(new AuthenticationRequiredException());
         assertMessageException(new AuthenticationRequiredException(TEST_MESSAGE));
         assertCauseException(new AuthenticationRequiredException(TEST_CAUSE));
@@ -96,7 +96,7 @@ public class OrneHttpClientExceptionsTest {
      * Test for {@link AuthenticationExpiredException}.
      */
     @Test
-    public void testAuthenticationExpiredException() {
+    void testAuthenticationExpiredException() {
         assertEmptyException(new AuthenticationExpiredException());
         assertMessageException(new AuthenticationExpiredException(TEST_MESSAGE));
         assertCauseException(new AuthenticationExpiredException(TEST_CAUSE));
@@ -109,7 +109,7 @@ public class OrneHttpClientExceptionsTest {
      * Test for {@link CredentialsNotStoredException}.
      */
     @Test
-    public void testCredentialsNotStoredException() {
+    void testCredentialsNotStoredException() {
         assertEmptyException(new CredentialsNotStoredException());
         assertMessageException(new CredentialsNotStoredException(TEST_MESSAGE));
         assertCauseException(new CredentialsNotStoredException(TEST_CAUSE));
@@ -124,8 +124,7 @@ public class OrneHttpClientExceptionsTest {
      * @param exception The exception to test
      */
     private void assertEmptyException(
-            @Nonnull
-            final HttpClientException exception) {
+            final @NotNull HttpClientException exception) {
         assertNotNull(exception);
         assertNull(exception.getMessage());
         assertNull(exception.getCause());
@@ -137,8 +136,7 @@ public class OrneHttpClientExceptionsTest {
      * @param exception The exception to test
      */
     private void assertMessageException(
-            @Nonnull
-            final HttpClientException exception) {
+            final @NotNull HttpClientException exception) {
         assertNotNull(exception);
         assertNotNull(exception.getMessage());
         assertEquals(TEST_MESSAGE, exception.getMessage());
@@ -151,8 +149,7 @@ public class OrneHttpClientExceptionsTest {
      * @param exception The exception to test
      */
     private void assertCauseException(
-            @Nonnull
-            final HttpClientException exception) {
+            final @NotNull HttpClientException exception) {
         assertNotNull(exception);
         assertNotNull(exception.getMessage());
         assertEquals(TEST_CAUSE.toString(), exception.getMessage());
@@ -166,8 +163,7 @@ public class OrneHttpClientExceptionsTest {
      * @param exception The exception to test
      */
     private void assertFullException(
-            @Nonnull
-            final HttpClientException exception) {
+            final @NotNull HttpClientException exception) {
         assertNotNull(exception);
         assertNotNull(exception.getMessage());
         assertEquals(TEST_MESSAGE, exception.getMessage());

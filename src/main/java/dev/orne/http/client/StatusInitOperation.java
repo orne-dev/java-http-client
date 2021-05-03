@@ -1,6 +1,3 @@
-/**
- * 
- */
 package dev.orne.http.client;
 
 /*-
@@ -25,8 +22,7 @@ package dev.orne.http.client;
  * #L%
  */
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 /**
  * Operation for {@code HttpServiceClient} that initializes client's status.
@@ -48,11 +44,8 @@ extends StatusIndependentOperation<Void, S> {
      * @throws HttpClientException If the is an error executing the operation
      */
     @Override
-    @Nonnull
-    public S execute(
-            @Nullable
+    public @NotNull S execute(
             Void params,
-            @Nonnull
-            HttpServiceClient client)
+            @NotNull HttpServiceClient client)
     throws HttpClientException;
 }

@@ -1,9 +1,4 @@
-/**
- * 
- */
 package dev.orne.http.client;
-
-import javax.annotation.Nullable;
 
 /*-
  * #%L
@@ -59,7 +54,6 @@ extends AuthenticationException {
      *          later retrieval by the {@link #getMessage()} method.
      */
     public AuthenticationRequiredException(
-            @Nullable
             final String message) {
         super(message);
     }
@@ -78,7 +72,6 @@ extends AuthenticationException {
      *         unknown.)
      */
     public AuthenticationRequiredException(
-            @Nullable
             final Throwable cause) {
         super(cause);
     }
@@ -97,9 +90,7 @@ extends AuthenticationException {
      *         unknown.)
      */
     public AuthenticationRequiredException(
-            @Nullable
             final String message,
-            @Nullable
             final Throwable cause) {
         super(message, cause);
     }
@@ -118,9 +109,7 @@ extends AuthenticationException {
      *                           be writable
      */
     public AuthenticationRequiredException(
-            @Nullable
             final String message,
-            @Nullable
             final Throwable cause,
             final boolean enableSuppression,
             final boolean writableStackTrace) {

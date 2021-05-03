@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
@@ -49,19 +49,14 @@ public class BaseHttpServiceClient
 implements HttpServiceClient {
 
     /** The HTTP service's host. */
-    @Nonnull
-    private final HttpHost host;
+    private final @NotNull HttpHost host;
     /** The HTTP service's base URI. */
-    @Nonnull
-    private final URI baseURI;
+    private final @NotNull URI baseURI;
     /** The HTTP client's cookie store. */
-    @Nonnull
-    private final CookieStore cookieStore;
+    private final @NotNull CookieStore cookieStore;
     /** The HTTP client. */
-    @Nonnull
-    private final CloseableHttpClient client;
+    private final @NotNull CloseableHttpClient client;
     /** The logger for this instance's actual class. */
-    @Nullable
     private Logger logger;
 
     /**
@@ -70,12 +65,9 @@ implements HttpServiceClient {
      * @param baseURL The HTTP service's base URL
      */
     public BaseHttpServiceClient(
-            @Nonnull
-            final URL baseURL) {
+            final @NotNull URL baseURL) {
         super();
-        if (baseURL == null) {
-            throw new IllegalArgumentException("Parameter 'baseURL' is required.");
-        }
+        Validate.notNull(baseURL, "Base URL is required.");
         this.host = new HttpHost(baseURL.getHost(), baseURL.getPort(), baseURL.getProtocol());
         this.baseURI = URI.create(baseURL.getPath());
         this.cookieStore = new BasicCookieStore();
@@ -97,19 +89,15 @@ implements HttpServiceClient {
      * @param client The HTTP client
      */
     protected BaseHttpServiceClient(
-            @Nonnull
-            final HttpHost host,
-            @Nonnull
-            final URI baseURI,
-            @Nonnull
-            final CookieStore cookieStore,
-            @Nonnull
-            final CloseableHttpClient client) {
+            final @NotNull HttpHost host,
+            final @NotNull URI baseURI,
+            final @NotNull CookieStore cookieStore,
+            final @NotNull CloseableHttpClient client) {
         super();
-        this.host = host;
-        this.baseURI = baseURI;
-        this.cookieStore = cookieStore;
-        this.client = client;
+        this.host = Validate.notNull(host, "Host is required");
+        this.baseURI = Validate.notNull(baseURI, "Base URI is required");
+        this.cookieStore = Validate.notNull(cookieStore, "Cookie store is required");
+        this.client = Validate.notNull(client, "Client is required");
     }
 
     /**
@@ -129,8 +117,7 @@ implements HttpServiceClient {
      * @param builder The configuration builder
      */
     protected void configureRequestConfig(
-            @Nonnull
-            final RequestConfig.Builder builder) {
+            final @NotNull RequestConfig.Builder builder) {
         // Override if needed
     }
 
@@ -138,8 +125,7 @@ implements HttpServiceClient {
      * {@inheritDoc}
      */
     @Override
-    @Nonnull
-    public HttpHost getHost() {
+    public @NotNull HttpHost getHost() {
         return this.host;
     }
 
@@ -147,16 +133,14 @@ implements HttpServiceClient {
      * {@inheritDoc}
      */
     @Override
-    @Nonnull
-    public URI getBaseURI() {
+    public @NotNull URI getBaseURI() {
         return this.baseURI;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Nonnull
-    public CookieStore getCookieStore() {
+    public @NotNull CookieStore getCookieStore() {
         return this.cookieStore;
     }
 
@@ -164,8 +148,7 @@ implements HttpServiceClient {
      * {@inheritDoc}
      */
     @Override
-    @Nonnull
-    public CloseableHttpClient getClient() {
+    public @NotNull CloseableHttpClient getClient() {
         return this.client;
     }
 
@@ -179,11 +162,8 @@ implements HttpServiceClient {
      * @return The operation execution's result
      * @throws HttpClientException If an error occurs executing the operation
      */
-    @Nullable
     public <P, R> R execute(
-            @Nonnull
-            final StatusIndependentOperation<P, R> operation,
-            @Nullable
+            final @NotNull StatusIndependentOperation<P, R> operation,
             final P params)
     throws HttpClientException {
         return operation.execute(params, this);
@@ -204,8 +184,7 @@ implements HttpServiceClient {
      * 
      * @return The logger for this instance's actual class
      */
-    @Nonnull
-    protected Logger getLogger() {
+    protected @NotNull Logger getLogger() {
         synchronized (this) {
             if (this.logger == null) {
                 this.logger = LoggerFactory.getLogger(getClass());

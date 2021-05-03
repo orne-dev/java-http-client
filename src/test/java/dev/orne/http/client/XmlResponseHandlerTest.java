@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -30,7 +30,7 @@ import org.mockito.InOrder;
  * @see JaxbXMLResponseHandler
  */
 @Tag("ut")
-public class XmlResponseHandlerTest
+class XmlResponseHandlerTest
 extends AbstractMimeTypeResponseHandlerTest {
 
     /**
@@ -39,7 +39,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      */
     @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void testTypeConstructorNullType()
+    void testTypeConstructorNullType()
     throws Throwable {
         assertThrows(IllegalArgumentException.class, () -> {
             new JaxbXMLResponseHandler(null);
@@ -51,7 +51,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testTypeConstructor()
+    void testTypeConstructor()
     throws Throwable  {
         final JaxbXMLResponseHandler<TestBean> handler =
                 new JaxbXMLResponseHandler<>(TestBean.class);
@@ -66,10 +66,10 @@ extends AbstractMimeTypeResponseHandlerTest {
      */
     @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void testContextConstructorNullType()
+    void testContextConstructorNullType()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new JaxbXMLResponseHandler(mockContext, null);
         });
     }
@@ -80,9 +80,9 @@ extends AbstractMimeTypeResponseHandlerTest {
      */
     @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void testContextConstructorNullContext()
+    void testContextConstructorNullContext()
     throws Throwable  {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new JaxbXMLResponseHandler(null, TestBean.class);
         });
     }
@@ -92,7 +92,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testContextConstructor()
+    void testContextConstructor()
     throws Throwable  {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -123,10 +123,8 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @return The created {@code JaxbXMLResponseHandler} instance
      */
     protected <T> JaxbXMLResponseHandler<T> createHandlerForContextAndType(
-            @Nonnull
-            final JAXBContext mockContext,
-            @Nonnull
-            final Class<T> targetType) {
+            final @NotNull JAXBContext mockContext,
+            final @NotNull Class<T> targetType) {
         return new JaxbXMLResponseHandler<>(mockContext, targetType);
     }
 
@@ -135,7 +133,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityNullEntity()
+    void testHandleEntityNullEntity()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -150,7 +148,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntity()
+    void testHandleEntity()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -185,7 +183,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityGetContentFailIOException()
+    void testHandleEntityGetContentFailIOException()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -210,7 +208,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityGetContentFailUnsupportedOperationException()
+    void testHandleEntityGetContentFailUnsupportedOperationException()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -235,7 +233,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityGetContentTypeFail()
+    void testHandleEntityGetContentTypeFail()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -260,7 +258,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityCreateUnmarshallerFail()
+    void testHandleEntityCreateUnmarshallerFail()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -287,7 +285,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityUnmarshalFail()
+    void testHandleEntityUnmarshalFail()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -321,7 +319,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testHandleEntityUnmarshalNullElement()
+    void testHandleEntityUnmarshalNullElement()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -350,7 +348,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateSource()
+    void testCreateSource()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -372,7 +370,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testCreateSourceNoCharset()
+    void testCreateSourceNoCharset()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -393,7 +391,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testIsMimeTypeSupportedXml()
+    void testIsMimeTypeSupportedXml()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -409,7 +407,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testIsMimeTypeSupportedOthers()
+    void testIsMimeTypeSupportedOthers()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =
@@ -428,7 +426,7 @@ extends AbstractMimeTypeResponseHandlerTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testGetDefaultContentType()
+    void testGetDefaultContentType()
     throws Throwable {
         final JAXBContext mockContext = mock(JAXBContext.class);
         final JaxbXMLResponseHandler<TestBean> handler =

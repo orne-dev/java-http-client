@@ -1,7 +1,5 @@
 package dev.orne.http.client;
 
-import java.net.URI;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -24,11 +22,12 @@ import java.net.URI;
  * #L%
  */
 
+import java.net.URI;
 import java.net.URL;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -50,11 +49,10 @@ extends BaseStatedHttpServiceClient<S>
 implements AuthenticableHttpServiceClient<S, C> {
 
     /** The authentication operation. */
-    private final AuthenticationOperation<C, ?, S> authenticationOperation;
+    private final @NotNull AuthenticationOperation<C, ?, S> authenticationOperation;
     /** If credentials should be stored. */
     private boolean credentialsStoringEnabled;
     /** The stored credentials. */
-    @Nullable
     private C storedCredentials;
     /** If expired authentications should be renewed automatically. */
     private boolean authenticationAutoRenewalEnabled;
@@ -67,17 +65,13 @@ implements AuthenticableHttpServiceClient<S, C> {
      * @param authenticationOperation The authentication operation
      */
     public BaseAuthenticableHttpServiceClient(
-            @Nonnull
-            final URL baseURL,
-            @Nonnull
-            final StatusInitOperation<S> statusInitOperation,
-            @Nonnull
-            AuthenticationOperation<C, ?, S> authenticationOperation) {
+            final @NotNull URL baseURL,
+            final @NotNull StatusInitOperation<S> statusInitOperation,
+            final @NotNull AuthenticationOperation<C, ?, S> authenticationOperation) {
         super(baseURL, statusInitOperation);
-        if (authenticationOperation == null) {
-            throw new IllegalArgumentException("Parameter 'authenticationOperation' is required.");
-        }
-        this.authenticationOperation = authenticationOperation;
+        this.authenticationOperation = Validate.notNull(
+                authenticationOperation,
+                "Authentication operation is required.");
     }
 
     /**
@@ -91,20 +85,16 @@ implements AuthenticableHttpServiceClient<S, C> {
      * @param authenticationOperation The authentication operation
      */
     protected BaseAuthenticableHttpServiceClient(
-            @Nonnull
-            final HttpHost host,
-            @Nonnull
-            final URI baseURI,
-            @Nonnull
-            final CookieStore cookieStore,
-            @Nonnull
-            final CloseableHttpClient client,
-            @Nonnull
-            final StatusInitOperation<S> statusInitOperation,
-            @Nonnull
-            AuthenticationOperation<C, ?, S> authenticationOperation) {
+            final @NotNull HttpHost host,
+            final @NotNull URI baseURI,
+            final @NotNull CookieStore cookieStore,
+            final @NotNull CloseableHttpClient client,
+            final @NotNull StatusInitOperation<S> statusInitOperation,
+            @NotNull AuthenticationOperation<C, ?, S> authenticationOperation) {
         super(host, baseURI, cookieStore, client, statusInitOperation);
-        this.authenticationOperation = authenticationOperation;
+        this.authenticationOperation = Validate.notNull(
+                authenticationOperation,
+                "Authentication operation is required.");
     }
 
     /**
@@ -112,7 +102,7 @@ implements AuthenticableHttpServiceClient<S, C> {
      * 
      * @return The authentication operation
      */
-    protected AuthenticationOperation<C, ?, S> getAuthenticationOperation() {
+    protected @NotNull AuthenticationOperation<C, ?, S> getAuthenticationOperation() {
         return this.authenticationOperation;
     }
 
@@ -197,8 +187,7 @@ implements AuthenticableHttpServiceClient<S, C> {
      */
     @Override
     public synchronized void authenticate(
-            @Nonnull
-            final C credentials)
+            final @NotNull C credentials)
     throws HttpClientException {
         getLogger().debug("Authenticating...");
         super.execute(this.authenticationOperation, credentials);
@@ -223,11 +212,8 @@ implements AuthenticableHttpServiceClient<S, C> {
      * {@inheritDoc}
      */
     @Override
-    @Nullable
     public <P, R> R execute(
-            @Nonnull
-            final StatusDependentOperation<P, R, ? super S> operation,
-            @Nullable
+            final @NotNull StatusDependentOperation<P, R, ? super S> operation,
             final P params)
     throws HttpClientException {
         if (operation instanceof AuthenticatedOperation) {

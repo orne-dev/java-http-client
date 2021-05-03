@@ -1,6 +1,3 @@
-/**
- * 
- */
 package dev.orne.http.client;
 
 /*-
@@ -25,8 +22,7 @@ package dev.orne.http.client;
  * #L%
  */
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 /**
  * <p>Operation for {@code HttpServiceClient} that authenticates on HTTP
@@ -55,11 +51,8 @@ extends StatusDependentOperation<P, R, S> {
      * failed
      */
     @Override
-    @Nullable
     public R execute(
-            @Nullable
             P params,
-            @Nonnull
-            StatedHttpServiceClient<? extends S> client)
+            @NotNull StatedHttpServiceClient<? extends S> client)
     throws HttpClientException;
 }

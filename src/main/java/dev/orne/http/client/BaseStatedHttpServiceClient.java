@@ -1,7 +1,5 @@
 package dev.orne.http.client;
 
-import java.net.URI;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -24,11 +22,12 @@ import java.net.URI;
  * #L%
  */
 
+import java.net.URI;
 import java.net.URL;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -46,10 +45,8 @@ extends BaseHttpServiceClient
 implements StatedHttpServiceClient<S> {
 
     /** The status initialization operation. */
-    @Nonnull
-    private final StatusInitOperation<S> statusInitOperation;
+    private final @NotNull StatusInitOperation<S> statusInitOperation;
     /** The client's status. */
-    @Nullable
     private S status;
 
     /**
@@ -59,15 +56,12 @@ implements StatedHttpServiceClient<S> {
      * @param statusInitOperation The status initialization operation
      */
     public BaseStatedHttpServiceClient(
-            @Nonnull
-            final URL baseURL,
-            @Nonnull
-            final StatusInitOperation<S> statusInitOperation) {
+            final @NotNull URL baseURL,
+            final @NotNull StatusInitOperation<S> statusInitOperation) {
         super(baseURL);
-        if (statusInitOperation == null) {
-            throw new IllegalArgumentException("Parameter 'statusInitOperation' is required.");
-        }
-        this.statusInitOperation = statusInitOperation;
+        this.statusInitOperation = Validate.notNull(
+                statusInitOperation,
+                "Status initialization operation is required");
     }
 
     /**
@@ -80,18 +74,15 @@ implements StatedHttpServiceClient<S> {
      * @param statusInitOperation The status initialization operation
      */
     protected BaseStatedHttpServiceClient(
-            @Nonnull
-            final HttpHost host,
-            @Nonnull
-            final URI baseURI,
-            @Nonnull
-            final CookieStore cookieStore,
-            @Nonnull
-            final CloseableHttpClient client,
-            @Nonnull
-            final StatusInitOperation<S> statusInitOperation) {
+            final @NotNull HttpHost host,
+            final @NotNull URI baseURI,
+            final @NotNull CookieStore cookieStore,
+            final @NotNull CloseableHttpClient client,
+            final @NotNull StatusInitOperation<S> statusInitOperation) {
         super(host, baseURI, cookieStore, client);
-        this.statusInitOperation = statusInitOperation;
+        this.statusInitOperation = Validate.notNull(
+                statusInitOperation,
+                "Status initialization operation is required");
     }
 
     /**
@@ -99,7 +90,7 @@ implements StatedHttpServiceClient<S> {
      * 
      * @return The status initialization operation
      */
-    protected StatusInitOperation<S> getStatusInitOperation() {
+    protected @NotNull StatusInitOperation<S> getStatusInitOperation() {
         return this.statusInitOperation;
     }
 
@@ -107,11 +98,8 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    @Nullable
     public <P, R> R execute(
-            @Nonnull
-            final StatusDependentOperation<P, R, ? super S> operation,
-            @Nullable
+            final @NotNull StatusDependentOperation<P, R, ? super S> operation,
             final P params)
     throws HttpClientException {
         ensureInitialized();
@@ -122,8 +110,7 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    @Nonnull
-    public synchronized S ensureInitialized()
+    public synchronized @NotNull S ensureInitialized()
     throws HttpClientException {
         S result = getStatus();
         if (result == null) {
@@ -136,8 +123,7 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    @Nonnull
-    public synchronized S initializeStatus()
+    public synchronized @NotNull S initializeStatus()
     throws HttpClientException {
         getLogger().debug("Initializing client status...");
         final S newState = this.statusInitOperation.execute(
@@ -152,7 +138,6 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    @Nullable
     public synchronized S getStatus() {
         return this.status;
     }
@@ -172,7 +157,6 @@ implements StatedHttpServiceClient<S> {
      * @param status The client's status
      */
     public synchronized void setStatus(
-            @Nullable
             final S status) {
         this.status = status;
     }

@@ -6,7 +6,7 @@ import static org.mockito.BDDMockito.*;
 import java.net.URI;
 import java.net.URL;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
@@ -25,16 +25,16 @@ import org.slf4j.LoggerFactory;
  * @see BaseHttpServiceClient
  */
 @Tag("ut")
-public class BaseHttpServiceClientTest {
+class BaseHttpServiceClientTest {
 
     /**
      * Test for {@link BaseHttpServiceClient#BaseHttpServiceClient(URL)}.
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullURL()
+    void testConstructorNullURL()
     throws Throwable {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new BaseHttpServiceClient(null);
         });
     }
@@ -44,7 +44,7 @@ public class BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructor()
+    void testConstructor()
     throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";
@@ -58,7 +58,6 @@ public class BaseHttpServiceClientTest {
             assertEquals(schema, clientHost.getSchemeName());
             assertNotNull(clientHost.getHostName());
             assertEquals(host, clientHost.getHostName());
-            assertNotNull(clientHost.getPort());
             assertEquals(port, clientHost.getPort());
             assertNull(clientHost.getAddress());
             
@@ -80,8 +79,7 @@ public class BaseHttpServiceClientTest {
      * @return The created instance
      */
     protected BaseHttpServiceClient createClientFromUrl(
-            @Nonnull
-            final URL url) {
+            final @NotNull URL url) {
         return new BaseHttpServiceClient(url);
     }
 
@@ -95,14 +93,10 @@ public class BaseHttpServiceClientTest {
      * @return The created instance
      */
     protected BaseHttpServiceClient createClientFromParts(
-            @Nonnull
-            final HttpHost mockHost,
-            @Nonnull
-            final URI mockBaseUri,
-            @Nonnull
-            final CookieStore mockCookieStore,
-            @Nonnull
-            final CloseableHttpClient mockClient) {
+            final @NotNull HttpHost mockHost,
+            final @NotNull URI mockBaseUri,
+            final @NotNull CookieStore mockCookieStore,
+            final @NotNull CloseableHttpClient mockClient) {
         return new BaseHttpServiceClient(
                 mockHost,
                 mockBaseUri,
@@ -115,7 +109,7 @@ public class BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testClose()
+    void testClose()
     throws Throwable {
         final HttpHost mockHost = new HttpHost("example.org");
         final URI mockBaseUri = URI.create("some/path");
@@ -138,7 +132,7 @@ public class BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteNullParam()
+    void testExecuteNullParam()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -159,7 +153,7 @@ public class BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecute()
+    void testExecute()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -181,7 +175,7 @@ public class BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteFailed()
+    void testExecuteFailed()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -205,7 +199,7 @@ public class BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testLogger()
+    void testLogger()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         try (final BaseHttpServiceClient client = createClientFromUrl(url)) {

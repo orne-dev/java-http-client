@@ -1,7 +1,5 @@
 package dev.orne.http.client;
 
-import javax.annotation.Nullable;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -56,7 +54,6 @@ extends AuthenticationRequiredException {
      *          later retrieval by the {@link #getMessage()} method.
      */
     public CredentialsNotStoredException(
-            @Nullable
             final String message) {
         super(message);
     }
@@ -75,7 +72,6 @@ extends AuthenticationRequiredException {
      *         unknown.)
      */
     public CredentialsNotStoredException(
-            @Nullable
             final Throwable cause) {
         super(cause);
     }
@@ -94,9 +90,7 @@ extends AuthenticationRequiredException {
      *         unknown.)
      */
     public CredentialsNotStoredException(
-            @Nullable
             final String message,
-            @Nullable
             final Throwable cause) {
         super(message, cause);
     }
@@ -115,9 +109,7 @@ extends AuthenticationRequiredException {
      *                           be writable
      */
     public CredentialsNotStoredException(
-            @Nullable
             final String message,
-            @Nullable
             final Throwable cause,
             final boolean enableSuppression,
             final boolean writableStackTrace) {

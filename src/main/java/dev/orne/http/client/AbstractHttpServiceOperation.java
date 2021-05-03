@@ -25,8 +25,7 @@ package dev.orne.http.client;
 import java.io.IOException;
 import java.net.URI;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -56,10 +55,8 @@ public abstract class AbstractHttpServiceOperation<
         C extends HttpServiceClient> {
 
     /** The response handler. */
-    @Nullable
     private ResponseHandler<E> responseHandler;
     /** The logger for this instance's actual class. */
-    @Nullable
     private Logger logger;
 
     /**
@@ -71,12 +68,9 @@ public abstract class AbstractHttpServiceOperation<
      * @throws HttpClientException If an error occurs generating the
      * execution request URI
      */
-    @Nonnull
-    protected URI resolveRequestURI(
-            @Nonnull
-            final URI requestURI,
-            @Nonnull
-            final C client)
+    protected @NotNull URI resolveRequestURI(
+            final @NotNull URI requestURI,
+            final @NotNull C client)
     throws HttpClientException {
         return client.getBaseURI().resolve(requestURI);
     }
@@ -91,14 +85,10 @@ public abstract class AbstractHttpServiceOperation<
      * @throws HttpClientException If an exception occurs executing the
      * request
      */
-    @Nullable
     protected R executeHttpRequest(
-            @Nullable
             final P params,
-            @Nonnull
-            final HttpRequest request,
-            @Nonnull
-            final C client)
+            final @NotNull HttpRequest request,
+            final @NotNull C client)
     throws HttpClientException {
         try (final CloseableHttpResponse response = client.getClient().execute(
                 client.getHost(),
@@ -120,12 +110,9 @@ public abstract class AbstractHttpServiceOperation<
      * @throws HttpClientException If an exception occurs creating the
      * HTTP context
      */
-    @Nullable
     protected HttpContext getHttpContext(
-            @Nullable
-            P params,
-            @Nonnull
-            C client)
+            final P params,
+            final @NotNull C client)
     throws HttpClientException {
         return null;
     }
@@ -139,8 +126,7 @@ public abstract class AbstractHttpServiceOperation<
      * @throws HttpClientException If an exception occurs creating the
      * response handler
      */
-    @Nonnull
-    protected ResponseHandler<E> getResponseHandler()
+    protected @NotNull ResponseHandler<E> getResponseHandler()
     throws HttpClientException {
         synchronized (this) {
             if (this.responseHandler == null) {
@@ -157,8 +143,7 @@ public abstract class AbstractHttpServiceOperation<
      * @throws HttpClientException If an exception occurs creating the
      * response handler
      */
-    @Nonnull
-    protected abstract ResponseHandler<E> createResponseHandler()
+    protected abstract @NotNull ResponseHandler<E> createResponseHandler()
     throws HttpClientException;
 
     /**
@@ -169,16 +154,11 @@ public abstract class AbstractHttpServiceOperation<
      * @return The response's entity
      * @throws HttpClientException If an error occurs extracting the entity
      */
-    @Nullable
     protected E extractResponseEntity(
-            @Nullable
-            P params,
-            @Nonnull
-            C client,
-            @Nonnull
-            HttpRequest request,
-            @Nonnull
-            HttpResponse response)
+            final P params,
+            final @NotNull C client,
+            final @NotNull HttpRequest request,
+            final @NotNull HttpResponse response)
     throws HttpClientException {
         try {
             return getResponseHandler().handleResponse(response);
@@ -200,16 +180,11 @@ public abstract class AbstractHttpServiceOperation<
      * @throws HttpClientException If an exception occurs processing the
      * response
      */
-    @Nullable
     protected R processHttpResponse(
-            @Nullable
-            P params,
-            @Nonnull
-            C client,
-            @Nonnull
-            HttpRequest request,
-            @Nonnull
-            HttpResponse response)
+            final P params,
+            final @NotNull C client,
+            final @NotNull HttpRequest request,
+            final @NotNull HttpResponse response)
     throws HttpClientException {
         final E responseEntity = extractResponseEntity(params, client, request, response);
         return processResponseEntity(params, client, request, response, responseEntity);
@@ -227,17 +202,11 @@ public abstract class AbstractHttpServiceOperation<
      * @throws HttpClientException If an exception occurs processing the
      * response
      */
-    @Nullable
     protected abstract R processResponseEntity(
-            @Nullable
             P params,
-            @Nonnull
-            C client,
-            @Nonnull
-            HttpRequest request,
-            @Nonnull
-            HttpResponse response,
-            @Nullable
+            @NotNull C client,
+            @NotNull HttpRequest request,
+            @NotNull HttpResponse response,
             E responseEntity)
     throws HttpClientException;
 
@@ -251,18 +220,12 @@ public abstract class AbstractHttpServiceOperation<
      * @param exception The exception occurred during the request execution
      * @return The exception to be thrown
      */
-    @Nonnull
-    protected HttpClientException processException(
-            @Nullable
-            P params,
-            @Nonnull
-            C client,
-            @Nonnull
-            HttpRequest request,
-            @Nullable
-            HttpResponse response,
-            @Nonnull
-            Exception exception) {
+    protected @NotNull HttpClientException processException(
+            final P params,
+            final @NotNull C client,
+            final @NotNull HttpRequest request,
+            final HttpResponse response,
+            final @NotNull Exception exception) {
         final HttpClientException result;
         if (exception instanceof HttpClientException) {
             result = (HttpClientException) exception;
@@ -288,18 +251,12 @@ public abstract class AbstractHttpServiceOperation<
      * @throws AuthenticationRequiredException If the server responded with
      * an {@code 401 Unauthorized} status code
      */
-    @Nullable
     protected E processHttpResponseException(
-            @Nullable
-            P params,
-            @Nonnull
-            C client,
-            @Nonnull
-            final HttpRequest request,
-            @Nonnull
-            final HttpResponse response,
-            @Nonnull
-            final HttpResponseException exception)
+            final P params,
+            final @NotNull C client,
+            final @NotNull HttpRequest request,
+            final @NotNull HttpResponse response,
+            final @NotNull HttpResponseException exception)
     throws HttpClientException {
         if (exception.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
             throw new AuthenticationRequiredException(
@@ -317,8 +274,7 @@ public abstract class AbstractHttpServiceOperation<
      * 
      * @return The logger for this instance's actual class
      */
-    @Nonnull
-    protected Logger getLogger() {
+    protected @NotNull Logger getLogger() {
         synchronized (this) {
             if (this.logger == null) {
                 this.logger = LoggerFactory.getLogger(getClass());

@@ -1,7 +1,5 @@
 package dev.orne.http.client;
 
-import javax.annotation.Nonnull;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -23,6 +21,8 @@ import javax.annotation.Nonnull;
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
  * #L%
  */
+
+import javax.validation.constraints.NotNull;
 
 /**
  * HTTP service client interface able to authenticate against
@@ -83,7 +83,6 @@ extends StatedHttpServiceClient<S> {
      * @throws HttpClientException If an error occurs during the authentication
      * process
      */
-    @Nonnull
     void ensureAuthenticated()
     throws HttpClientException;
 
@@ -97,8 +96,7 @@ extends StatedHttpServiceClient<S> {
      * process
      */
     void authenticate(
-            @Nonnull
-            C credentials)
+            @NotNull C credentials)
     throws HttpClientException;
 
     /**

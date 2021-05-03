@@ -26,13 +26,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 
@@ -52,9 +53,9 @@ extends AbstractMimeTypeResponseHandler<E> {
             ContentType.create(ContentType.APPLICATION_XML.getMimeType());
 
     /** The JAXB context to use. */
-    private final JAXBContext context;
+    private final @NotNull JAXBContext context;
     /** The result value type. */
-    private final Class<? extends E> valueType;
+    private final @NotNull Class<? extends E> valueType;
 
     /**
      * Creates a new instance.
@@ -63,15 +64,11 @@ extends AbstractMimeTypeResponseHandler<E> {
      * @throws JAXBException If an error occurs creating the JAXB context
      */
     public JaxbXMLResponseHandler(
-            @Nonnull
-            final Class<? extends E> valueType)
+            final @NotNull Class<? extends E> valueType)
     throws JAXBException {
         super();
-        if (valueType == null) {
-            throw new IllegalArgumentException("Parameter 'valueType' is required.");
-        }
         this.context = JAXBContext.newInstance(valueType);
-        this.valueType = valueType;
+        this.valueType = Validate.notNull(valueType, "Result value type is required.");
     }
 
     /**
@@ -81,19 +78,11 @@ extends AbstractMimeTypeResponseHandler<E> {
      * @param valueType The result value type
      */
     public JaxbXMLResponseHandler(
-            @Nonnull
-            final JAXBContext context,
-            @Nonnull
-            final Class<? extends E> valueType) {
+            final @NotNull JAXBContext context,
+            final @NotNull Class<? extends E> valueType) {
         super();
-        if (context == null) {
-            throw new IllegalArgumentException("Parameter 'context' is required.");
-        }
-        if (valueType == null) {
-            throw new IllegalArgumentException("Parameter 'valueType' is required.");
-        }
-        this.context = context;
-        this.valueType = valueType;
+        this.context = Validate.notNull(context, "JAXB context is required.");
+        this.valueType = Validate.notNull(valueType, "Result value type is required.");
     }
 
     /**
@@ -101,7 +90,7 @@ extends AbstractMimeTypeResponseHandler<E> {
      * 
      * @return The JAXB context to use
      */
-    protected JAXBContext getContext() {
+    protected @NotNull JAXBContext getContext() {
         return this.context;
     }
 
@@ -110,7 +99,7 @@ extends AbstractMimeTypeResponseHandler<E> {
      * 
      * @return The result value type
      */
-    public Class<? extends E> getValueType() {
+    public @NotNull Class<? extends E> getValueType() {
         return this.valueType;
     }
 
@@ -119,8 +108,7 @@ extends AbstractMimeTypeResponseHandler<E> {
      */
     @Override
     protected boolean isMimeTypeSupported(
-            @Nonnull
-            final String mimeType) {
+            final @NotNull String mimeType) {
         return ContentType.APPLICATION_XML.getMimeType().equals(mimeType)
                 || ContentType.TEXT_XML.getMimeType().equals(mimeType);
     }
@@ -128,9 +116,8 @@ extends AbstractMimeTypeResponseHandler<E> {
     /**
      * {@inheritDoc}
      */
-    @Nonnull
     @Override
-    protected ContentType getDefaultContentType() {
+    protected @NotNull ContentType getDefaultContentType() {
         return DEFAULT_CONTENT_TYPE;
     }
 
@@ -168,12 +155,9 @@ extends AbstractMimeTypeResponseHandler<E> {
      * @param contentType The entity's content type
      * @return The source to use for reading the entity's content
      */
-    @Nonnull
-    protected StreamSource createSource(
-            @Nonnull
-            final InputStream entityIS,
-            @Nonnull
-            final ContentType contentType) {
+    protected @NotNull StreamSource createSource(
+            final @NotNull InputStream entityIS,
+            final @NotNull ContentType contentType) {
         final StreamSource source;
         if (contentType.getCharset() == null) {
             source = new StreamSource(entityIS);

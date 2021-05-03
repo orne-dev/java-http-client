@@ -22,8 +22,7 @@ package dev.orne.http.client;
  * #L%
  */
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 /**
  * Operation for {@code HttpServiceClient} independent of client's
@@ -45,11 +44,8 @@ public interface StatusIndependentOperation<P, R> {
      * @return The operation execution result
      * @throws HttpClientException If there is an error executing the operation
      */
-    @Nullable
     public R execute(
-            @Nullable
             P params,
-            @Nonnull
-            HttpServiceClient client)
+            @NotNull HttpServiceClient client)
     throws HttpClientException;
 }

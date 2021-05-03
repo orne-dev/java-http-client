@@ -1,12 +1,8 @@
-/**
- * 
- */
 package dev.orne.http.client;
 
 import java.net.URI;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -29,11 +25,8 @@ extends AbstractStatusIndependentOperation<P, E, R> {
      * {@inheritDoc}
      */
     @Override
-    @Nonnull
-    protected HttpPost createRequest(
-            @Nonnull
-            final URI requestURI,
-            @Nullable
+    protected @NotNull HttpPost createRequest(
+            final @NotNull URI requestURI,
             final P params)
     throws HttpClientException {
         final HttpPost request = new HttpPost(requestURI);
@@ -49,9 +42,7 @@ extends AbstractStatusIndependentOperation<P, E, R> {
      * @throws HttpClientException If an exception occurs generating the
      * entity
      */
-    @Nullable
     protected abstract HttpEntity createEntity(
-            @Nullable
             P params)
     throws HttpClientException;
 }

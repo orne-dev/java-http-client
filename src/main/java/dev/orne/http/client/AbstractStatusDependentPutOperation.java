@@ -1,12 +1,8 @@
-/**
- * 
- */
 package dev.orne.http.client;
 
 import java.net.URI;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPut;
@@ -30,14 +26,10 @@ extends AbstractStatusDependentOperation<P, E, R, S> {
      * {@inheritDoc}
      */
     @Override
-    @Nonnull
-    protected HttpPut createRequest(
-            @Nonnull
-            final URI requestURI,
-            @Nullable
+    protected @NotNull HttpPut createRequest(
+            final @NotNull URI requestURI,
             final P params,
-            @Nonnull
-            final S status)
+            final @NotNull S status)
     throws HttpClientException {
         final HttpPut request = new HttpPut(requestURI);
         request.setEntity(createEntity(params, status));
@@ -53,11 +45,8 @@ extends AbstractStatusDependentOperation<P, E, R, S> {
      * @throws HttpClientException If an exception occurs generating the
      * entity
      */
-    @Nullable
     protected abstract HttpEntity createEntity(
-            @Nullable
             P params,
-            @Nonnull
-            S status)
+            @NotNull S status)
     throws HttpClientException;
 }

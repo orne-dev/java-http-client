@@ -3,8 +3,7 @@ package dev.orne.http.client;
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
@@ -26,7 +25,6 @@ public abstract class AbstractMimeTypeResponseHandler<E>
 extends AbstractResponseHandler<E> {
 
     /** The logger for this instance's actual class. */
-    @Nullable
     private Logger logger;
 
     /**
@@ -36,8 +34,7 @@ extends AbstractResponseHandler<E> {
      * @return If the {@code MimeType} is supported
      */
     protected abstract boolean isMimeTypeSupported(
-            @Nonnull
-            final String mimeType);
+            final @NotNull String mimeType);
 
     /**
      * Returns the default {@code ContentType} to use when entity
@@ -45,8 +42,7 @@ extends AbstractResponseHandler<E> {
      * 
      * @return The default {@code ContentType}
      */
-    @Nonnull
-    protected abstract ContentType getDefaultContentType();
+    protected abstract @NotNull ContentType getDefaultContentType();
 
     /**
      * <p>Retrieves the {@code ContentType} from the {@code HttpEntity}
@@ -61,10 +57,8 @@ extends AbstractResponseHandler<E> {
      * @throws IOException Is an error occurs retrieving the content type
      * or the content type is not supported
      */
-    @Nonnull
-    protected ContentType getSupportedContentType(
-            @Nonnull
-            final HttpEntity entity)
+    protected @NotNull ContentType getSupportedContentType(
+            final @NotNull HttpEntity entity)
     throws IOException {
         final ContentType result;
         if (entity.getContentType() == null) {
@@ -97,8 +91,7 @@ extends AbstractResponseHandler<E> {
      * 
      * @return The logger for this instance's actual class
      */
-    @Nonnull
-    protected Logger getLogger() {
+    protected @NotNull Logger getLogger() {
         synchronized (this) {
             if (this.logger == null) {
                 this.logger = LoggerFactory.getLogger(getClass());

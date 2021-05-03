@@ -8,7 +8,7 @@ import static org.mockito.Mockito.times;
 import java.net.URI;
 import java.net.URL;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
@@ -26,7 +26,7 @@ import org.mockito.InOrder;
  * @see BaseStatedHttpServiceClient
  */
 @Tag("ut")
-public class BaseStatedHttpServiceClientTest
+class BaseStatedHttpServiceClientTest
 extends BaseHttpServiceClientTest {
 
     /**
@@ -34,9 +34,9 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullNull()
+    void testConstructorNullNull()
     throws Throwable {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new BaseStatedHttpServiceClient<Object>(null, null);
         });
     }
@@ -46,11 +46,11 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullURL()
+    void testConstructorNullURL()
     throws Throwable {
         @SuppressWarnings("unchecked")
         final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new BaseStatedHttpServiceClient<Object>(null, mockInitOp);
         });
     }
@@ -60,14 +60,14 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructorNullInitOp()
+    void testConstructorNullInitOp()
     throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";
         final int port = 3654;
         final String path = "some/path";
         final URL url = new URL(schema, host, port, path);
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new BaseStatedHttpServiceClient<Object>(url, null);
         });
     }
@@ -77,7 +77,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testConstructor()
+    void testConstructor()
     throws Throwable {
         final String schema = "https";
         final String host = "some.host.example.com";
@@ -94,7 +94,6 @@ extends BaseHttpServiceClientTest {
             assertEquals(schema, clientHost.getSchemeName());
             assertNotNull(clientHost.getHostName());
             assertEquals(host, clientHost.getHostName());
-            assertNotNull(clientHost.getPort());
             assertEquals(port, clientHost.getPort());
             assertNull(clientHost.getAddress());
             
@@ -117,8 +116,7 @@ extends BaseHttpServiceClientTest {
      */
     @Override
     protected BaseStatedHttpServiceClient<? extends Object> createClientFromUrl(
-            @Nonnull
-            final URL url) {
+            final @NotNull URL url) {
         @SuppressWarnings("unchecked")
         final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
         return createClientFromUrlAndInitOp(url, mockInitOp);
@@ -128,10 +126,8 @@ extends BaseHttpServiceClientTest {
      * {@inheritDoc}
      */
     protected <T extends Object> BaseStatedHttpServiceClient<T> createClientFromUrlAndInitOp(
-            @Nonnull
-            final URL url,
-            @Nonnull
-            final StatusInitOperation<T> mockInitOp) {
+            final @NotNull URL url,
+            final @NotNull StatusInitOperation<T> mockInitOp) {
         return new BaseStatedHttpServiceClient<T>(url, mockInitOp);
     }
 
@@ -140,14 +136,10 @@ extends BaseHttpServiceClientTest {
      */
     @Override
     protected BaseHttpServiceClient createClientFromParts(
-            @Nonnull
-            final HttpHost mockHost,
-            @Nonnull
-            final URI mockBaseUri,
-            @Nonnull
-            final CookieStore mockCookieStore,
-            @Nonnull
-            final CloseableHttpClient mockClient) {
+            final @NotNull HttpHost mockHost,
+            final @NotNull URI mockBaseUri,
+            final @NotNull CookieStore mockCookieStore,
+            final @NotNull CloseableHttpClient mockClient) {
         @SuppressWarnings("unchecked")
         final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
         return new BaseStatedHttpServiceClient<Object>(
@@ -172,7 +164,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteDependentFailedInit()
+    void testExecuteDependentFailedInit()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -201,7 +193,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteDependentNullParam()
+    void testExecuteDependentNullParam()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -231,7 +223,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteDependent()
+    void testExecuteDependent()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -262,7 +254,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testExecuteDependentFailed()
+    void testExecuteDependentFailed()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -295,7 +287,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testSetStatus()
+    void testSetStatus()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -314,7 +306,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testResetStatus()
+    void testResetStatus()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -334,7 +326,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testInitializeStatus()
+    void testInitializeStatus()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -356,7 +348,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testEnsureInitialized()
+    void testEnsureInitialized()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
@@ -381,7 +373,7 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    public void testEnsureInitializedAlreadyInitialized()
+    void testEnsureInitializedAlreadyInitialized()
     throws Throwable {
         final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
