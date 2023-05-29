@@ -6,7 +6,7 @@
   <parent>
     <groupId>dev.orne</groupId>
     <artifactId>java-root-pom</artifactId>
-    <version>0.1.1</version>
+    <version>0.5.1</version>
     <relativePath />
   </parent>
 
@@ -18,7 +18,7 @@
   <name>Orne HTTP Client</name>
   <description>Orne HTTP client utilities</description>
   <inceptionYear>2020</inceptionYear>
-  <url>http://projects.orne.dev/java/http-client/</url>
+  <url>https://orne-dev.github.io/java-http-client/</url>
 
   <licenses>
     <license>
@@ -31,7 +31,7 @@
     <developer>
       <id>wamphiry</id>
       <name>(w) Iker Hernaez</name>
-      <email>i.hernaez@orne.dev</email>
+      <url>https://github.com/ihernaez</url>
     </developer>
   </developers>
 
@@ -44,13 +44,16 @@
 
   <properties>
     <java.version>1.8</java.version>
+    <java.module.name>dev.orne.http-client</java.module.name>
     <license.licenseName>lgpl_v3</license.licenseName>
 
-    <commons.lang.version>3.9</commons.lang.version>
+    <commons.lang.version>3.10</commons.lang.version>
     <apache.httpclient.version>4.5.12</apache.httpclient.version>
 
     <javax.validation.version>2.0.1.Final</javax.validation.version>
     <fasterxml.jackson.version>2.9.9</fasterxml.jackson.version>
+
+    <sonar.projectKey>java-http-client</sonar.projectKey>
   </properties>
 
   <dependencies>
@@ -126,16 +129,16 @@
             <groups>it</groups>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>com.amashchenko.maven.plugin</groupId>
-          <artifactId>gitflow-maven-plugin</artifactId>
-          <configuration>
-            <postReleaseGoals>clean verify deploy -Prelease,major-release</postReleaseGoals>
-            <postHotfixGoals>clean verify deploy -Prelease,major-release</postHotfixGoals>
-          </configuration>
-        </plugin>
       </plugins>
     </pluginManagement>
   </build>
+
+  <distributionManagement>
+    <site>
+      <id>github</id>
+      <name>Github Project Pages</name>
+      <url>${project.scm.connection}</url>
+    </site>
+  </distributionManagement>
 
 </project>
