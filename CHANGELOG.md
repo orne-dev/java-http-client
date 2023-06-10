@@ -1,5 +1,11 @@
 # :package: 0.1.0
 
+01. :gift: Added HTTP utility classes
+    01. Added class `dev.orne.http.Methods`
+    01. Added class `dev.orne.http.Headers`
+    01. Added class `dev.orne.http.MediaTypes`
+    01. Added class `dev.orne.http.ContentType`
+    01. Added class `dev.orne.http.StatusCodes`
 01. :gift: Added client API
     01. Added interface `dev.orne.http.client.HttpServiceClient`
     01. Added exception `dev.orne.http.client.HttpClientException`
