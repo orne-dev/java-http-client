@@ -6,7 +6,17 @@
     01. Added class `dev.orne.http.MediaTypes`
     01. Added class `dev.orne.http.ContentType`
     01. Added class `dev.orne.http.StatusCodes`
+01. :gift: Added HTTP client engine abstraction system.
+    01. Added interface `dev.orne.http.client.engine.HttpRequestHeadersSupplier`
+    01. Added interface `dev.orne.http.client.engine.HttpRequestBodySupplier`
+    01. Added interface `dev.orne.http.client.engine.HttpResponseHeadersSupplier`
+    01. Added interface `dev.orne.http.client.engine.HttpResponseBodySupplier`
+    01. Added interface `dev.orne.http.client.engine.HttpResponseHandler`
+    01. Added interface `dev.orne.http.client.engine.HttpClientEngine`
 01. :gift: Added client API
+    01. Added interface `dev.orne.http.client.Cookie`
+    01. Added interface `dev.orne.http.client.CookieStore`
+    01. Added class `dev.orne.http.client.DefaultCookie`
     01. Added interface `dev.orne.http.client.HttpServiceClient`
     01. Added exception `dev.orne.http.client.HttpClientException`
     01. Added interface `dev.orne.http.client.StatusIndependentOperation`
@@ -23,20 +33,14 @@
     01. Added exception `dev.orne.http.client.AuthenticationExpiredException`
     01. Added exception `dev.orne.http.client.CredentialsInvalidException`
     01. Added exception `dev.orne.http.client.CredentialsNotStoredException`
-01. :gift: Added HTTP client engine abstraction system.
-    01. Added interface `dev.orne.http.client.engine.HttpRequestHeadersSupplier`
-    01. Added interface `dev.orne.http.client.engine.HttpRequestBodySupplier`
-    01. Added interface `dev.orne.http.client.engine.HttpResponseHeadersSupplier`
-    01. Added interface `dev.orne.http.client.engine.HttpResponseBodySupplier`
-    01. Added interface `dev.orne.http.client.engine.HttpResponseHandler`
-    01. Added interface `dev.orne.http.client.engine.HttpClientEngine`
-    01. Added class `dev.orne.http.client.engine.AbstractHttpClientEngine`
-    01. Added Apache HTTP Client 4.x based HTTP client engine
-        01. Added class `dev.orne.http.client.engine.apache.ApacheHttpClientEngine`
 01. :gift: Added default client implementations
     01. Added class `dev.orne.http.client.BaseHttpServiceClient`
     01. Added class `dev.orne.http.client.BaseStatedHttpServiceClient`
     01. Added class `dev.orne.http.client.BaseAuthenticableHttpServiceClient`
+01. Added Apache HTTP Client 4.x based HTTP client engine
+    01. Added class `dev.orne.http.client.engine.apache.ApacheCookie`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheCookieStore`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpClientEngine`
 01. :gift: Added default operation implementations
     01. Added class `dev.orne.http.client.AbstractHttpServiceOperation`
     01. Added class `dev.orne.http.client.AbstractStatusIndependentOperation`

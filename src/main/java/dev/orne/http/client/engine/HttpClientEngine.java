@@ -27,8 +27,7 @@ import java.util.concurrent.Future;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.http.client.CookieStore;
-
+import dev.orne.http.client.CookieStore;
 import dev.orne.http.client.HttpClientException;
 
 /**

@@ -39,7 +39,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -56,8 +55,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 
 import dev.orne.http.Methods;
+import dev.orne.http.client.CookieStore;
 import dev.orne.http.client.HttpClientException;
-import dev.orne.http.client.engine.AbstractHttpClientEngine;
+import dev.orne.http.client.engine.HttpClientEngine;
 import dev.orne.http.client.engine.HttpRequestBodySupplier;
 import dev.orne.http.client.engine.HttpRequestHeadersSupplier;
 import dev.orne.http.client.engine.HttpResponseHandler;
@@ -71,8 +71,10 @@ import dev.orne.http.client.engine.HttpResponseHandler;
  * @since 0.1
  */
 public class ApacheHttpClientEngine
-extends AbstractHttpClientEngine {
+implements HttpClientEngine {
 
+    /** The HTTP client's cookie store. */
+    private final @NotNull ApacheCookieStore cookieStore;
     /** The HTTP client. */
     private final @NotNull CloseableHttpClient client;
     /** The asynchronous executor service. */
@@ -95,11 +97,12 @@ extends AbstractHttpClientEngine {
      */
     public ApacheHttpClientEngine() {
         super();
+        this.cookieStore = new ApacheCookieStore();
         final RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
         configureRequestConfig(requestConfigBuilder);
         final RequestConfig requestConfig = requestConfigBuilder.build();
         this.client = HttpClients.custom()
-                .setDefaultCookieStore(getCookieStore())
+                .setDefaultCookieStore(this.cookieStore.getDelegate())
                 .setDefaultRequestConfig(requestConfig)
                 .build();
         this.executor = Executors.newCachedThreadPool();
@@ -113,12 +116,13 @@ extends AbstractHttpClientEngine {
      * @param executor The asynchronous executor service.
      */
     public ApacheHttpClientEngine(
-            final @NotNull CookieStore cookieStore,
+            final @NotNull org.apache.http.client.CookieStore cookieStore,
             final @NotNull CloseableHttpClient client,
             final @NotNull ExecutorService executor) {
-        super(cookieStore);
-        this.client = Validate.notNull(client, "Client is required");
-        this.executor = Validate.notNull(executor, "Executor is required");
+        super();
+        this.cookieStore = new ApacheCookieStore(cookieStore);
+        this.client = Validate.notNull(client, "HTTP client is required");
+        this.executor = Validate.notNull(executor, "Executor service is required");
     }
 
     /**
@@ -140,6 +144,14 @@ extends AbstractHttpClientEngine {
     protected void configureRequestConfig(
             final @NotNull RequestConfig.Builder builder) {
         // Override if needed
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public @NotNull CookieStore getCookieStore() {
+        return this.cookieStore;
     }
 
     /**
