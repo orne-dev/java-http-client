@@ -22,6 +22,7 @@ package dev.orne.http.client.engine;
  * #L%
  */
 
+import java.io.Closeable;
 import java.net.URI;
 import java.util.concurrent.Future;
 
@@ -37,7 +38,8 @@ import dev.orne.http.client.HttpClientException;
  * @version 1.0, 2023-06
  * @since 0.1
  */
-public interface HttpClientEngine {
+public interface HttpClientEngine
+extends Closeable {
 
     /**
      * @return The HTTP client's cookie store

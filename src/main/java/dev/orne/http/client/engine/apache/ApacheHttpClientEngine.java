@@ -55,7 +55,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 
 import dev.orne.http.Methods;
-import dev.orne.http.client.CookieStore;
 import dev.orne.http.client.HttpClientException;
 import dev.orne.http.client.engine.HttpClientEngine;
 import dev.orne.http.client.engine.HttpRequestBodySupplier;
@@ -150,8 +149,26 @@ implements HttpClientEngine {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull CookieStore getCookieStore() {
+    public @NotNull ApacheCookieStore getCookieStore() {
         return this.cookieStore;
+    }
+
+    /**
+     * Returns the HTTP client.
+     * 
+     * @return The HTTP client.
+     */
+    protected @NotNull CloseableHttpClient getClient() {
+        return this.client;
+    }
+
+    /**
+     * Returns the asynchronous executor service.
+     * 
+     * @return The asynchronous executor service.
+     */
+    protected @NotNull ExecutorService getExecutor() {
+        return this.executor;
     }
 
     /**
@@ -269,5 +286,14 @@ implements HttpClientEngine {
     protected HttpContext getHttpContext()
     throws HttpClientException {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close()
+    throws IOException {
+        this.client.close();
     }
 }
