@@ -1,4 +1,4 @@
-package dev.orne.http.client.engine;
+package dev.orne.http.client.body;
 
 /*-
  * #%L
@@ -24,21 +24,27 @@ package dev.orne.http.client.engine;
 
 import javax.validation.constraints.NotNull;
 
+import dev.orne.http.client.HttpClientException;
+import dev.orne.http.client.engine.HttpRequest;
+
 /**
- * Functional interface for HTTP response handlers.
+ * Interface for producer of HTTP request bodies.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
+ * @param <E> The HTTP response body entity type.
  * @since 0.1
  */
-@FunctionalInterface
-public interface HttpResponseHandler {
+public interface HttpRequestBodyProducer {
 
     /**
-     * Handles the response of a HTTP request.
+     * Generates the HTTP request body entity.
      * 
-     * @param response The HTTP response.
+     * @param request The HTTP request.
+     * @throws HttpClientException If an error occurs generating
+     * HTTP request body.
      */
-    void handle(
-            @NotNull HttpResponse response);
+    void generate(
+            @NotNull HttpRequest request)
+    throws HttpClientException;
 }

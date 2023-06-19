@@ -22,13 +22,16 @@ package dev.orne.http.client;
  * #L%
  */
 
+import java.util.concurrent.CompletableFuture;
 import javax.validation.constraints.NotNull;
+
+import dev.orne.http.client.op.StatusDependentOperation;
 
 /**
  * HTTP service client interface with client status.
  * 
- * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
- * @version 1.0, 2020-05
+ * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+ * @version 1.0, 2023-06
  * @param <S> The client status type
  * @since 0.1
  */
@@ -38,20 +41,16 @@ extends HttpServiceClient {
     /**
      * Ensures that this client's status has been initialized.
      * 
-     * @return The client's status, never {@code null}
-     * @throws HttpClientException If an error occurs initializing the status
+     * @return The client's status
      */
-    public @NotNull S ensureInitialized()
-    throws HttpClientException;
+    public @NotNull CompletableFuture<@NotNull S> ensureInitialized();
 
     /**
      * Initializes client's status.
      * 
      * @return The new client status
-     * @throws HttpClientException If an error occurs initializing the status
      */
-    public @NotNull S initializeStatus()
-    throws HttpClientException;
+    public @NotNull CompletableFuture<@NotNull S> initializeStatus();
 
     /**
      * Executes the specified status aware operation for this HTTP service
@@ -62,19 +61,28 @@ extends HttpServiceClient {
      * @param operation The operation to execute
      * @param params The operation parameter
      * @return The operation execution's result
-     * @throws HttpClientException If an error occurs executing the operation
      */
-    public <P, R> R execute(
+    public <P, R> @NotNull CompletableFuture<R> execute(
             final @NotNull StatusDependentOperation<P, R, ? super S> operation,
-            final P params)
-    throws HttpClientException;
+            final P params);
 
     /**
      * Returns the client's current state.
+     * <p>
+     * If the state has not been initialized the state initialization operation
+     * is executed and the thread sleeps until it finishes.
+     * <p>
+     * Equivalent to {@code ensureInitialized().get()}.
      * 
      * @return The client's current state
+     * @throws InterruptedException If the state initialization operation
+     * was interrupted.
+     * @throws HttpClientException If an error occurred during the state
+     * initialization operation.
+     * @see #ensureInitialized()
      */
-    S getStatus();
+    @NotNull S getStatus()
+    throws HttpClientException, InterruptedException;
 
     /**
      * Resets the client's state.

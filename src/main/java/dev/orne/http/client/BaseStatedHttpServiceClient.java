@@ -23,14 +23,18 @@ package dev.orne.http.client;
  */
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpHost;
-import org.apache.http.client.CookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
+
+import dev.orne.http.client.engine.HttpClientEngine;
+import dev.orne.http.client.op.StatusDependentOperation;
+import dev.orne.http.client.op.StatusInitOperation;
 
 /**
  * Base HTTP service client with client status.
@@ -52,13 +56,32 @@ implements StatedHttpServiceClient<S> {
     /**
      * Creates a new instance.
      * 
-     * @param baseURL The HTTP service's base URL
+     * @param engine The HTTP client engine.
      * @param statusInitOperation The status initialization operation
      */
     public BaseStatedHttpServiceClient(
-            final @NotNull URL baseURL,
+            final @NotNull HttpClientEngine engine,
             final @NotNull StatusInitOperation<S> statusInitOperation) {
-        super(baseURL);
+        this(engine, (URI) null, statusInitOperation);
+    }
+
+    /**
+     * Creates a new instance.
+     * <p>
+     * The base URL, if provided, must be absolute, as is used to resolve
+     * relative URIs of operations.
+     * 
+     * @param engine The HTTP client engine.
+     * @param baseURL The HTTP service's base URL.
+     * @param statusInitOperation The status initialization operation
+     * @throws URISyntaxException If the provided base URL is not a valid URI.
+     */
+    public BaseStatedHttpServiceClient(
+            final @NotNull HttpClientEngine engine,
+            final URL baseURL,
+            final @NotNull StatusInitOperation<S> statusInitOperation)
+    throws URISyntaxException {
+        super(engine, baseURL);
         this.statusInitOperation = Validate.notNull(
                 statusInitOperation,
                 "Status initialization operation is required");
@@ -67,19 +90,15 @@ implements StatedHttpServiceClient<S> {
     /**
      * Creates a new instance.
      * 
-     * @param host The HTTP service's host
+     * @param engine The HTTP client engine.
      * @param baseURI The HTTP service's base URI
-     * @param cookieStore The HTTP client's cookie store
-     * @param client The HTTP client
      * @param statusInitOperation The status initialization operation
      */
-    protected BaseStatedHttpServiceClient(
-            final @NotNull HttpHost host,
-            final @NotNull URI baseURI,
-            final @NotNull CookieStore cookieStore,
-            final @NotNull CloseableHttpClient client,
+    public BaseStatedHttpServiceClient(
+            final @NotNull HttpClientEngine engine,
+            final URI baseURI,
             final @NotNull StatusInitOperation<S> statusInitOperation) {
-        super(host, baseURI, cookieStore, client);
+        super(engine, baseURI);
         this.statusInitOperation = Validate.notNull(
                 statusInitOperation,
                 "Status initialization operation is required");
@@ -98,23 +117,22 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    public <P, R> R execute(
+    public <P, R> @NotNull CompletableFuture<R> execute(
             final @NotNull StatusDependentOperation<P, R, ? super S> operation,
-            final P params)
-    throws HttpClientException {
-        ensureInitialized();
-        return operation.execute(params, this);
+            final P params) {
+        return ensureInitialized().thenCompose(opStatus -> operation.execute(params, opStatus, this));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public synchronized @NotNull S ensureInitialized()
-    throws HttpClientException {
-        S result = getStatus();
-        if (result == null) {
+    public synchronized @NotNull CompletableFuture<@NotNull S> ensureInitialized() {
+        final CompletableFuture<S> result;
+        if (this.status == null) {
             result = initializeStatus();
+        } else {
+            result = CompletableFuture.completedFuture(this.status);
         }
         return result;
     }
@@ -123,23 +141,29 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    public synchronized @NotNull S initializeStatus()
-    throws HttpClientException {
+    public synchronized @NotNull CompletableFuture<@NotNull S> initializeStatus() {
         getLogger().debug("Initializing client status...");
-        final S newState = this.statusInitOperation.execute(
+        return this.statusInitOperation.execute(
                 null,
-                this);
-        this.status = newState;
-        getLogger().debug("Client status initialized.");
-        return newState;
+                this)
+        .thenApply(res -> {
+            this.status = res;
+            getLogger().debug("Client status initialized.");
+            return res;
+        });
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public synchronized S getStatus() {
-        return this.status;
+    public synchronized @NotNull S getStatus()
+    throws InterruptedException, HttpClientException {
+        try {
+            return ensureInitialized().get();
+        } catch (final ExecutionException e) {
+            throw HttpClientException.unwrapFutureException(e);
+        }
     }
 
     /**

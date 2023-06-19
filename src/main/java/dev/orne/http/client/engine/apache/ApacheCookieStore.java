@@ -22,23 +22,21 @@ package dev.orne.http.client.engine.apache;
  * #L%
  */
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 
-import dev.orne.http.client.Cookie;
-import dev.orne.http.client.CookieStore;
 import dev.orne.http.client.HttpClientException;
+import dev.orne.http.client.cookie.Cookie;
+import dev.orne.http.client.cookie.CookieStore;
 
 /**
- * Implementation of {@code CookieJar} that delegates on Apache HTTP Client's
+ * Implementation of {@code CookieJar} that delegates on Apache HTTP Client 5
  * cookie stores.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
@@ -49,7 +47,7 @@ public class ApacheCookieStore
 implements CookieStore {
 
     /** The Apache HTTP Client cookie store. */
-    private final @NotNull org.apache.http.client.CookieStore delegate;
+    private final @NotNull org.apache.hc.client5.http.cookie.CookieStore delegate;
 
     /**
      * Creates a new instance with a clean {@code BasicCookieStore}.
@@ -64,7 +62,7 @@ implements CookieStore {
      * @param delegate The Apache HTTP Client cookie store.
      */
     public ApacheCookieStore(
-            final @NotNull org.apache.http.client.CookieStore delegate) {
+            final @NotNull org.apache.hc.client5.http.cookie.CookieStore delegate) {
         super();
         this.delegate = Validate.notNull(delegate, "The delegated cookie store is required");
     }
@@ -74,7 +72,7 @@ implements CookieStore {
      * 
      * @return The Apache HTTP Client cookie store.
      */
-    public @NotNull org.apache.http.client.CookieStore getDelegate() {
+    public @NotNull org.apache.hc.client5.http.cookie.CookieStore getDelegate() {
         return this.delegate;
     }
 
@@ -91,14 +89,8 @@ implements CookieStore {
         bean.setDomain(cookie.getDomain());
         bean.setPath(cookie.getPath());
         bean.setSecure(cookie.isSecureOnly());
-        final Instant creationTime = cookie.getCreationTime();
-        if (creationTime != null) {
-            bean.setCreationDate(Date.from(creationTime));
-        }
-        final Instant expiryTime = cookie.getExpiryTime();
-        if (expiryTime != null) {
-            bean.setExpiryDate(Date.from(expiryTime));
-        }
+        bean.setCreationDate(cookie.getCreationTime());
+        bean.setExpiryDate(cookie.getExpiryTime());
         this.delegate.addCookie(bean);
     }
 
@@ -119,7 +111,7 @@ implements CookieStore {
     public Cookie getCookie(
             final @NotNull String name)
     throws HttpClientException {
-        for (final org.apache.http.cookie.Cookie cookie : this.delegate.getCookies()) {
+        for (final org.apache.hc.client5.http.cookie.Cookie cookie : this.delegate.getCookies()) {
             if (name.equals(cookie.getName())) {
                 return new ApacheCookie(cookie);
             }

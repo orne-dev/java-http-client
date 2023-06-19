@@ -41,9 +41,75 @@ public final class MediaTypes {
     }
 
     /**
+     * Returns {@code true} if specified media type is an application media type.
+     * 
+     * @param mediaType The media type to check.
+     * @return {@code true} if specified media type is an application media type.
+     */
+    public static boolean isApplication(
+            final @NotNull String mediaType) {
+        return mediaType.startsWith("application/");
+    }
+
+    /**
+     * Returns {@code true} if specified media type is an audio media type.
+     * 
+     * @param mediaType The media type to check.
+     * @return {@code true} if specified media type is an audio media type.
+     */
+    public static boolean isAudio(
+            final @NotNull String mediaType) {
+        return mediaType.startsWith("audio/");
+    }
+
+    /**
+     * Returns {@code true} if specified media type is a font media type.
+     * 
+     * @param mediaType The media type to check.
+     * @return {@code true} if specified media type is a font media type.
+     */
+    public static boolean isFont(
+            final @NotNull String mediaType) {
+        return mediaType.startsWith("audio/");
+    }
+
+    /**
+     * Returns {@code true} if specified media type is an image media type.
+     * 
+     * @param mediaType The media type to check.
+     * @return {@code true} if specified media type is an image media type.
+     */
+    public static boolean isImage(
+            final @NotNull String mediaType) {
+        return mediaType.startsWith("image/");
+    }
+
+    /**
+     * Returns {@code true} if specified media type is a message media type.
+     * 
+     * @param mediaType The media type to check.
+     * @return {@code true} if specified media type is a message media type.
+     */
+    public static boolean isMessage(
+            final @NotNull String mediaType) {
+        return mediaType.startsWith("message/");
+    }
+
+    /**
+     * Returns {@code true} if specified media type is a model media type.
+     * 
+     * @param mediaType The media type to check.
+     * @return {@code true} if specified media type is a model media type.
+     */
+    public static boolean isModel(
+            final @NotNull String mediaType) {
+        return mediaType.startsWith("model/");
+    }
+
+    /**
      * Returns {@code true} if specified media type is a multi-part media type.
      * 
-     * @param mediaType The media type to check
+     * @param mediaType The media type to check.
      * @return {@code true} if specified media type is a multi-part media type.
      */
     public static boolean isMultipart(
@@ -54,12 +120,23 @@ public final class MediaTypes {
     /**
      * Returns {@code true} if specified media type is a text based media type.
      * 
-     * @param mediaType The media type to check
+     * @param mediaType The media type to check.
      * @return {@code true} if specified media type is a text based media type.
      */
     public static boolean isText(
             final @NotNull String mediaType) {
         return mediaType.startsWith("text/");
+    }
+
+    /**
+     * Returns {@code true} if specified media type is a video media type.
+     * 
+     * @param mediaType The media type to check.
+     * @return {@code true} if specified media type is a video media type.
+     */
+    public static boolean isVideo(
+            final @NotNull String mediaType) {
+        return mediaType.startsWith("video/");
     }
 
     /**

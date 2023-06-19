@@ -27,43 +27,36 @@ import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpTrace;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpOptions;
+import org.apache.hc.client5.http.classic.methods.HttpPatch;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpTrace;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.io.CloseMode;
 
 import dev.orne.http.Methods;
 import dev.orne.http.client.HttpClientException;
 import dev.orne.http.client.engine.HttpClientEngine;
-import dev.orne.http.client.engine.HttpRequestBodySupplier;
-import dev.orne.http.client.engine.HttpRequestHeadersSupplier;
+import dev.orne.http.client.engine.HttpRequestCustomizer;
 import dev.orne.http.client.engine.HttpResponseHandler;
 
 /**
  * Implementation of {@code HtppClientEngine} based on
- * Apache HTTP Client 4.x.
+ * Apache HTTP Client 5.x.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
@@ -115,7 +108,7 @@ implements HttpClientEngine {
      * @param executor The asynchronous executor service.
      */
     public ApacheHttpClientEngine(
-            final @NotNull org.apache.http.client.CookieStore cookieStore,
+            final @NotNull CookieStore cookieStore,
             final @NotNull CloseableHttpClient client,
             final @NotNull ExecutorService executor) {
         super();
@@ -175,56 +168,36 @@ implements HttpClientEngine {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull Future<Void> executeHttpRequest(
+    public @NotNull CompletableFuture<Void> executeHttpRequest(
             final @NotNull URI uri,
             final @NotNull String method,
-            final HttpRequestHeadersSupplier headers,
-            final HttpRequestBodySupplier body,
-            final @NotNull HttpResponseHandler handler)
+            final @NotNull HttpRequestCustomizer requestCustomizer,
+            final @NotNull HttpResponseHandler responseHandler)
     throws HttpClientException {
         Validate.notNull(uri);
         Validate.isTrue(uri.isAbsolute(), "The request URI must be absolute");
-        final HttpHost host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+        final HttpHost host = new HttpHost(uri.getScheme(), uri.getHost(), uri.getPort());
         final URI path = URI.create(uri.getPath());
-        final HttpRequest request = createRequest(method, path);
-        if (headers != null) {
-            headers.setHeaders((String header, String... values) -> {
-                for (final String value : values) {
-                    request.addHeader(header, value);
-                }
-            });
-        }
-        if (request instanceof HttpEntityEnclosingRequest && body != null) {
-            body.setBody((content, length) -> {
-                final HttpEntity entity = new InputStreamEntity(content, length);
-                ((HttpEntityEnclosingRequest) request).setEntity(entity);
-            });
+        final ClassicHttpRequest request = createRequest(method, path);
+        if (requestCustomizer != null) {
+            requestCustomizer.customizeRequest(new ApacheHttpRequest(request));
         }
         final CompletableFuture<Void> result = new CompletableFuture<>();
         this.executor.submit(() -> {
-            try (final CloseableHttpResponse response = this.client.execute(
+            try {
+                this.client.execute(
                     host,
                     request,
-                    getHttpContext())) {
-                handler.handle(
-                        response.getStatusLine().getStatusCode(),
-                        response.getStatusLine().getReasonPhrase(),
-                        header -> Stream.of(response.getHeaders(header))
-                                    .map(Header::getElements)
-                                    .flatMap(Stream::of)
-                                    .map(HeaderElement::getValue)
-                                    .toArray(String[]::new),
-                        () -> {
-                            try {
-                                return response.getEntity().getContent();
-                            } catch (UnsupportedOperationException | IOException e) {
-                                throw new HttpClientException("", e);
-                            }
-                        });
-                result.complete(null);
+                    getHttpContext(),
+                    response -> {
+                        responseHandler.handle(new ApacheHttpResponse(response));
+                        result.complete(null);
+                        return null;
+                    });
             } catch (final HttpClientException | IOException e) {
                 result.completeExceptionally(e);
             }
+            
         });
         return result;
     }
@@ -238,11 +211,11 @@ implements HttpClientEngine {
      * @return The HTTP request.
      * @throws HttpClientException If the specified method is not supported.
      */
-    protected @NotNull HttpRequest createRequest(
+    protected @NotNull ClassicHttpRequest createRequest(
             final @NotNull String method,
             final @NotNull URI path)
     throws HttpClientException {
-        final HttpRequest result;
+        final ClassicHttpRequest result;
         switch (method) {
             case Methods.GET:
                 result = new HttpGet(path);
@@ -294,6 +267,6 @@ implements HttpClientEngine {
     @Override
     public void close()
     throws IOException {
-        this.client.close();
+        this.client.close(CloseMode.GRACEFUL);
     }
 }

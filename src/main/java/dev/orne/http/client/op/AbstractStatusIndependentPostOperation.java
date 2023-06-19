@@ -1,10 +1,10 @@
-package dev.orne.http.client.engine;
+package dev.orne.http.client.op;
 
 /*-
  * #%L
  * Orne HTTP Client
  * %%
- * Copyright (C) 2023 Orne Developments
+ * Copyright (C) 2020 - 2021 Orne Developments
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -24,21 +24,27 @@ package dev.orne.http.client.engine;
 
 import javax.validation.constraints.NotNull;
 
+import dev.orne.http.Methods;
+
 /**
- * Functional interface for HTTP response handlers.
+ * Abstract status independent operation for {@code HttpServiceClient} based on
+ * HTTP POST requests.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
+ * @param <P> The execution parameters type
+ * @param <E> The HTTP response entity type
+ * @param <R> The execution result type
  * @since 0.1
  */
-@FunctionalInterface
-public interface HttpResponseHandler {
+public abstract class AbstractStatusIndependentPostOperation<P, E, R>
+extends AbstractStatusIndependentOperation<P, E, R> {
 
     /**
-     * Handles the response of a HTTP request.
-     * 
-     * @param response The HTTP response.
+     * {@inheritDoc}
      */
-    void handle(
-            @NotNull HttpResponse response);
+    @Override
+    protected @NotNull String getRequestMethod() {
+        return Methods.POST;
+    }
 }

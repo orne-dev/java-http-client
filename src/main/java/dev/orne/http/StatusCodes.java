@@ -33,12 +33,36 @@ public class StatusCodes {
 
     // --- 1xx Informational ---
 
+    /**
+     * Returns {@code true} if the status code is in the informational status
+     * codes range.
+     * 
+     * @param statusCode The HTTP response status code.
+     * @return If the status code is in the informational status codes range.
+     */
+    public static boolean isInformational(
+            final int statusCode) {
+        return statusCode >= 100 && statusCode < 200;
+    }
+
     /** RFC 9110 Section 15.2.1 */
     public static final int CONTINUE = 100;
     /** RFC 9110 Section 15.2.2 */
     public static final int SWITCHING_PROTOCOLS = 101;
 
     // --- 2xx Success ---
+
+    /**
+     * Returns {@code true} if the status code is in the success status
+     * codes range.
+     * 
+     * @param statusCode The HTTP response status code.
+     * @return If the status code is in the success status codes range.
+     */
+    public static boolean isSuccess(
+            final int statusCode) {
+        return statusCode >= 200 && statusCode < 300;
+    }
 
     /** RFC 9110 Section 15.3.1 */
     public static final int OK = 200;
@@ -59,6 +83,18 @@ public class StatusCodes {
 
     // --- 3xx Redirection ---
 
+    /**
+     * Returns {@code true} if the status code is in the redirection status
+     * codes range.
+     * 
+     * @param statusCode The HTTP response status code.
+     * @return If the status code is in the redirection status codes range.
+     */
+    public static boolean isRedirection(
+            final int statusCode) {
+        return statusCode >= 300 && statusCode < 400;
+    }
+
     /** RFC 9110 Section 15.4.1 */
     public static final int MULTIPLE_CHOICES = 300;
     /** RFC 9110 Section 15.4.2 */
@@ -77,6 +113,18 @@ public class StatusCodes {
     public static final int PERMANENT_REDIRECT = 308;
 
     // --- 4xx Client Error ---
+
+    /**
+     * Returns {@code true} if the status code is in the client error status
+     * codes range.
+     * 
+     * @param statusCode The HTTP response status code.
+     * @return If the status code is in the client error status codes range.
+     */
+    public static boolean isClientError(
+            final int statusCode) {
+        return statusCode >= 400 && statusCode < 500;
+    }
 
     /** RFC 9110 Section 15.5.1 */
     public static final int BAD_REQUEST = 400;
@@ -132,6 +180,18 @@ public class StatusCodes {
     public static final int UNAVAILABLE_FOR_LEGAL_REASONS = 451;
 
     // --- 5xx Server Error ---
+
+    /**
+     * Returns {@code true} if the status code is in the server error status
+     * codes range.
+     * 
+     * @param statusCode The HTTP response status code.
+     * @return If the status code is in the server error status codes range.
+     */
+    public static boolean isServerError(
+            final int statusCode) {
+        return statusCode >= 500;
+    }
 
     /** RFC 9110 Section 15.6.1 */
     public static final int INTERNAL_SERVER_ERROR = 500;

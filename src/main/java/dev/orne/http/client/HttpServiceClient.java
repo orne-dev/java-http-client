@@ -24,42 +24,44 @@ package dev.orne.http.client;
 
 import java.io.Closeable;
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.CookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
+import dev.orne.http.client.cookie.CookieStore;
+import dev.orne.http.client.engine.HttpClientEngine;
+import dev.orne.http.client.op.StatusIndependentOperation;
 
 /**
  * HTTP service client interface.
  * 
- * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
- * @version 1.0, 2020-05
+ * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+ * @version 1.0, 2023-06
  * @since 0.1
  */
 public interface HttpServiceClient
 extends Closeable {
 
     /**
-     * @return The HTTP service's host
-     */
-    @NotNull HttpHost getHost();
-
-    /**
+     * Returns the HTTP service's base URI.
+     * 
      * @return The HTTP service's base URI
      */
     @NotNull URI getBaseURI();
 
     /**
+     * Returns the HTTP client's cookie store.
+     * 
      * @return The HTTP client's cookie store
      */
     @NotNull CookieStore getCookieStore();
 
     /**
-     * @return The HTTP client
+     * Returns the HTTP client engine.
+     * 
+     * @return The HTTP client engine.
      */
-    @NotNull CloseableHttpClient getClient();
+    @NotNull HttpClientEngine getEngine();
 
     /**
      * Executes the specified status unaware operation for this HTTP service.
@@ -69,10 +71,8 @@ extends Closeable {
      * @param operation The operation to execute
      * @param params The operation parameter
      * @return The operation execution's result
-     * @throws HttpClientException If an error occurs executing the operation
      */
-    <P, R> R execute(
+    <P, R> @NotNull CompletableFuture<R> execute(
             @NotNull StatusIndependentOperation<P, R> operation,
-            P params)
-    throws HttpClientException;
+            P params);
 }

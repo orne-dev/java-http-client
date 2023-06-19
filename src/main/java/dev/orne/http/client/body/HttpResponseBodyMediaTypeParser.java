@@ -1,4 +1,4 @@
-package dev.orne.http.client.engine;
+package dev.orne.http.client.body;
 
 /*-
  * #%L
@@ -25,20 +25,24 @@ package dev.orne.http.client.engine;
 import javax.validation.constraints.NotNull;
 
 /**
- * Functional interface for HTTP response handlers.
+ * Interface for parsers of HTTP response body entities that can parse
+ * only certain media types.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
+ * @param <E> The HTTP response body entity type.
  * @since 0.1
  */
-@FunctionalInterface
-public interface HttpResponseHandler {
+public interface HttpResponseBodyMediaTypeParser<E>
+extends HttpResponseBodyParser<E> {
 
     /**
-     * Handles the response of a HTTP request.
+     * Returns {@code true} if the specified media type is supported by this
+     * parser.
      * 
-     * @param response The HTTP response.
+     * @param mediaType The media type to support.
+     * @return If the specified media type is supported.
      */
-    void handle(
-            @NotNull HttpResponse response);
+    boolean supportsMediaType(
+            @NotNull String mediaType);
 }

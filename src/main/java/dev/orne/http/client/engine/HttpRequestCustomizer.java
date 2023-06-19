@@ -24,21 +24,26 @@ package dev.orne.http.client.engine;
 
 import javax.validation.constraints.NotNull;
 
+import dev.orne.http.client.HttpClientException;
+
 /**
- * Functional interface for HTTP response handlers.
+ * Functional interface for HTTP request customizer.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
  * @since 0.1
  */
 @FunctionalInterface
-public interface HttpResponseHandler {
+public interface HttpRequestCustomizer {
 
     /**
-     * Handles the response of a HTTP request.
+     * Prepares the HTTP request.
      * 
-     * @param response The HTTP response.
+     * @param request The HTTP request.
+     * @throws HttpClientException If an error occurs preparing the HTTP
+     * request.
      */
-    void handle(
-            @NotNull HttpResponse response);
+    void customizeRequest(
+            @NotNull HttpRequest request)
+    throws HttpClientException;
 }

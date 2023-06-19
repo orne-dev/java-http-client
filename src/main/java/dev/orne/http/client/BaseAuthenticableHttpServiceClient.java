@@ -23,21 +23,26 @@ package dev.orne.http.client;
  */
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpHost;
-import org.apache.http.client.CookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
+
+import dev.orne.http.client.engine.HttpClientEngine;
+import dev.orne.http.client.op.AuthenticatedOperation;
+import dev.orne.http.client.op.AuthenticationOperation;
+import dev.orne.http.client.op.StatusDependentOperation;
+import dev.orne.http.client.op.StatusInitOperation;
 
 /**
  * Base HTTP service client able to authenticate against
  * the HTTP service.
  * 
- * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
- * @version 1.0, 2020-05
+ * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+ * @version 1.0, 2023-06
  * @param <S> The client status type
  * @param <C> The credentials type
  * @since 0.1
@@ -60,15 +65,34 @@ implements AuthenticableHttpServiceClient<S, C> {
     /**
      * Creates a new instance.
      * 
-     * @param baseURL The HTTP service's base URL
+     * @param engine The HTTP client engine.
      * @param statusInitOperation The status initialization operation
-     * @param authenticationOperation The authentication operation
      */
     public BaseAuthenticableHttpServiceClient(
-            final @NotNull URL baseURL,
+            final @NotNull HttpClientEngine engine,
             final @NotNull StatusInitOperation<S> statusInitOperation,
             final @NotNull AuthenticationOperation<C, ?, S> authenticationOperation) {
-        super(baseURL, statusInitOperation);
+        this(engine, (URI) null, statusInitOperation, authenticationOperation);
+    }
+
+    /**
+     * Creates a new instance.
+     * <p>
+     * The base URL, if provided, must be absolute, as is used to resolve
+     * relative URIs of operations.
+     * 
+     * @param engine The HTTP client engine.
+     * @param baseURL The HTTP service's base URL.
+     * @param statusInitOperation The status initialization operation
+     * @throws URISyntaxException If the provided base URL is not a valid URI.
+     */
+    public BaseAuthenticableHttpServiceClient(
+            final @NotNull HttpClientEngine engine,
+            final URL baseURL,
+            final @NotNull StatusInitOperation<S> statusInitOperation,
+            final @NotNull AuthenticationOperation<C, ?, S> authenticationOperation)
+    throws URISyntaxException {
+        super(engine, baseURL, statusInitOperation);
         this.authenticationOperation = Validate.notNull(
                 authenticationOperation,
                 "Authentication operation is required.");
@@ -77,21 +101,16 @@ implements AuthenticableHttpServiceClient<S, C> {
     /**
      * Creates a new instance.
      * 
-     * @param host The HTTP service's host
+     * @param engine The HTTP client engine.
      * @param baseURI The HTTP service's base URI
-     * @param cookieStore The HTTP client's cookie store
-     * @param client The HTTP client
      * @param statusInitOperation The status initialization operation
-     * @param authenticationOperation The authentication operation
      */
-    protected BaseAuthenticableHttpServiceClient(
-            final @NotNull HttpHost host,
-            final @NotNull URI baseURI,
-            final @NotNull CookieStore cookieStore,
-            final @NotNull CloseableHttpClient client,
+    public BaseAuthenticableHttpServiceClient(
+            final @NotNull HttpClientEngine engine,
+            final URI baseURI,
             final @NotNull StatusInitOperation<S> statusInitOperation,
-            @NotNull AuthenticationOperation<C, ?, S> authenticationOperation) {
-        super(host, baseURI, cookieStore, client, statusInitOperation);
+            final @NotNull AuthenticationOperation<C, ?, S> authenticationOperation) {
+        super(engine, baseURI, statusInitOperation);
         this.authenticationOperation = Validate.notNull(
                 authenticationOperation,
                 "Authentication operation is required.");
@@ -111,7 +130,7 @@ implements AuthenticableHttpServiceClient<S, C> {
      * 
      * @return If stored credentials exists
      */
-    protected final synchronized boolean hasStoredCredentials() {
+    public final synchronized boolean hasStoredCredentials() {
         return this.storedCredentials != null;
     }
 
@@ -164,72 +183,101 @@ implements AuthenticableHttpServiceClient<S, C> {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void authenticate()
-    throws HttpClientException {
+    public synchronized @NotNull CompletableFuture<@NotNull S> authenticate() {
+        final CompletableFuture<S> result;
         if (this.storedCredentials != null) {
             getLogger().debug("Authenticating with stored credentials...");
-            try {
-                super.execute(this.authenticationOperation, this.storedCredentials);
-            } catch (final CredentialsInvalidException cie) {
-                getLogger().debug("Invalid credentials discarded.");
-                this.storedCredentials = null;
-                throw cie;
+            result = executeAuthentication(this.storedCredentials);
+            result.handle((status, t) -> {
+                    if (t == null ) {
+                        getLogger().debug("Authenticated.");
+                    } else {
+                        final HttpClientException ex = HttpClientException.unwrapFutureException(t);
+                        if (ex instanceof CredentialsInvalidException) {
+                            getLogger().debug("Invalid credentials discarded.");
+                            this.storedCredentials = null;
+                        }
+                    }
+                    return status;
+            });
+        } else {
+            result = FutureUtils.completableFailure(new CredentialsNotStoredException(
+                    "No stored credentials. Call authenticate(credentials) first."));
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized @NotNull CompletableFuture<@NotNull S> authenticate(
+            final @NotNull C credentials) {
+        getLogger().debug("Authenticating...");
+        final CompletableFuture<S> result = executeAuthentication(this.storedCredentials);
+        return result.thenApply(status -> {
+            if (this.credentialsStoringEnabled) {
+                getLogger().debug("Storing credentials...");
+                this.storedCredentials = credentials;
             }
             getLogger().debug("Authenticated.");
-        } else {
-            throw new CredentialsNotStoredException(
-                    "No stored credentials. Call authenticate(credentials) first.");
-        }
+            return status;
+        });
+    }
+
+    protected @NotNull CompletableFuture<@NotNull S> executeAuthentication(
+            final @NotNull C credentials) {
+        return ensureInitialized().thenCompose(status ->
+            super.execute(this.authenticationOperation, this.storedCredentials)
+            .thenApply(nop -> status)
+        );
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public synchronized void authenticate(
-            final @NotNull C credentials)
-    throws HttpClientException {
-        getLogger().debug("Authenticating...");
-        super.execute(this.authenticationOperation, credentials);
-        getLogger().debug("Authenticated.");
-        if (this.credentialsStoringEnabled) {
-            getLogger().debug("Storing credentials...");
-            this.storedCredentials = credentials;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized void ensureAuthenticated()
-    throws HttpClientException {
-        if (!ensureInitialized().isAuthenticated()) {
-            authenticate();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <P, R> R execute(
-            final @NotNull StatusDependentOperation<P, R, ? super S> operation,
-            final P params)
-    throws HttpClientException {
-        if (operation instanceof AuthenticatedOperation) {
-            ensureAuthenticated();
-        }
-        try {
-            return super.execute(operation, params);
-        } catch (final AuthenticationExpiredException aee) {
-            ensureInitialized().resetAuthentication();
-            if (this.authenticationAutoRenewalEnabled &&
-                    this.storedCredentials != null) {
-                getLogger().debug("Session expired...");
-                authenticate();
-                return super.execute(operation, params);
+    public synchronized @NotNull CompletableFuture<@NotNull S> ensureAuthenticated() {
+        return ensureInitialized().thenCompose(status -> {
+            if (status.isAuthenticated()) {
+                return CompletableFuture.completedFuture(status);
+            } else {
+                return authenticate();
             }
-            throw aee;
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <P, R> @NotNull CompletableFuture<@NotNull R> execute(
+            final @NotNull StatusDependentOperation<P, R, ? super S> operation,
+            final P params) {
+        final CompletableFuture<R> future = new CompletableFuture<>();
+        final CompletableFuture<R> base;
+        if (operation instanceof AuthenticatedOperation) {
+            base = ensureAuthenticated().thenCompose(status -> super.execute(operation, params));
+        } else {
+            base = super.execute(operation, params);
         }
+        base.whenComplete((result, t) -> {
+            if (t == null) {
+                future.complete(result);
+            } else if (t instanceof AuthenticationExpiredException) {
+                final AuthenticationAutoRenewalPolicy policy =
+                        authenticationOperation.getAutoRenewalPolicy();
+                if (policy == null) {
+                    future.completeExceptionally(t);
+                } else {
+                    policy.apply(
+                            this::authenticate,
+                            status -> super.execute(operation, params),
+                            future);
+                }
+            } else {
+                future.completeExceptionally(t);
+            }
+        });
+        return future;
     }
 }

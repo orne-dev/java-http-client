@@ -1,7 +1,7 @@
 /**
  * Utility classes and interfaces for implementation of HTTP service clients.
  * 
- * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
+ * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @since 0.1
  */
 package dev.orne.http.client;

@@ -1,10 +1,10 @@
-package dev.orne.http.client.engine;
+package dev.orne.http.client.op;
 
 /*-
  * #%L
  * Orne HTTP Client
  * %%
- * Copyright (C) 2023 Orne Developments
+ * Copyright (C) 2020 Orne Developments
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -22,23 +22,34 @@ package dev.orne.http.client.engine;
  * #L%
  */
 
+import java.util.concurrent.CompletableFuture;
+
 import javax.validation.constraints.NotNull;
 
+import dev.orne.http.client.StatedHttpServiceClient;
+
 /**
- * Functional interface for HTTP response handlers.
+ * Operation for {@code HttpServiceClient} dependent of clients status.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
+ * @param <P> El execution parameters type
+ * @param <R> El execution result type
+ * @param <S> The client status type
  * @since 0.1
  */
-@FunctionalInterface
-public interface HttpResponseHandler {
+public interface StatusDependentOperation<P, R, S> {
 
     /**
-     * Handles the response of a HTTP request.
+     * Executes the operation.
      * 
-     * @param response The HTTP response.
+     * @param params The operation execution parameters
+     * @param status The current client status.
+     * @param client The client that executes the operation.
+     * @return The operation execution result.
      */
-    void handle(
-            @NotNull HttpResponse response);
+    public @NotNull CompletableFuture<R> execute(
+            P params,
+            S status,
+            @NotNull StatedHttpServiceClient<? extends S> client);
 }

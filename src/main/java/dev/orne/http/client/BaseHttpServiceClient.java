@@ -24,109 +24,90 @@ package dev.orne.http.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpHost;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import dev.orne.http.client.cookie.CookieStore;
+import dev.orne.http.client.engine.HttpClientEngine;
+import dev.orne.http.client.op.StatusIndependentOperation;
 
 /**
  * Base HTTP service client.
  * 
- * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
- * @version 1.0, 2020-05
+ * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+ * @version 1.0, 2023-06
  * @since 0.1
  */
 public class BaseHttpServiceClient
 implements HttpServiceClient {
 
-    /** The HTTP service's host. */
-    private final @NotNull HttpHost host;
+    /** The HTTP client engine. */
+    private final @NotNull HttpClientEngine engine;
     /** The HTTP service's base URI. */
-    private final @NotNull URI baseURI;
-    /** The HTTP client's cookie store. */
-    private final @NotNull CookieStore cookieStore;
-    /** The HTTP client. */
-    private final @NotNull CloseableHttpClient client;
+    private final URI baseURI;
     /** The logger for this instance's actual class. */
     private Logger logger;
 
     /**
      * Creates a new instance.
      * 
-     * @param baseURL The HTTP service's base URL
+     * @param engine The HTTP client engine.
      */
     public BaseHttpServiceClient(
-            final @NotNull URL baseURL) {
-        super();
-        Validate.notNull(baseURL, "Base URL is required.");
-        this.host = new HttpHost(baseURL.getHost(), baseURL.getPort(), baseURL.getProtocol());
-        this.baseURI = URI.create(baseURL.getPath());
-        this.cookieStore = new BasicCookieStore();
-        final RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
-        configureRequestConfig(requestConfigBuilder);
-        final RequestConfig requestConfig = requestConfigBuilder.build();
-        this.client = HttpClients.custom()
-                .setDefaultCookieStore(this.cookieStore)
-                .setDefaultRequestConfig(requestConfig)
-                .build();
+            final @NotNull HttpClientEngine engine) {
+        this(engine, (URI) null);
     }
 
     /**
      * Creates a new instance.
+     * <p>
+     * The base URL, if provided, must be absolute, as is used to resolve
+     * relative URIs of operations.
      * 
-     * @param host The HTTP service's host
-     * @param baseURI The HTTP service's base URI
-     * @param cookieStore The HTTP client's cookie store
-     * @param client The HTTP client
+     * @param engine The HTTP client engine.
+     * @param baseURL The HTTP service's base URL.
+     * @throws URISyntaxException If the provided base URL is not a valid URI.
      */
-    protected BaseHttpServiceClient(
-            final @NotNull HttpHost host,
-            final @NotNull URI baseURI,
-            final @NotNull CookieStore cookieStore,
-            final @NotNull CloseableHttpClient client) {
-        super();
-        this.host = Validate.notNull(host, "Host is required");
-        this.baseURI = Validate.notNull(baseURI, "Base URI is required");
-        this.cookieStore = Validate.notNull(cookieStore, "Cookie store is required");
-        this.client = Validate.notNull(client, "Client is required");
+    public BaseHttpServiceClient(
+            final @NotNull HttpClientEngine engine,
+            final URL baseURL)
+    throws URISyntaxException {
+        this(engine, baseURL == null ? null : baseURL.toURI());
     }
 
     /**
-     * <p>Configures the requests build by the HTTP client.
-     * The implementations should override this method to configure their
-     * requests if needed.</p>
+     * Creates a new instance.
+     * <p>
+     * The base URI, if provided, must be absolute, as is used to resolve
+     * relative URIs of operations.
      * 
-     * <p>For example:</p>
-     * <pre>
-     * {@literal @}Override
-     * protected void configureRequestConfig(
-     *         final RequestConfig.Builder builder) {
-     *     builder.setConnectTimeout(30000);
-     * }
-     * </pre>
-     * 
-     * @param builder The configuration builder
+     * @param engine The HTTP client engine.
+     * @param baseURI The HTTP service's base URI.
      */
-    protected void configureRequestConfig(
-            final @NotNull RequestConfig.Builder builder) {
-        // Override if needed
+    public BaseHttpServiceClient(
+            final @NotNull HttpClientEngine engine,
+            final URI baseURI) {
+        super();
+        this.engine = Validate.notNull(engine, "HTTP client engine is required.");
+        this.baseURI = baseURI;
+        if (this.baseURI != null) {
+            Validate.isTrue(baseURI.isAbsolute(), "Base URI must be absolute.");
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public @NotNull HttpHost getHost() {
-        return this.host;
+    public @NotNull HttpClientEngine getEngine() {
+        return this.engine;
     }
 
     /**
@@ -141,15 +122,7 @@ implements HttpServiceClient {
      * {@inheritDoc}
      */
     public @NotNull CookieStore getCookieStore() {
-        return this.cookieStore;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull CloseableHttpClient getClient() {
-        return this.client;
+        return this.engine.getCookieStore();
     }
 
     /**
@@ -160,12 +133,10 @@ implements HttpServiceClient {
      * @param operation The operation to execute
      * @param params The operation parameter
      * @return The operation execution's result
-     * @throws HttpClientException If an error occurs executing the operation
      */
-    public <P, R> R execute(
+    public <P, R> @NotNull CompletableFuture<R> execute(
             final @NotNull StatusIndependentOperation<P, R> operation,
-            final P params)
-    throws HttpClientException {
+            final P params) {
         return operation.execute(params, this);
     }
 
@@ -175,8 +146,7 @@ implements HttpServiceClient {
     @Override
     public void close()
     throws IOException {
-        this.client.close();
-        this.cookieStore.clear();
+        this.engine.close();
     }
 
     /**

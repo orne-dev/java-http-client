@@ -24,12 +24,12 @@ package dev.orne.http.client.engine;
 
 import java.io.Closeable;
 import java.net.URI;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import javax.validation.constraints.NotNull;
 
-import dev.orne.http.client.CookieStore;
 import dev.orne.http.client.HttpClientException;
+import dev.orne.http.client.cookie.CookieStore;
 
 /**
  * Interface for abstraction of HTTP client used.
@@ -49,18 +49,18 @@ extends Closeable {
     /**
      * Executes the operation's HTTP request.
      * 
-     * @param params The operation execution parameters
-     * @param request The HTTP request
-     * @param client The HTTP service client to use on execution
-     * @return The operation execution result
+     * @param uri The HTTP request target absolute URI.
+     * @param method The HTTP request method.
+     * @param requestCustomizer The HTTP request customizer.
+     * @param responseHandler The HTTP response handler.
+     * @return The future HTTP request result.
      * @throws HttpClientException If an exception occurs executing the
      * request
      */
-    @NotNull Future<Void> executeHttpRequest(
+    @NotNull CompletableFuture<Void> executeHttpRequest(
             @NotNull URI uri,
             @NotNull String method,
-            HttpRequestHeadersSupplier headers,
-            HttpRequestBodySupplier body,
-            @NotNull HttpResponseHandler handler)
+            @NotNull HttpRequestCustomizer requestCustomizer,
+            @NotNull HttpResponseHandler responseHandler)
     throws HttpClientException;
 }

@@ -22,14 +22,15 @@ package dev.orne.http.client;
  * #L%
  */
 
+import java.util.concurrent.CompletableFuture;
 import javax.validation.constraints.NotNull;
 
 /**
  * HTTP service client interface able to authenticate against
  * the HTTP service.
  * 
- * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
- * @version 1.0, 2020-05
+ * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+ * @version 1.0, 2023-06
  * @param <S> The client status type
  * @param <C> The credentials type
  * @since 0.1
@@ -80,11 +81,9 @@ extends StatedHttpServiceClient<S> {
      * call to {@link #authenticate(Object)} tries to authenticate with stored
      * credentials.
      * 
-     * @throws HttpClientException If an error occurs during the authentication
-     * process
+     * @return The client's status
      */
-    void ensureAuthenticated()
-    throws HttpClientException;
+    @NotNull CompletableFuture<@NotNull S> ensureAuthenticated();
 
     /**
      * Authenticates against the HTTP service using the specified credentials.
@@ -92,12 +91,10 @@ extends StatedHttpServiceClient<S> {
      * for future call to {@link #authenticate()}.
      * 
      * @param credentials The credentials to use
-     * @throws HttpClientException If an error occurs during the authentication
-     * process
+     * @return The client's status
      */
-    void authenticate(
-            @NotNull C credentials)
-    throws HttpClientException;
+    @NotNull CompletableFuture<@NotNull S> authenticate(
+            @NotNull C credentials);
 
     /**
      * Authenticates against the HTTP service using the stored credentials.
@@ -105,9 +102,7 @@ extends StatedHttpServiceClient<S> {
      * 
      * @throws AuthenticationRequiredException If no credentials have
      * been store with a previous call to {@link #authenticate(Object)}
-     * @throws HttpClientException If an error occurs during the authentication
-     * process
+     * @return The client's status
      */
-    void authenticate()
-    throws HttpClientException;
+    @NotNull CompletableFuture<@NotNull S> authenticate();
 }

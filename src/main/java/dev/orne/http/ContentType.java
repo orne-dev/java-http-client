@@ -23,7 +23,12 @@ package dev.orne.http;
  */
 
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.validation.constraints.NotNull;
 
@@ -40,19 +45,19 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class ContentType {
 
-    /** The separator between the media type and the optional parameter. */
+    /** The separator preceding a parameter declaration. */
     private static final String PARAMETER_SEPARATOR = ";";
-    /** The content encoding parameter prefix. */
-    private static final String CHARSET_PREFIX = "charset=";
-    /** The parts boundary parameter prefix. */
-    private static final String BOUNDARY_PREFIX = "boundary=";
+    /** The separator between parameter name and value. */
+    private static final String PARAMETER_VALUE_SEPARATOR = "=";
+    /** The content encoding parameter name. */
+    private static final String CHARSET_PARAM = "charset";
+    /** The parts boundary parameter name. */
+    private static final String BOUNDARY_PARAM = "boundary";
 
     /** The content media type. */
     private String mediaType;
-    /** The content encoding. */
-    private Charset charset;
-    /** The parts boundary. */
-    private String boundary;
+    /** The content type parameters. */
+    private Map<String, String> parameters = new LinkedHashMap<>();
 
     /**
      * Private constructor.
@@ -93,7 +98,7 @@ public class ContentType {
         Validate.isTrue(MediaTypes.isText(mediaType));
         final ContentType result = new ContentType();
         result.mediaType = mediaType;
-        result.charset = charset;
+        result.parameters.put(CHARSET_PARAM, charset.name());
         return result;
     }
 
@@ -112,27 +117,35 @@ public class ContentType {
         Validate.notNull(boundary);
         final ContentType result = new ContentType();
         result.mediaType = mediaType;
-        result.boundary = boundary;
+        result.parameters.put(BOUNDARY_PARAM, boundary);
         return result;
     }
 
+    /**
+     * Parses the specified HTTP content type header value.
+     * 
+     * @param header The HTTP content type header value.
+     * @return The parsed content type;
+     * @throws UnsupportedCharsetException If the parsed content type uses an
+     * unsupported charset.
+     */
     public static ContentType parse(
             final @NotNull String header)
     throws UnsupportedCharsetException {
+        Validate.notNull(header);
         final ContentType result = new ContentType();
-        if (header.contains(PARAMETER_SEPARATOR)) {
-            final String[] parts = header.split(PARAMETER_SEPARATOR, 2);
-            result.mediaType = parts[0].trim();
-            final String param = parts[1].trim();
-            if (param.startsWith(CHARSET_PREFIX)) {
-                result.charset = Charset.forName(param.substring(8));
-            } else if (param.startsWith(BOUNDARY_PREFIX)) {
-                result.boundary = param.substring(9);
-            } else {
-                result.mediaType = header;
+        final StringTokenizer tokenizer = new StringTokenizer(header, PARAMETER_SEPARATOR);
+        if (!tokenizer.hasMoreTokens()) {
+            throw new IllegalArgumentException("Illegal HTTP content type header value. No media type : " + header);
+        }
+        result.mediaType = tokenizer.nextToken().trim();
+        while (tokenizer.hasMoreTokens()) {
+            final String name = tokenizer.nextToken(PARAMETER_VALUE_SEPARATOR).trim().toLowerCase();
+            String value = tokenizer.nextToken().trim();
+            if (value.length() > 1 &&  value.startsWith("\"") && value.endsWith("\"")) {
+                value = value.substring(1, value.length() - 1);
             }
-        } else {
-            result.mediaType = header;
+            result.parameters.put(name, value);
         }
         return result;
     }
@@ -156,12 +169,24 @@ public class ContentType {
     }
 
     /**
-     * Returns the content encoding.
+     * Returns the content charset.
      * 
-     * @return The content encoding
+     * @return The content charset.
+     * @throws  IllegalCharsetNameException
+     *          If the content type contains a charset parameter but the given
+     *          charset name is illegal.
+     * @throws  UnsupportedCharsetException
+     *          If the content type contains a charset parameter but no support
+     *          for the named charset is available in this instance of the Java
+     *          virtual machine.
      */
     public Charset getCharset() {
-        return this.charset;
+        final String charset = getParameter(CHARSET_PARAM);
+        if (charset == null) {
+            return null;
+        } else {
+            return Charset.forName(charset);
+        }
     }
 
     /**
@@ -170,7 +195,75 @@ public class ContentType {
      * @return The parts boundary.
      */
     public String getBoundary() {
-        return this.boundary;
+        return getParameter(BOUNDARY_PARAM);
+    }
+
+    /**
+     * Returns an unmodifiable copy of this content type parameters.
+     *  
+     * @return The content type parameters.
+     */
+    public @NotNull Map<String, String> getParameters() {
+        return Collections.unmodifiableMap(this.parameters);
+    }
+
+    /**
+     * Returns the value of the specified parameter.
+     * 
+     * @param name The parameter name.
+     * @return The parameter value, or {@code null} if not present.
+     */
+    public String getParameter(
+            final @NotNull String name) {
+        return this.parameters.get(Validate.notNull(name).toLowerCase());
+    }
+
+    /**
+     * Sets the value of the specified parameter.
+     * If the parameter value is {@code null} the parameter is removed.
+     * 
+     * @param name The parameter name.
+     * @param value The parameter value.
+     */
+    public void setParameter(
+            final @NotNull String name,
+            final String value) {
+        if (value == null) {
+            removeParameter(name);
+        } else {
+            this.parameters.put(
+                    Validate.notNull(name).toLowerCase(),
+                    Validate.notNull(value));
+        }
+    }
+
+    /**
+     * Sets the value of the specified parameter.
+     * If the parameter value is {@code null} the parameter is removed.
+     * 
+     * @param name The parameter name.
+     * @param value The parameter value.
+     */
+    public void removeParameter(
+            final @NotNull String name) {
+        this.parameters.remove(Validate.notNull(name).toLowerCase());
+    }
+
+    /**
+     * Returns the HTTP content type header value representing this content
+     * type.
+     * 
+     * @return The HTTP content type header value.
+     */
+    public @NotNull String getHeader() {
+        final StringBuilder builder = new StringBuilder(this.mediaType);
+        for (final Map.Entry<String, String> param : this.parameters.entrySet()) {
+            builder.append(PARAMETER_SEPARATOR)
+                .append(param.getKey())
+                .append(PARAMETER_VALUE_SEPARATOR)
+                .append(param.getValue());
+        }
+        return builder.toString();
     }
 
     /**
@@ -180,8 +273,7 @@ public class ContentType {
     public int hashCode() {
         return new HashCodeBuilder()
                 .append(this.mediaType)
-                .append(this.charset)
-                .append(this.boundary)
+                .append(this.parameters)
                 .toHashCode();
     }
 
@@ -202,6 +294,7 @@ public class ContentType {
         final ContentType other = (ContentType) obj;
         return new EqualsBuilder()
                 .append(this.mediaType, other.mediaType)
+                .append(this.parameters, other.parameters)
                 .build();
     }
 
@@ -209,16 +302,7 @@ public class ContentType {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder(this.mediaType);
-        if (this.charset != null || this.boundary != null) {
-            builder.append(PARAMETER_SEPARATOR).append(" ");
-            if (this.charset != null) {
-                builder.append(CHARSET_PREFIX).append(charset.name().toLowerCase());
-            } else {
-                builder.append(BOUNDARY_PREFIX).append(boundary);
-            }
-        }
-        return builder.toString();
+    public @NotNull String toString() {
+        return getHeader();
     }
 }

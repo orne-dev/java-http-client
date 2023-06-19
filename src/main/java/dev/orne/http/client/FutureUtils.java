@@ -1,4 +1,4 @@
-package dev.orne.http.client.engine;
+package dev.orne.http.client;
 
 /*-
  * #%L
@@ -22,23 +22,41 @@ package dev.orne.http.client.engine;
  * #L%
  */
 
+import java.util.concurrent.CompletableFuture;
+
 import javax.validation.constraints.NotNull;
 
 /**
- * Functional interface for HTTP response handlers.
+ * Utility methods for {@code Future} handling.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
  * @since 0.1
  */
-@FunctionalInterface
-public interface HttpResponseHandler {
+public final class FutureUtils {
 
     /**
-     * Handles the response of a HTTP request.
-     * 
-     * @param response The HTTP response.
+     * Private constructor.
      */
-    void handle(
-            @NotNull HttpResponse response);
+    private FutureUtils() {
+        // Utility class
+    }
+
+    /**
+     * Creates a completed {@code CompletableFuture} with the specified
+     * failure.
+     * <p>
+     * Required because {@code CompletableFuture.failedFuture()} is not
+     * available until Java 9.
+     * 
+     * @param <R> The future result type.
+     * @param t The failure cause.
+     * @return The completed {@code CompletableFuture}.
+     */
+    public static <R> @NotNull CompletableFuture<R> completableFailure(
+            final @NotNull Throwable t) {
+        final CompletableFuture<R> result = new CompletableFuture<>();
+        result.completeExceptionally(t);
+        return result;
+    }
 }

@@ -23,17 +23,16 @@ package dev.orne.http.client.engine.apache;
  */
 
 import java.time.Instant;
-import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 
-import dev.orne.http.client.Cookie;
+import dev.orne.http.client.cookie.Cookie;
 
 /**
- * Implementation of {@code Cookie} that delegates on Apache HTTP Client's
+ * Implementation of {@code Cookie} that delegates on Apache HTTP Client 5
  * cookies.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
@@ -44,7 +43,7 @@ public class ApacheCookie
 implements Cookie {
 
     /** The Apache HTTP Client cookie. */
-    private final @NotNull org.apache.http.cookie.Cookie delegate;
+    private final @NotNull org.apache.hc.client5.http.cookie.Cookie delegate;
 
     /**
      * Creates a new instance.
@@ -52,7 +51,7 @@ implements Cookie {
      * @param delegate The Apache HTTP Client cookie.
      */
     public ApacheCookie(
-            final @NotNull org.apache.http.cookie.Cookie delegate) {
+            final @NotNull org.apache.hc.client5.http.cookie.Cookie delegate) {
         super();
         this.delegate = Validate.notNull(delegate, "The delegated cookie is required");
     }
@@ -105,8 +104,7 @@ implements Cookie {
     @Override
     public Instant getCreationTime() {
         if (this.delegate instanceof BasicClientCookie) {
-            final Date result = ((BasicClientCookie) this.delegate).getCreationDate();
-            return result == null ? null : result.toInstant();
+            return ((BasicClientCookie) this.delegate).getCreationInstant();
         } else {
             return null;
         }
@@ -127,8 +125,7 @@ implements Cookie {
      */
     @Override
     public Instant getExpiryTime() {
-        final Date result = this.delegate.getExpiryDate();
-        return result == null ? null : result.toInstant();
+        return this.delegate.getExpiryInstant();
     }
 
     /**
