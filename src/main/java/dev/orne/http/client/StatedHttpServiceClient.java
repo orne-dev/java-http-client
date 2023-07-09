@@ -69,20 +69,13 @@ extends HttpServiceClient {
     /**
      * Returns the client's current state.
      * <p>
-     * If the state has not been initialized the state initialization operation
-     * is executed and the thread sleeps until it finishes.
-     * <p>
-     * Equivalent to {@code ensureInitialized().get()}.
+     * If the state has not been initialized {@code null} is returned.
+     * To ensure a non null result use {@code ensureInitialized().get()}.
      * 
      * @return The client's current state
-     * @throws InterruptedException If the state initialization operation
-     * was interrupted.
-     * @throws HttpClientException If an error occurred during the state
-     * initialization operation.
      * @see #ensureInitialized()
      */
-    @NotNull S getStatus()
-    throws HttpClientException, InterruptedException;
+    S getStatus();
 
     /**
      * Resets the client's state.

@@ -22,9 +22,19 @@ package dev.orne.http.client.cookie;
  * #L%
  */
 
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
 import java.time.Instant;
 
+import javax.validation.Constraint;
+import javax.validation.Payload;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  * Interface for HTTP cookies according to RFC 6265.
@@ -40,14 +50,14 @@ public interface Cookie {
      * 
      * @return The name of the cookie.
      */
-    @NotNull String getName();
+    @NotNull @CookieName String getName();
 
     /**
      * Returns the value of the cookie.
      * 
      * @return The value of the cookie.
      */
-    @NotNull String getValue();
+    @NotNull @CookieValue String getValue();
 
     /**
      * Returns the domain the cookie belongs to.
@@ -140,4 +150,52 @@ public interface Cookie {
      * @return If the cookie must be send only through HTTP protocols.
      */
     boolean isHttpOnly();
+
+    @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
+    @Retention(RUNTIME)
+    @Documented
+    @Constraint(validatedBy = { })
+    @Pattern(regexp=CookieName.REGEXP)
+    @interface CookieName {
+
+        /** Regular expression range for control characters. */
+        public static final String CTL =
+                "\u0000-\u0031\u0127";
+        /** Regular expression range for separators. */
+        public static final String SEPARATORS =
+                "\\(\\)\\<\\>\\@\\,\\;\\:\\\\\\\"\\/\\[\\]\\?\\=\\{\\} \t";
+        /** Regular expression range for invalid characters. */
+        public static final String INVALID_CHARACTER =
+                CTL + SEPARATORS;
+        /** Regular expression range for invalid characters. */
+        public static final String REGEXP =
+                "^[^" + INVALID_CHARACTER + "]*$";
+
+        String message() default "{dev.orne.http.client.cookie.Cookie.CookieName.message}";
+
+        Class<?>[] groups() default { };
+
+        Class<? extends Payload>[] payload() default { };
+    }
+
+    @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
+    @Retention(RUNTIME)
+    @Documented
+    @Constraint(validatedBy = { })
+    @Pattern(regexp=CookieValue.REGEXP)
+    @interface CookieValue {
+
+        /** Regular expression range for invalid characters. */
+        public static final String INVALID_CHARACTER =
+                CookieName.CTL + " \\\"\\,\\;\\\\";
+        /** Regular expression range for invalid characters. */
+        public static final String REGEXP =
+                "^([^" + INVALID_CHARACTER + "]*|\\\"[^" + INVALID_CHARACTER + "]*\\\")$";
+
+        String message() default "{dev.orne.http.client.cookie.Cookie.CookieName.message}";
+
+        Class<?>[] groups() default { };
+
+        Class<? extends Payload>[] payload() default { };
+    }
 }

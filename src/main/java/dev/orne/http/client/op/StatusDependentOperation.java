@@ -50,6 +50,6 @@ public interface StatusDependentOperation<P, R, S> {
      */
     public @NotNull CompletableFuture<R> execute(
             P params,
-            S status,
+            @NotNull S status,
             @NotNull StatedHttpServiceClient<? extends S> client);
 }

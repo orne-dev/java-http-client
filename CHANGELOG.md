@@ -1,64 +1,69 @@
 # :package: 0.1.0
 
-01. :gift: Added HTTP utility classes
+01. :gift: Added HTTP utility classes.
     01. Added class `dev.orne.http.Methods`
     01. Added class `dev.orne.http.Headers`
     01. Added class `dev.orne.http.MediaTypes`
     01. Added class `dev.orne.http.ContentType`
     01. Added class `dev.orne.http.StatusCodes`
 01. :gift: Added HTTP client engine abstraction system.
-    01. Added interface `dev.orne.http.client.engine.HttpRequestHeadersSupplier`
-    01. Added interface `dev.orne.http.client.engine.HttpRequestBodySupplier`
-    01. Added interface `dev.orne.http.client.engine.HttpResponseHeadersSupplier`
-    01. Added interface `dev.orne.http.client.engine.HttpResponseBodySupplier`
+    01. Added interface `dev.orne.http.client.engine.HttpRequest`
+    01. Added interface `dev.orne.http.client.engine.HttpResponse`
+    01. Added interface `dev.orne.http.client.engine.HttpResponseBody`
+    01. Added interface `dev.orne.http.client.engine.HttpRequestCustomizer`
     01. Added interface `dev.orne.http.client.engine.HttpResponseHandler`
     01. Added interface `dev.orne.http.client.engine.HttpClientEngine`
-01. :gift: Added client API
+01. :gift: Added client cookies API.
     01. Added interface `dev.orne.http.client.Cookie`
     01. Added interface `dev.orne.http.client.CookieStore`
     01. Added class `dev.orne.http.client.DefaultCookie`
-    01. Added interface `dev.orne.http.client.HttpServiceClient`
+01. :gift: Added client API.
     01. Added exception `dev.orne.http.client.HttpClientException`
-    01. Added interface `dev.orne.http.client.StatusIndependentOperation`
-    01. Added interface `dev.orne.http.client.StatedHttpServiceClient`
-    01. Added interface `dev.orne.http.client.StatusDependentOperation`
-    01. Added interface `dev.orne.http.client.StatusInitOperation`
-    01. Added interface `dev.orne.http.client.AuthenticableClientStatus`
+    01. Added exception `dev.orne.http.client.HttpRequestBodyGenerationException`
+    01. Added exception `dev.orne.http.client.HttpResponseStatusException`
+    01. Added exception `dev.orne.http.client.HttpResponseHandlingException`
     01. Added exception `dev.orne.http.client.AuthenticationException`
     01. Added exception `dev.orne.http.client.AuthenticationRequiredException`
-    01. Added interface `dev.orne.http.client.AuthenticatedOperation`
-    01. Added exception `dev.orne.http.client.AuthenticationFailedException`
-    01. Added interface `dev.orne.http.client.AuthenticationOperation`
-    01. Added interface `dev.orne.http.client.AuthenticableHttpServiceClient`
     01. Added exception `dev.orne.http.client.AuthenticationExpiredException`
-    01. Added exception `dev.orne.http.client.CredentialsInvalidException`
     01. Added exception `dev.orne.http.client.CredentialsNotStoredException`
-01. :gift: Added default client implementations
+    01. Added exception `dev.orne.http.client.AuthenticationFailedException`
+    01. Added exception `dev.orne.http.client.CredentialsInvalidException`
+    01. Added exception `dev.orne.http.client.HttpResponseBodyParsingException`
+    01. Added exception `dev.orne.http.client.UnsupportedContentTypeException`
+    01. Added interface `dev.orne.http.client.HttpServiceClient`
+    01. Added interface `dev.orne.http.client.StatedHttpServiceClient`
+    01. Added interface `dev.orne.http.client.AuthenticableClientStatus`
+    01. Added interface `dev.orne.http.client.AuthenticableHttpServiceClient`
+    01. Added interface `dev.orne.http.client.AuthenticationAutoRenewalPolicy`
+01. :gift: Added service operations API.
+    01. Added interface `dev.orne.http.client.op.StatusIndependentOperation`
+    01. Added interface `dev.orne.http.client.op.StatusDependentOperation`
+    01. Added interface `dev.orne.http.client.op.StatusInitOperation`
+    01. Added interface `dev.orne.http.client.op.AuthenticationOperation`
+    01. Added interface `dev.orne.http.client.op.AuthenticatedOperation`
+    01. Added interface `dev.orne.http.client.op.OperationResponseHandler`
+01. :gift: Added HTTP request and response body handling API.
+    01. Added interface `dev.orne.http.client.body.HttpRequestBodyProducer`
+    01. Added interface `dev.orne.http.client.body.HttpResponseBodyParser`
+    01. Added interface `dev.orne.http.client.body.HttpResponseBodyMediaTypeParser`
+01. :gift: Added base client implementations.
+    01. Added class `dev.orne.http.client.FutureUtils`
     01. Added class `dev.orne.http.client.BaseHttpServiceClient`
     01. Added class `dev.orne.http.client.BaseStatedHttpServiceClient`
     01. Added class `dev.orne.http.client.BaseAuthenticableHttpServiceClient`
-01. Added Apache HTTP Client 4.x based HTTP client engine
+01. Added Apache HTTP Client 4.x based HTTP client engine.
     01. Added class `dev.orne.http.client.engine.apache.ApacheCookie`
     01. Added class `dev.orne.http.client.engine.apache.ApacheCookieStore`
     01. Added class `dev.orne.http.client.engine.apache.ApacheHttpClientEngine`
-01. :gift: Added default operation implementations
+01. :gift: Added base abstract operation implementations.
     01. Added class `dev.orne.http.client.AbstractHttpServiceOperation`
     01. Added class `dev.orne.http.client.AbstractStatusIndependentOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusIndependentGetOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusIndependentPutOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusIndependentUrlEncodedPutOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusIndependentPostOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusIndependentUrlEncodedPostOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusIndependentDeleteOperation`
     01. Added class `dev.orne.http.client.AbstractStatusDependentOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusDependentGetOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusDependentPutOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusDependentUrlEncodedPutOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusDependentPostOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusDependentUrlEncodedPostOperation`
-    01. Added class `dev.orne.http.client.AbstractStatusDependentDeleteOperation`
-01. :gift: Added default response handlers implementations
-    01. Added class `dev.orne.http.client.VoidResponseHandler`
-    01. Added class `dev.orne.http.client.AbstractMimeTypeResponseHandler`
-    01. Added class `dev.orne.http.client.JaxbXMLResponseHandler`
-    01. Added class `dev.orne.http.client.JacksonJSONResponseHandler`
+01. :gift: Added default HTTP request and response body handlers implementations.
+    01. Added interface `dev.orne.http.client.body.XmlHttpResponseBodyParser`
+    01. Added class `dev.orne.http.client.body.JaxbHttpBody`
+    01. Added interface `dev.orne.http.client.body.JsonHttpResponseBodyParser`
+    01. Added class `dev.orne.http.client.body.JacksonHttpBody`
+    01. Added class `dev.orne.http.client.body.DelegatedHttpRequestBodyParser`
+01. :gift: Added testing utilities.
+    01. Added class `dev.orne.http.client.DefaultCookieGenerator`

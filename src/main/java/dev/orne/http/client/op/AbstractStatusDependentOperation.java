@@ -30,9 +30,9 @@ import javax.validation.constraints.NotNull;
 
 import dev.orne.http.client.FutureUtils;
 import dev.orne.http.client.HttpClientException;
+import dev.orne.http.client.HttpResponseHandlingException;
 import dev.orne.http.client.HttpResponseStatusException;
 import dev.orne.http.client.StatedHttpServiceClient;
-import dev.orne.http.client.body.HttpResponseBodyParsingException;
 import dev.orne.http.client.engine.HttpResponse;
 import dev.orne.http.client.engine.HttpResponseBody;
 import dev.orne.http.client.engine.HttpRequest;
@@ -58,7 +58,7 @@ implements StatusDependentOperation<P, R, S> {
     @Override
     public @NotNull CompletableFuture<R> execute(
             final P params,
-            final S status,
+            final @NotNull S status,
             final @NotNull StatedHttpServiceClient<? extends S> client) {
         try {
             final URI requestURI = resolveRequestURI(
@@ -70,7 +70,7 @@ implements StatusDependentOperation<P, R, S> {
                     requestURI,
                     getRequestMethod(),
                     request -> prepareRequest(params, status, request),
-                    handler::handle)
+                    handler)
             .thenApply(nop -> {
                 try {
                     return handler.getResult();
@@ -95,7 +95,7 @@ implements StatusDependentOperation<P, R, S> {
      */
     protected abstract @NotNull URI getRequestURI(
             P params,
-            S status)
+            @NotNull S status)
     throws HttpClientException;
 
     /**
@@ -115,7 +115,7 @@ implements StatusDependentOperation<P, R, S> {
      */
     protected abstract void prepareRequest(
             final P params,
-            final S status,
+            final @NotNull S status,
             final @NotNull HttpRequest request)
     throws HttpClientException;
 
@@ -130,7 +130,7 @@ implements StatusDependentOperation<P, R, S> {
      */
     protected @NotNull OperationResponseHandler<R> createResponseHandler(
             final P params,
-            final S status)
+            final @NotNull S status)
     throws HttpClientException {
         return new HandlerWrapper(params, status);
     }
@@ -146,7 +146,7 @@ implements StatusDependentOperation<P, R, S> {
      */
     protected R handleResponse(
             P params,
-            S status,
+            @NotNull S status,
             @NotNull HttpResponse response)
     throws HttpClientException {
         try {
@@ -156,11 +156,15 @@ implements StatusDependentOperation<P, R, S> {
             if (body == null) {
                 entity = null;
             } else {
-                entity = parseResponse(params, status, body);
+                entity = parseResponse(params, status, response, body);
             }
             return processResponse(params, status, entity, response);
         } catch (HttpResponseStatusException e) {
-            return processHttpResponseException(response, e);
+            final HttpResponseBody body = response.getBody();
+            if (body != null) {
+                body.discard();
+            }
+            return processResponseStatusException(response, e);
         }
     }
 
@@ -169,15 +173,17 @@ implements StatusDependentOperation<P, R, S> {
      * 
      * @param params The operation execution parameters.
      * @param status The current client status.
-     * @param response The HTTP response body.
+     * @param response The HTTP response.
+     * @param body The HTTP response body.
      * @return The HTTP response entity.
-     * @throws HttpClientException If an error occurs parsing the entity.
+     * @throws HttpResponseHandlingException If an error occurs parsing the entity.
      */
     protected abstract E parseResponse(
             P params,
-            S status,
+            @NotNull S status,
+            @NotNull HttpResponse response,
             @NotNull HttpResponseBody body)
-    throws HttpResponseBodyParsingException;
+    throws HttpResponseHandlingException;
 
     /**
      * Processes the HTTP response and generates the result.
@@ -187,12 +193,15 @@ implements StatusDependentOperation<P, R, S> {
      * @param entity The HTTP response entity.
      * @param response The HTTP response body.
      * @return The operation execution result.
+     * @throws HttpResponseHandlingException If an error occurs processing the
+     * response.
      */
     protected abstract R processResponse(
             P params,
-            S status,
+            @NotNull S status,
             E entity,
-            @NotNull HttpResponse response);
+            @NotNull HttpResponse response)
+    throws HttpResponseHandlingException;
 
     /**
      * Internal implementation of {@code OperationResponseHandler} for
@@ -211,7 +220,7 @@ implements StatusDependentOperation<P, R, S> {
         /** The operation execution parameters. */
         private final P params;
         /** The current client status. */
-        private final S status;
+        private final @NotNull S status;
         /** The operations result. */
         private R result;
         /** The error occurred during response handling. */
@@ -225,7 +234,7 @@ implements StatusDependentOperation<P, R, S> {
          */
         public HandlerWrapper(
                 final P params,
-                final S status) {
+                final @NotNull S status) {
             super();
             this.params = params;
             this.status = status;

@@ -46,12 +46,12 @@ public interface AuthenticationAutoRenewalPolicy {
      * 
      * @param <R> The operation result type.
      * @param <R> The client status type.
-     * @param authExecuter The authentication operation execution lamda.
-     * @param opExecuter The post authenticated operation(s) execution lamda.
+     * @param doAuthenticate The authentication operation execution lamda.
+     * @param doOperation The post authenticated operation(s) execution lamda.
      * @param result The result future to update the results into.
      */
     <R, S extends AuthenticableClientStatus> void apply(
-            @NotNull Supplier<CompletableFuture<? extends S>> authExecuter,
-            @NotNull Function<S, CompletableFuture<R>> opExecuter,
+            @NotNull Supplier<CompletableFuture<? extends S>> doAuthenticate,
+            @NotNull Function<S, CompletableFuture<R>> doOperation,
             @NotNull CompletableFuture<R> result);
 }

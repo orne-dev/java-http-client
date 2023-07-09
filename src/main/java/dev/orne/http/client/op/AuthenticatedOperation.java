@@ -51,11 +51,11 @@ extends StatusDependentOperation<P, R, S> {
     /**
      * {@inheritDoc}
      * @throws AuthenticationRequiredException If client is not
-     * authenticated
+     * authenticated.
      */
     @Override
     CompletableFuture<R> execute(
             P params,
-            S status,
+            @NotNull S status,
             @NotNull StatedHttpServiceClient<? extends S> client);
 }

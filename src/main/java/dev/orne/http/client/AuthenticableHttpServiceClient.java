@@ -42,7 +42,7 @@ extends StatedHttpServiceClient<S> {
      * Returns {@code true} if credentials should be stored on calls to
      * {@link #authenticate(Object)}.
      * 
-     * @return If credentials should be stored
+     * @return If credentials should be stored.
      */
     boolean isCredentialsStoringEnabled();
 
@@ -50,7 +50,7 @@ extends StatedHttpServiceClient<S> {
      * Sets if credentials should be stored on calls to
      * {@link #authenticate(Object)}.
      * 
-     * @param enabled If credentials should be stored
+     * @param enabled If credentials should be stored.
      */
     void setCredentialsStoringEnabled(
             boolean enabled);
@@ -60,7 +60,7 @@ extends StatedHttpServiceClient<S> {
      * automatically. Requires {@link #setCredentialsStoringEnabled(boolean)}
      * and storing credentials calling to {@link #authenticate(Object)}.
      * 
-     * @return If expired authentications should be renewed automatically
+     * @return If expired authentications should be renewed automatically.
      */
     boolean isAuthenticationAutoRenewalEnabled();
 
@@ -69,8 +69,8 @@ extends StatedHttpServiceClient<S> {
      * Requires {@link #setCredentialsStoringEnabled(boolean)} and storing
      * credentials calling to {@link #authenticate(Object)}.
      * 
-     * @param enabled  If expired authentications should be renewed
-     * automatically
+     * @param enabled If expired authentications should be renewed
+     * automatically.
      */
     void setAuthenticationAutoRenewalEnabled(
             boolean enabled);
@@ -81,7 +81,7 @@ extends StatedHttpServiceClient<S> {
      * call to {@link #authenticate(Object)} tries to authenticate with stored
      * credentials.
      * 
-     * @return The client's status
+     * @return The client's status.
      */
     @NotNull CompletableFuture<@NotNull S> ensureAuthenticated();
 
@@ -90,19 +90,19 @@ extends StatedHttpServiceClient<S> {
      * If the storage of credentials is allowed the credentials are stored
      * for future call to {@link #authenticate()}.
      * 
-     * @param credentials The credentials to use
-     * @return The client's status
+     * @param credentials The credentials to use.
+     * @return The client's status.
      */
     @NotNull CompletableFuture<@NotNull S> authenticate(
             @NotNull C credentials);
 
     /**
      * Authenticates against the HTTP service using the stored credentials.
-     * If no credentials
+     * If no credentials were stored
      * 
      * @throws AuthenticationRequiredException If no credentials have
-     * been store with a previous call to {@link #authenticate(Object)}
-     * @return The client's status
+     * been store with a previous call to {@link #authenticate(Object)}.
+     * @return The client's status.
      */
     @NotNull CompletableFuture<@NotNull S> authenticate();
 }

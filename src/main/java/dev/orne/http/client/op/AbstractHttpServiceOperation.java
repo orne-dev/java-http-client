@@ -63,7 +63,13 @@ public abstract class AbstractHttpServiceOperation<R> {
     /**
      * Verifies that the status code is an acceptable one.
      * <p>
-     * Default implementation accepts any status code in the success range.
+     * Default implementation accepts any status code in the success [200, 300)
+     * range.
+     * <p>
+     * Operations of services that return status codes outside the success
+     * range that should be processed as an expected (recognized) response must
+     * overwrite this method to prevent exception throwing for such status
+     * codes.
      * 
      * @param response The HTTP response.
      * @throws HttpResponseStatusException If the status code is not
@@ -81,15 +87,25 @@ public abstract class AbstractHttpServiceOperation<R> {
 
     /**
      * Process the HTTP response status exception.
+     * <p>
+     * Operations should overwrite this method to process error status codes
+     * with special meanings in the service API context, returning an operation
+     * result or throwing an specialized exception as appropriate.
+     * <p>
+     * Note that for status codes with specials meanings which bodies should be
+     * processed by the standard means the
+     * {@link #processResponseStatus(HttpResponse)} method should
+     * be overwritten instead.
      * 
      * @param response The HTTP response.
      * @param exception The HTTP response exception.
+     * @return The operation result.
      * @throws HttpResponseStatusException If the rejected HTTP request has no
      * special meaning and cannot be extracted to a valid result.
      * @throws AuthenticationRequiredException If the server responded with
      * an {@code 401 Unauthorized} status code.
      */
-    protected R processHttpResponseException(
+    protected R processResponseStatusException(
             final @NotNull HttpResponse response,
             final @NotNull HttpResponseStatusException exception)
     throws HttpClientException {

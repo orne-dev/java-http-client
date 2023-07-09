@@ -1,7 +1,5 @@
 package dev.orne.http.client;
 
-import java.util.concurrent.CompletionException;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -23,6 +21,9 @@ import java.util.concurrent.CompletionException;
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
  * #L%
  */
+
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Root exception for HTTP service clients.
@@ -135,7 +136,8 @@ extends Exception {
             final Throwable t) {
         if (t instanceof HttpClientException) {
             return (HttpClientException) t;
-        } else  if (t instanceof CompletionException) {
+        } else  if (t instanceof CompletionException ||
+                t instanceof ExecutionException) {
             return unwrapFutureException(t.getCause());
         } else  if (t instanceof RuntimeException) {
             throw (RuntimeException) t;

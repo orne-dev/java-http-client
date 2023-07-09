@@ -27,103 +27,133 @@ import static org.mockito.BDDMockito.*;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.CookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import dev.orne.http.client.cookie.CookieStore;
+import dev.orne.http.client.engine.HttpClientEngine;
+import dev.orne.http.client.op.StatusIndependentOperation;
 
 /**
  * Unit tests for {@code BaseHttpServiceClient}.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
- * @version 1.0, 2020-05
+ * @version 1.0, 2023-06
  * @since 0.1
  * @see BaseHttpServiceClient
  */
 @Tag("ut")
 class BaseHttpServiceClientTest {
 
+    /** The shared engine. */
+    protected @Mock HttpClientEngine engine;
+    private AutoCloseable mocks;
+
+    @BeforeEach public void openMocks() {
+        this.mocks = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach public void releaseMocks() throws Exception {
+        this.mocks.close();
+    }
+
     /**
-     * Test for {@link BaseHttpServiceClient#BaseHttpServiceClient(URL)}.
+     * Test for {@link BaseHttpServiceClient#BaseHttpServiceClient(HttpClientEngine, URI)}.
      * @throws Throwable Should not happen
      */
     @Test
-    void testConstructorNullURL()
+    void testUriConstructor_requiredParameters()
     throws Throwable {
+        final HttpClientEngine engine = mock(HttpClientEngine.class);
+        final URI uri = URI.create("http://example.org/base/path/");
         assertThrows(NullPointerException.class, () -> {
-            new BaseHttpServiceClient(null);
+            new BaseHttpServiceClient(engine, (URI) null);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseHttpServiceClient(null, uri);
         });
     }
 
     /**
-     * Test for {@link BaseHttpServiceClient#BaseHttpServiceClient(URL)}.
+     * Test for {@link BaseHttpServiceClient#BaseHttpServiceClient(HttpClientEngine, URI)}.
      * @throws Throwable Should not happen
      */
     @Test
-    void testConstructor()
+    void testUriConstructor()
     throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
-        try (final BaseHttpServiceClient client = new BaseHttpServiceClient(url)) {
-            final HttpHost clientHost = client.getHost();
-            assertNotNull(clientHost);
-            assertNotNull(clientHost.getSchemeName());
-            assertEquals(schema, clientHost.getSchemeName());
-            assertNotNull(clientHost.getHostName());
-            assertEquals(host, clientHost.getHostName());
-            assertEquals(port, clientHost.getPort());
-            assertNull(clientHost.getAddress());
-            
-            assertNotNull(client.getBaseURI());
-            assertFalse(client.getBaseURI().isAbsolute());
-            assertEquals(path, client.getBaseURI().getPath());
-            
-            assertNotNull(client.getCookieStore());
-            assertTrue(client.getCookieStore().getCookies().isEmpty());
-            
-            assertNotNull(client.getClient());
+        final HttpClientEngine engine = mock(HttpClientEngine.class);
+        final URI uri = URI.create("http://example.org/base/path/");
+        try (final BaseHttpServiceClient client = new BaseHttpServiceClient(engine, uri)) {
+            assertSame(engine, client.getEngine());
+            assertEquals(uri, client.getBaseURI());
         }
     }
 
     /**
-     * Creates an instance from specified URL.
-     * 
-     * @param baseURL The HTTP service's base URL
-     * @return The created instance
+     * Test for {@link BaseHttpServiceClient#BaseHttpServiceClient(HttpClientEngine, URL)}.
+     * @throws Throwable Should not happen
      */
-    protected BaseHttpServiceClient createClientFromUrl(
-            final @NotNull URL url) {
-        return new BaseHttpServiceClient(url);
+    @Test
+    void testUrlConstructor_requiredParameters()
+    throws Throwable {
+        final HttpClientEngine engine = mock(HttpClientEngine.class);
+        final URL url = new URL("http://example.org/base/path/");
+        assertThrows(NullPointerException.class, () -> {
+            new BaseHttpServiceClient(engine, (URL) null);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseHttpServiceClient(null, url);
+        });
     }
 
     /**
-     * Creates an instance from specified parts.
-     * 
-     * @param host The HTTP service's host
-     * @param baseURI The HTTP service's base URI
-     * @param cookieStore The HTTP client's cookie store
-     * @param client The HTTP client
-     * @return The created instance
+     * Test for {@link BaseHttpServiceClient#BaseHttpServiceClient(HttpClientEngine, URL)}.
+     * @throws Throwable Should not happen
      */
-    protected BaseHttpServiceClient createClientFromParts(
-            final @NotNull HttpHost mockHost,
-            final @NotNull URI mockBaseUri,
-            final @NotNull CookieStore mockCookieStore,
-            final @NotNull CloseableHttpClient mockClient) {
-        return new BaseHttpServiceClient(
-                mockHost,
-                mockBaseUri,
-                mockCookieStore,
-                mockClient);
+    @Test
+    void testUrlConstructor()
+    throws Throwable {
+        final HttpClientEngine engine = mock(HttpClientEngine.class);
+        final URI uri = URI.create("http://example.org/base/path/");
+        final URL url = new URL("http://example.org/base/path/");
+        try (final BaseHttpServiceClient client = new BaseHttpServiceClient(engine, url)) {
+            assertSame(engine, client.getEngine());
+            assertEquals(uri, client.getBaseURI());
+        }
+    }
+
+    protected @NotNull BaseHttpServiceClient createTestClient() {
+        return new BaseHttpServiceClient(this.engine, URI.create("http://example.org/base/path/"));
+    }
+
+    /**
+     * Test for {@link BaseHttpServiceClient#getCookieStore()}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testGetCookieStore()
+    throws Throwable {
+        final CookieStore store = mock(CookieStore.class);
+        given(engine.getCookieStore()).willReturn(store);
+        try (final BaseHttpServiceClient client = createTestClient()) {
+            then(engine).shouldHaveNoInteractions();
+            final CookieStore result = client.getCookieStore();
+            assertSame(store, result);
+            then(engine).should().getCookieStore();
+            then(engine).shouldHaveNoMoreInteractions();
+        }
     }
 
     /**
@@ -133,101 +163,39 @@ class BaseHttpServiceClientTest {
     @Test
     void testClose()
     throws Throwable {
-        final HttpHost mockHost = new HttpHost("example.org");
-        final URI mockBaseUri = URI.create("some/path");
-        final CookieStore mockCookieStore = mock(CookieStore.class);
-        final CloseableHttpClient mockClient = mock(CloseableHttpClient.class);
-        try (final BaseHttpServiceClient client = createClientFromParts(
-                mockHost,
-                mockBaseUri,
-                mockCookieStore,
-                mockClient)) {
-            then(mockCookieStore).should(times(0)).clear();
-            then(mockClient).should(times(0)).close();
+        try (final BaseHttpServiceClient client = createTestClient()) {
+            then(engine).shouldHaveNoInteractions();
         }
-        then(mockCookieStore).should(times(1)).clear();
-        then(mockClient).should(times(1)).close();
+        then(engine).should().close();
+        then(engine).shouldHaveNoMoreInteractions();
     }
 
     /**
      * Test for {@link BaseHttpServiceClient#execute(StatusIndependentOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteNullParam()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    void testExecute(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
         @SuppressWarnings("unchecked")
         final StatusIndependentOperation<Object, Object> operation =
                 mock(StatusIndependentOperation.class);
-        final Object mockResult = new Object();
-        try (final BaseHttpServiceClient client = createClientFromUrl(url)) {
-            given(operation.execute(null, client)).willReturn(mockResult);
-            final Object result = client.execute(operation, null);
+        final CompletableFuture<Object> mockResult = new CompletableFuture<Object>();
+        try (final BaseHttpServiceClient client = createTestClient()) {
+            given(operation.execute(params, client)).willReturn(mockResult);
+            final CompletableFuture<Object> result = client.execute(operation, params);
             assertNotNull(result);
             assertSame(mockResult, result);
-            then(operation).should(times(1)).execute(null, client);
+            then(operation).should().execute(params, client);
         }
     }
 
-    /**
-     * Test for {@link BaseHttpServiceClient#execute(StatusIndependentOperation, Object)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testExecute()
-    throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusIndependentOperation<Object, Object> operation =
-                mock(StatusIndependentOperation.class);
-        final Object mockParam = new Object();
-        final Object mockResult = new Object();
-        try (final BaseHttpServiceClient client = createClientFromUrl(url)) {
-            given(operation.execute(mockParam, client)).willReturn(mockResult);
-            final Object result = client.execute(operation, mockParam);
-            assertNotNull(result);
-            assertSame(mockResult, result);
-            then(operation).should(times(1)).execute(mockParam, client);
-        }
-    }
-
-    /**
-     * Test for {@link BaseHttpServiceClient#execute(StatusIndependentOperation, Object)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testExecuteFailed()
-    throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusIndependentOperation<Object, Object> operation =
-                mock(StatusIndependentOperation.class);
-        final HttpClientException mockResult = new HttpClientException();
-        final Object mockParam = new Object();
-        try (final BaseHttpServiceClient client = createClientFromUrl(url)) {
-            given(operation.execute(mockParam, client)).willThrow(mockResult);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                client.execute(operation, mockParam);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            then(operation).should(times(1)).execute(mockParam, client);
-        }
-    }
-
-    /**
-     * Test for {@link BaseHttpServiceClient#getLogger()}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testLogger()
-    throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        try (final BaseHttpServiceClient client = createClientFromUrl(url)) {
-            final Logger logger = client.getLogger();
-            assertNotNull(logger);
-            assertSame(LoggerFactory.getLogger(client.getClass()), logger);
-        }
+    private static Stream<Arguments> operationParameters() {
+        return Stream.of(
+                Arguments.of((Object) null),
+                Arguments.of(new Object())
+            );
     }
 }

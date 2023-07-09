@@ -1,4 +1,4 @@
-package dev.orne.http.client.body;
+package dev.orne.http.client;
 
 /*-
  * #%L
@@ -22,17 +22,15 @@ package dev.orne.http.client.body;
  * #L%
  */
 
-import dev.orne.http.client.HttpResponseHandlingException;
-
 /**
- * HTTP service client error for HTTP request body generation problems.
+ * HTTP service client error for responses with unsupported content type.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
  * @since 0.1
  */
-public class HttpRequestBodyGenerationException
-extends HttpResponseHandlingException {
+public class UnsupportedContentTypeException
+extends HttpResponseBodyParsingException {
 
     /** The Serial Version UID. */
     private static final long serialVersionUID = 1L;
@@ -42,7 +40,7 @@ extends HttpResponseHandlingException {
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      */
-    public HttpRequestBodyGenerationException() {
+    public UnsupportedContentTypeException() {
         super();
     }
 
@@ -54,7 +52,7 @@ extends HttpResponseHandlingException {
      * @param   message   the detail message. The detail message is saved for
      *          later retrieval by the {@link #getMessage()} method.
      */
-    public HttpRequestBodyGenerationException(
+    public UnsupportedContentTypeException(
             final String message) {
         super(message);
     }
@@ -72,7 +70,7 @@ extends HttpResponseHandlingException {
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
      */
-    public HttpRequestBodyGenerationException(
+    public UnsupportedContentTypeException(
             final Throwable cause) {
         super(cause);
     }
@@ -90,7 +88,7 @@ extends HttpResponseHandlingException {
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
      */
-    public HttpRequestBodyGenerationException(
+    public UnsupportedContentTypeException(
             final String message,
             final Throwable cause) {
         super(message, cause);
@@ -109,7 +107,7 @@ extends HttpResponseHandlingException {
      * @param writableStackTrace whether or not the stack trace should
      *                           be writable
      */
-    public HttpRequestBodyGenerationException(
+    public UnsupportedContentTypeException(
             final String message,
             final Throwable cause,
             final boolean enableSuppression,

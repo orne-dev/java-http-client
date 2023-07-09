@@ -190,7 +190,7 @@ public class StatusCodes {
      */
     public static boolean isServerError(
             final int statusCode) {
-        return statusCode >= 500;
+        return statusCode >= 500 && statusCode < 600;
     }
 
     /** RFC 9110 Section 15.6.1 */
@@ -224,7 +224,7 @@ public class StatusCodes {
      * @version 1.0, 2023-06
      * @since StatusCodes 1.0
      */
-    public final class Experimental {
+    public static final class Experimental {
 
         // --- 1xx Informational ---
 
@@ -261,7 +261,7 @@ public class StatusCodes {
      * @version 1.0, 2023-06
      * @since StatusCodes 1.0
      */
-    public final class WebDav {
+    public static final class WebDav {
 
         // --- 1xx Informational ---
 

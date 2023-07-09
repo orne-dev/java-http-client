@@ -31,8 +31,6 @@ import java.util.concurrent.CompletableFuture;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import dev.orne.http.client.cookie.CookieStore;
 import dev.orne.http.client.engine.HttpClientEngine;
@@ -52,23 +50,29 @@ implements HttpServiceClient {
     private final @NotNull HttpClientEngine engine;
     /** The HTTP service's base URI. */
     private final URI baseURI;
-    /** The logger for this instance's actual class. */
-    private Logger logger;
 
     /**
      * Creates a new instance.
+     * <p>
+     * The base URI must be absolute, as is used to resolve
+     * relative URIs of operations.
      * 
      * @param engine The HTTP client engine.
+     * @param baseURI The HTTP service's base URI.
      */
     public BaseHttpServiceClient(
-            final @NotNull HttpClientEngine engine) {
-        this(engine, (URI) null);
+            final @NotNull HttpClientEngine engine,
+            final @NotNull URI baseURI) {
+        super();
+        this.engine = Validate.notNull(engine, "HTTP client engine is required.");
+        this.baseURI = Validate.notNull(baseURI);
+        Validate.isTrue(baseURI.isAbsolute(), "Base URI must be absolute.");
     }
 
     /**
      * Creates a new instance.
      * <p>
-     * The base URL, if provided, must be absolute, as is used to resolve
+     * The base URL, must be absolute, as is used to resolve
      * relative URIs of operations.
      * 
      * @param engine The HTTP client engine.
@@ -77,29 +81,9 @@ implements HttpServiceClient {
      */
     public BaseHttpServiceClient(
             final @NotNull HttpClientEngine engine,
-            final URL baseURL)
+            final @NotNull URL baseURL)
     throws URISyntaxException {
-        this(engine, baseURL == null ? null : baseURL.toURI());
-    }
-
-    /**
-     * Creates a new instance.
-     * <p>
-     * The base URI, if provided, must be absolute, as is used to resolve
-     * relative URIs of operations.
-     * 
-     * @param engine The HTTP client engine.
-     * @param baseURI The HTTP service's base URI.
-     */
-    public BaseHttpServiceClient(
-            final @NotNull HttpClientEngine engine,
-            final URI baseURI) {
-        super();
-        this.engine = Validate.notNull(engine, "HTTP client engine is required.");
-        this.baseURI = baseURI;
-        if (this.baseURI != null) {
-            Validate.isTrue(baseURI.isAbsolute(), "Base URI must be absolute.");
-        }
+        this(engine, baseURL.toURI());
     }
 
     /**
@@ -147,19 +131,5 @@ implements HttpServiceClient {
     public void close()
     throws IOException {
         this.engine.close();
-    }
-
-    /**
-     * Returns the logger for this instance's actual class.
-     * 
-     * @return The logger for this instance's actual class
-     */
-    protected @NotNull Logger getLogger() {
-        synchronized (this) {
-            if (this.logger == null) {
-                this.logger = LoggerFactory.getLogger(getClass());
-            }
-            return this.logger;
-        }
     }
 }

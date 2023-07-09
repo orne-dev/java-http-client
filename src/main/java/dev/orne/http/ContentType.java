@@ -46,13 +46,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public class ContentType {
 
     /** The separator preceding a parameter declaration. */
-    private static final String PARAMETER_SEPARATOR = ";";
+    public static final String PARAMETER_SEPARATOR = ";";
     /** The separator between parameter name and value. */
-    private static final String PARAMETER_VALUE_SEPARATOR = "=";
+    public static final String PARAMETER_VALUE_SEPARATOR = "=";
     /** The content encoding parameter name. */
-    private static final String CHARSET_PARAM = "charset";
+    public static final String CHARSET_PARAM = "charset";
     /** The parts boundary parameter name. */
-    private static final String BOUNDARY_PARAM = "boundary";
+    public static final String BOUNDARY_PARAM = "boundary";
 
     /** The content media type. */
     private String mediaType;
@@ -95,7 +95,11 @@ public class ContentType {
             final @NotNull String mediaType,
             final @NotNull Charset charset) {
         Validate.notNull(mediaType);
-        Validate.isTrue(MediaTypes.isText(mediaType));
+        Validate.isTrue(!MediaTypes.isAudio(mediaType));
+        Validate.isTrue(!MediaTypes.isFont(mediaType));
+        Validate.isTrue(!MediaTypes.isImage(mediaType));
+        Validate.isTrue(!MediaTypes.isMultipart(mediaType));
+        Validate.isTrue(!MediaTypes.isVideo(mediaType));
         final ContentType result = new ContentType();
         result.mediaType = mediaType;
         result.parameters.put(CHARSET_PARAM, charset.name());
@@ -134,13 +138,15 @@ public class ContentType {
     throws UnsupportedCharsetException {
         Validate.notNull(header);
         final ContentType result = new ContentType();
-        final StringTokenizer tokenizer = new StringTokenizer(header, PARAMETER_SEPARATOR);
+        final StringTokenizer tokenizer = new StringTokenizer(
+                header,
+                PARAMETER_SEPARATOR + PARAMETER_VALUE_SEPARATOR);
         if (!tokenizer.hasMoreTokens()) {
             throw new IllegalArgumentException("Illegal HTTP content type header value. No media type : " + header);
         }
         result.mediaType = tokenizer.nextToken().trim();
         while (tokenizer.hasMoreTokens()) {
-            final String name = tokenizer.nextToken(PARAMETER_VALUE_SEPARATOR).trim().toLowerCase();
+            final String name = tokenizer.nextToken().trim().toLowerCase();
             String value = tokenizer.nextToken().trim();
             if (value.length() > 1 &&  value.startsWith("\"") && value.endsWith("\"")) {
                 value = value.substring(1, value.length() - 1);

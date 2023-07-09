@@ -25,25 +25,28 @@ package dev.orne.http.client;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.CookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+
+import dev.orne.http.client.engine.HttpClientEngine;
+import dev.orne.http.client.op.StatusDependentOperation;
+import dev.orne.http.client.op.StatusInitOperation;
 
 /**
  * Unit tests for {@code BaseStatedHttpServiceClient}.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
- * @version 1.0, 2020-05
+ * @version 1.0, 2023-06
  * @since 0.1
  * @see BaseStatedHttpServiceClient
  */
@@ -51,125 +54,91 @@ import org.mockito.InOrder;
 class BaseStatedHttpServiceClientTest
 extends BaseHttpServiceClientTest {
 
+    /** The default status initialization operation. */
+    protected @Mock StatusInitOperation<Object> initOp;
+
     /**
-     * Test for {@link BaseStatedHttpServiceClient#BaseStatedHttpServiceClient(URL, StatusInitOperation)}.
+     * Test for {@link BaseStatedHttpServiceClient#BaseStatedHttpServiceClient(HttpClientEngine, URI, StatusInitOperation)}.
      * @throws Throwable Should not happen
      */
     @Test
-    void testConstructorNullNull()
+    void testUriConstructor_requiredParameters()
     throws Throwable {
+        final URI uri = URI.create("http://example.org/base/path/");
         assertThrows(NullPointerException.class, () -> {
-            new BaseStatedHttpServiceClient<Object>(null, null);
+            new BaseStatedHttpServiceClient<>(null, uri, initOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseStatedHttpServiceClient<>(engine, (URI) null, initOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseStatedHttpServiceClient<>(engine, uri, (StatusInitOperation<Object>) null);
         });
     }
 
     /**
-     * Test for {@link BaseStatedHttpServiceClient#BaseStatedHttpServiceClient(URL, StatusInitOperation)}.
+     * Test for {@link BaseStatedHttpServiceClient#BaseStatedHttpServiceClient(HttpClientEngine, URI, StatusInitOperation)}.
      * @throws Throwable Should not happen
      */
     @Test
-    void testConstructorNullURL()
+    void testUriConstructor()
     throws Throwable {
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        assertThrows(NullPointerException.class, () -> {
-            new BaseStatedHttpServiceClient<Object>(null, mockInitOp);
-        });
-    }
-
-    /**
-     * Test for {@link BaseStatedHttpServiceClient#BaseStatedHttpServiceClient(URL, StatusInitOperation)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testConstructorNullInitOp()
-    throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
-        assertThrows(NullPointerException.class, () -> {
-            new BaseStatedHttpServiceClient<Object>(url, null);
-        });
-    }
-
-    /**
-     * Test for {@link BaseStatedHttpServiceClient#BaseStatedHttpServiceClient(URL, StatusInitOperation)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testConstructor()
-    throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        try (final BaseStatedHttpServiceClient<Object> client =
-                new BaseStatedHttpServiceClient<Object>(url, mockInitOp)) {
-            final HttpHost clientHost = client.getHost();
-            assertNotNull(clientHost);
-            assertNotNull(clientHost.getSchemeName());
-            assertEquals(schema, clientHost.getSchemeName());
-            assertNotNull(clientHost.getHostName());
-            assertEquals(host, clientHost.getHostName());
-            assertEquals(port, clientHost.getPort());
-            assertNull(clientHost.getAddress());
-            
-            assertNotNull(client.getBaseURI());
-            assertFalse(client.getBaseURI().isAbsolute());
-            assertEquals(path, client.getBaseURI().getPath());
-            
-            assertNotNull(client.getCookieStore());
-            assertTrue(client.getCookieStore().getCookies().isEmpty());
-            
-            assertNotNull(client.getClient());
-            
-            assertNotNull(client.getStatusInitOperation());
-            assertSame(mockInitOp, client.getStatusInitOperation());
+        final URI uri = URI.create("http://example.org/base/path/");
+        try (final BaseStatedHttpServiceClient<Object> client = new BaseStatedHttpServiceClient<>(engine, uri, initOp)) {
+            assertSame(engine, client.getEngine());
+            assertEquals(uri, client.getBaseURI());
+            assertSame(initOp, client.getStatusInitOperation());
+            assertNull(client.getStatus());
         }
     }
 
     /**
-     * {@inheritDoc}
+     * Test for {@link BaseStatedHttpServiceClient#BaseStatedHttpServiceClient(HttpClientEngine, URL, StatusInitOperation)}.
+     * @throws Throwable Should not happen
      */
-    @Override
-    protected BaseStatedHttpServiceClient<? extends Object> createClientFromUrl(
-            final @NotNull URL url) {
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        return createClientFromUrlAndInitOp(url, mockInitOp);
+    @Test
+    void testUrlConstructor_requiredParameters()
+    throws Throwable {
+        final URL url = new URL("http://example.org/base/path/");
+        assertThrows(NullPointerException.class, () -> {
+            new BaseStatedHttpServiceClient<>(null, url, initOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseStatedHttpServiceClient<>(engine, (URL) null, initOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseStatedHttpServiceClient<>(engine, url, (StatusInitOperation<Object>) null);
+        });
     }
 
     /**
-     * {@inheritDoc}
+     * Test for {@link BaseStatedHttpServiceClient#BaseStatedHttpServiceClient(HttpClientEngine, URL, StatusInitOperation)}.
+     * @throws Throwable Should not happen
      */
-    protected <T extends Object> BaseStatedHttpServiceClient<T> createClientFromUrlAndInitOp(
-            final @NotNull URL url,
-            final @NotNull StatusInitOperation<T> mockInitOp) {
-        return new BaseStatedHttpServiceClient<T>(url, mockInitOp);
+    @Test
+    void testUrlConstructor()
+    throws Throwable {
+        final URI uri = URI.create("http://example.org/base/path/");
+        final URL url = new URL("http://example.org/base/path/");
+        try (final BaseStatedHttpServiceClient<Object> client = new BaseStatedHttpServiceClient<>(engine, url, initOp)) {
+            assertSame(engine, client.getEngine());
+            assertEquals(uri, client.getBaseURI());
+            assertSame(initOp, client.getStatusInitOperation());
+            assertNull(client.getStatus());
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected BaseHttpServiceClient createClientFromParts(
-            final @NotNull HttpHost mockHost,
-            final @NotNull URI mockBaseUri,
-            final @NotNull CookieStore mockCookieStore,
-            final @NotNull CloseableHttpClient mockClient) {
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        return new BaseStatedHttpServiceClient<Object>(
-                mockHost,
-                mockBaseUri,
-                mockCookieStore,
-                mockClient,
-                mockInitOp);
+    protected @NotNull BaseStatedHttpServiceClient<? extends Object> createTestClient() {
+        return createTestClient(initOp);
+    }
+
+    protected <S> @NotNull BaseStatedHttpServiceClient<S> createTestClient(
+            final @NotNull StatusInitOperation<S> initOp) {
+        return new BaseStatedHttpServiceClient<>(
+                engine,
+                URI.create("http://example.org/base/path/"),
+                initOp);
     }
 
     /**
@@ -177,35 +146,35 @@ extends BaseHttpServiceClientTest {
      * 
      * @return The created mock status
      */
-    protected Object createMockStatus() {
-        return mock(Object.class);
+    protected Object createStatus() {
+        return new Object();
     }
 
     /**
      * Test for {@link BaseStatedHttpServiceClient#execute(StatusDependentOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteDependentFailedInit()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteStatusDependent_initError(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
         final StatusDependentOperation<Object, Object, Object> operation =
                 mock(StatusDependentOperation.class);
-        final HttpClientException mockInitException = new HttpClientException();
-        final Object mockParam = new Object();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
-            final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willThrow(mockInitException).given(clientSpy).ensureInitialized();
-            final HttpClientException result = assertThrows(HttpClientException.class, () -> {
-                clientSpy.execute(operation, mockParam);
-            });
-            assertNotNull(result);
-            assertSame(mockInitException, result);
-            then(clientSpy).should(times(1)).ensureInitialized();
+        try (final BaseStatedHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureInitialized();
+            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(operation).shouldHaveNoInteractions();
+            final HttpClientException exception = new HttpClientException();
+            futureEnsureResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
             then(operation).shouldHaveNoInteractions();
         }
     }
@@ -214,29 +183,34 @@ extends BaseHttpServiceClientTest {
      * Test for {@link BaseStatedHttpServiceClient#execute(StatusDependentOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteDependentNullParam()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteStatusDependent_operationError(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
         final StatusDependentOperation<Object, Object, Object> operation =
                 mock(StatusDependentOperation.class);
-        final Object mockStatus = createMockStatus();
-        final Object mockResult = new Object();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
-            final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            given(operation.execute(null, clientSpy)).willReturn(mockResult);
-            final Object result = clientSpy.execute(operation, null);
-            assertNotNull(result);
-            assertSame(mockResult, result);
-            final InOrder inOrder = inOrder(clientSpy, operation);
-            inOrder.verify(clientSpy, times(1)).ensureInitialized();
-            inOrder.verify(operation, times(1)).execute(null, clientSpy);
-            inOrder.verifyNoMoreInteractions();
+        try (final BaseStatedHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            final CompletableFuture futureOperationResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureInitialized();
+            given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
+            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(operation).shouldHaveNoInteractions();
+            final Object status = createStatus();
+            futureEnsureResult.complete(status);
+            assertFalse(futureResult.isDone());
+            final HttpClientException exception = new HttpClientException();
+            futureOperationResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            then(operation).should().execute(params, status, client);
+            then(operation).shouldHaveNoMoreInteractions();
         }
     }
 
@@ -244,63 +218,33 @@ extends BaseHttpServiceClientTest {
      * Test for {@link BaseStatedHttpServiceClient#execute(StatusDependentOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteDependent()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteStatusDependent(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
         final StatusDependentOperation<Object, Object, Object> operation =
                 mock(StatusDependentOperation.class);
-        final Object mockParam = new Object();
-        final Object mockStatus = createMockStatus();
-        final Object mockResult = new Object();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
-            final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            given(operation.execute(mockParam, clientSpy)).willReturn(mockResult);
-            final Object result = clientSpy.execute(operation, mockParam);
-            assertNotNull(result);
-            assertSame(mockResult, result);
-            final InOrder inOrder = inOrder(clientSpy, operation);
-            inOrder.verify(clientSpy, times(1)).ensureInitialized();
-            inOrder.verify(operation, times(1)).execute(mockParam, clientSpy);
-            inOrder.verifyNoMoreInteractions();
-        }
-    }
-
-    /**
-     * Test for {@link BaseStatedHttpServiceClient#execute(StatusDependentOperation, Object)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testExecuteDependentFailed()
-    throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final StatusDependentOperation<Object, Object, Object> operation =
-                mock(StatusDependentOperation.class);
-        final HttpClientException mockResult = new HttpClientException();
-        final Object mockParam = new Object();
-        final Object mockStatus = createMockStatus();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
-            final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            given(operation.execute(mockParam, clientSpy)).willThrow(mockResult);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.execute(operation, mockParam);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder inOrder = inOrder(clientSpy, operation);
-            inOrder.verify(clientSpy, times(1)).ensureInitialized();
-            inOrder.verify(operation, times(1)).execute(mockParam, clientSpy);
-            inOrder.verifyNoMoreInteractions();
+        try (final BaseStatedHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            final CompletableFuture futureOperationResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureInitialized();
+            given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
+            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(operation).shouldHaveNoInteractions();
+            final Object status = createStatus();
+            futureEnsureResult.complete(status);
+            assertFalse(futureResult.isDone());
+            final Object result = new Object();
+            futureOperationResult.complete(result);
+            assertTrue(futureResult.isDone());
+            assertSame(result, futureResult.get());
+            then(operation).should().execute(params, status, client);
+            then(operation).shouldHaveNoMoreInteractions();
         }
     }
 
@@ -309,17 +253,14 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     void testSetStatus()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockStatus = createMockStatus();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
+        final Object mockStatus = createStatus();
+        try (final BaseStatedHttpServiceClient client = createTestClient()) {
             client.setStatus(mockStatus);
             assertSame(mockStatus, client.getStatus());
-            then(mockInitOp).shouldHaveNoInteractions();
+            then(initOp).shouldHaveNoInteractions();
         }
     }
 
@@ -328,18 +269,15 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     void testResetStatus()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockStatus = createMockStatus();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
-            client.setStatus(mockStatus);
+        final Object oldStatus = createStatus();
+        try (final BaseStatedHttpServiceClient client = createTestClient()) {
+            client.setStatus(oldStatus);
             client.resetStatus();
             assertNull(client.getStatus());
-            then(mockInitOp).shouldHaveNoInteractions();
+            then(client.getStatusInitOperation()).shouldHaveNoInteractions();
         }
     }
 
@@ -348,20 +286,22 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     void testInitializeStatus()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockStatus = createMockStatus();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
-            given(mockInitOp.execute(any(), same(client))).willReturn(mockStatus);
-            final Object result = client.initializeStatus();
+        try (final BaseStatedHttpServiceClient client = createTestClient()) {
+            final CompletableFuture futureInitResult = new CompletableFuture<>();
+            given(client.getStatusInitOperation().execute(any(), same(client))).willReturn(futureInitResult);
+            final CompletableFuture<?> result = client.initializeStatus();
             assertNotNull(result);
-            assertSame(mockStatus, result);
+            assertFalse(result.isDone());
+            assertNull(client.getStatus());
+            final Object mockStatus = createStatus();
+            futureInitResult.complete(mockStatus);
+            assertSame(mockStatus, result.get());
+            assertTrue(result.isDone());
             assertSame(mockStatus, client.getStatus());
-            then(mockInitOp).should(times(1)).execute(any(), same(client));
+            then(client.getStatusInitOperation()).should().execute(any(), same(client));
         }
     }
 
@@ -370,23 +310,22 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     void testEnsureInitialized()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockStatus = createMockStatus();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
-            final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(null).given(clientSpy).getStatus();
-            willReturn(mockStatus).given(clientSpy).initializeStatus();
-            final Object result = clientSpy.ensureInitialized();
+        try (final BaseStatedHttpServiceClient client = createTestClient()) {
+            final CompletableFuture futureInitResult = new CompletableFuture<>();
+            given(client.getStatusInitOperation().execute(any(), same(client))).willReturn(futureInitResult);
+            final CompletableFuture<?> result = client.ensureInitialized();
             assertNotNull(result);
-            assertSame(mockStatus, result);
-            final InOrder callOrder = inOrder(clientSpy);
-            callOrder.verify(clientSpy, times(1)).getStatus();
-            callOrder.verify(clientSpy, times(1)).initializeStatus();
+            assertFalse(result.isDone());
+            assertNull(client.getStatus());
+            final Object mockStatus = createStatus();
+            futureInitResult.complete(mockStatus);
+            assertSame(mockStatus, result.get());
+            assertTrue(result.isDone());
+            assertSame(mockStatus, client.getStatus());
+            then(client.getStatusInitOperation()).should().execute(any(), same(client));
         }
     }
 
@@ -395,21 +334,18 @@ extends BaseHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    void testEnsureInitializedAlreadyInitialized()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testEnsureInitialized_alreadyInitialized()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<Object> mockInitOp = mock(StatusInitOperation.class);
-        final Object mockStatus = createMockStatus();
-        try (final BaseStatedHttpServiceClient<Object> client =
-                createClientFromUrlAndInitOp(url, mockInitOp)) {
-            final BaseStatedHttpServiceClient<Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).getStatus();
-            final Object result = clientSpy.ensureInitialized();
+        try (final BaseStatedHttpServiceClient client = createTestClient()) {
+            final Object status = createStatus();
+            client.setStatus(status);
+            final CompletableFuture<?> result = client.ensureInitialized();
             assertNotNull(result);
-            assertSame(mockStatus, result);
-            then(clientSpy).should(times(1)).getStatus();
-            then(clientSpy).should(never()).initializeStatus();
+            assertTrue(result.isDone());
+            assertSame(status, result.get());
+            assertSame(status, client.getStatus());
+            then(client.getStatusInitOperation()).should(never()).execute(any(), same(client));
         }
     }
 }

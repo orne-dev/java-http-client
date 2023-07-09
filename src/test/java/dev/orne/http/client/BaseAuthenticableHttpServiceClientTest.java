@@ -24,28 +24,34 @@ package dev.orne.http.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.CookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.mockito.Mock;
+
+import dev.orne.http.client.engine.HttpClientEngine;
+import dev.orne.http.client.op.AuthenticatedOperation;
+import dev.orne.http.client.op.AuthenticationOperation;
+import dev.orne.http.client.op.StatusInitOperation;
 
 /**
  * Unit tests for {@code BaseAuthenticableHttpServiceClient}.
  * 
  * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
- * @version 1.0, 2020-05
+ * @version 1.0, 2023-06
  * @since 0.1
  * @see BaseAuthenticableHttpServiceClient
  */
@@ -53,117 +59,46 @@ import org.mockito.stubbing.Answer;
 class BaseAuthenticableHttpServiceClientTest
 extends BaseStatedHttpServiceClientTest {
 
+    protected @Mock StatusInitOperation<AuthenticableClientStatus> authInitOp;
+    protected @Mock AuthenticationOperation<Object, Object, AuthenticableClientStatus> authOp;
+
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(URL, StatusInitOperation, AuthenticationOperation)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(HttpClientEngine, URI, StatusInitOperation, AuthenticationOperation)}.
      * @throws Throwable Should not happen
      */
     @Test
-    void testConstructorNullNull()
+    void testUriConstructor_requiredParameters()
     throws Throwable {
+        final URI uri = URI.create("http://example.org/base/path/");
         assertThrows(NullPointerException.class, () -> {
-            new BaseAuthenticableHttpServiceClient<TestState, Object>(null, null, null);
+            new BaseAuthenticableHttpServiceClient<>(null, uri, authInitOp, authOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseAuthenticableHttpServiceClient<>(engine, (URI) null, authInitOp, authOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseAuthenticableHttpServiceClient<>(engine, uri, (StatusInitOperation<AuthenticableClientStatus>) null, authOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseAuthenticableHttpServiceClient<>(engine, uri, authInitOp, null);
         });
     }
 
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(URL, StatusInitOperation, AuthenticationOperation)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(HttpClientEngine, URI, StatusInitOperation, AuthenticationOperation)}.
      * @throws Throwable Should not happen
      */
     @Test
-    void testConstructorNullURL()
+    void testUriConstructor()
     throws Throwable {
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        assertThrows(NullPointerException.class, () -> {
-            new BaseAuthenticableHttpServiceClient<TestState, Object>(
-                    null, mockInitOp, mockAuthOp);
-        });
-    }
-
-    /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(URL, StatusInitOperation, AuthenticationOperation)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testConstructorNullInitOp()
-    throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        assertThrows(NullPointerException.class, () -> {
-            new BaseAuthenticableHttpServiceClient<TestState, Object>(
-                    url, null, mockAuthOp);
-        });
-    }
-
-    /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(URL, StatusInitOperation, AuthenticationOperation)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testConstructorNullAuthOp()
-    throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        assertThrows(NullPointerException.class, () -> {
-            new BaseAuthenticableHttpServiceClient<TestState, Object>(
-                    url, mockInitOp, null);
-        });
-    }
-
-    /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(URL, StatusInitOperation, AuthenticationOperation)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testConstructor()
-    throws Throwable {
-        final String schema = "https";
-        final String host = "some.host.example.com";
-        final int port = 3654;
-        final String path = "some/path";
-        final URL url = new URL(schema, host, port, path);
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                new BaseAuthenticableHttpServiceClient<TestState, Object>(url, mockInitOp, mockAuthOp)) {
-            final HttpHost clientHost = client.getHost();
-            assertNotNull(clientHost);
-            assertNotNull(clientHost.getSchemeName());
-            assertEquals(schema, clientHost.getSchemeName());
-            assertNotNull(clientHost.getHostName());
-            assertEquals(host, clientHost.getHostName());
-            assertEquals(port, clientHost.getPort());
-            assertNull(clientHost.getAddress());
-            
-            assertNotNull(client.getBaseURI());
-            assertFalse(client.getBaseURI().isAbsolute());
-            assertEquals(path, client.getBaseURI().getPath());
-            
-            assertNotNull(client.getCookieStore());
-            assertTrue(client.getCookieStore().getCookies().isEmpty());
-            
-            assertNotNull(client.getClient());
-            
-            assertNotNull(client.getStatusInitOperation());
-            assertSame(mockInitOp, client.getStatusInitOperation());
-            
-            assertNotNull(client.getAuthenticationOperation());
-            assertSame(mockAuthOp, client.getAuthenticationOperation());
-            
+        final URI uri = URI.create("http://example.org/base/path/");
+        try (final BaseAuthenticableHttpServiceClient<AuthenticableClientStatus, Object> client =
+                new BaseAuthenticableHttpServiceClient<>(engine, uri, authInitOp, authOp)) {
+            assertSame(engine, client.getEngine());
+            assertEquals(uri, client.getBaseURI());
+            assertSame(authInitOp, client.getStatusInitOperation());
+            assertSame(authOp, client.getAuthenticationOperation());
+            assertNull(client.getStatus());
             assertFalse(client.isCredentialsStoringEnabled());
             assertFalse(client.hasStoredCredentials());
             assertFalse(client.isAuthenticationAutoRenewalEnabled());
@@ -171,82 +106,72 @@ extends BaseStatedHttpServiceClientTest {
     }
 
     /**
-     * {@inheritDoc}
+     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(HttpClientEngine, ULR, StatusInitOperation, AuthenticationOperation)}.
+     * @throws Throwable Should not happen
      */
+    @Test
+    void testUrlConstructor_requiredParameters()
+    throws Throwable {
+        final URL url = new URL("http://example.org/base/path/");
+        assertThrows(NullPointerException.class, () -> {
+            new BaseAuthenticableHttpServiceClient<>(null, url, authInitOp, authOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseAuthenticableHttpServiceClient<>(engine, (URL) null, authInitOp, authOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseAuthenticableHttpServiceClient<>(engine, url, (StatusInitOperation<AuthenticableClientStatus>) null, authOp);
+        });
+        assertThrows(NullPointerException.class, () -> {
+            new BaseAuthenticableHttpServiceClient<>(engine, url, authInitOp, null);
+        });
+    }
+
+    /**
+     * Test for {@link BaseAuthenticableHttpServiceClient#BaseAuthenticableHttpServiceClient(HttpClientEngine, ULR, StatusInitOperation, AuthenticationOperation)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testUrlConstructor()
+    throws Throwable {
+        final HttpClientEngine engine = mock(HttpClientEngine.class);
+        final URI uri = URI.create("http://example.org/base/path/");
+        final URL url = new URL("http://example.org/base/path/");
+        try (final BaseAuthenticableHttpServiceClient<AuthenticableClientStatus, Object> client =
+                new BaseAuthenticableHttpServiceClient<>(engine, url, authInitOp, authOp)) {
+            assertSame(engine, client.getEngine());
+            assertEquals(uri, client.getBaseURI());
+            assertSame(authInitOp, client.getStatusInitOperation());
+            assertSame(authOp, client.getAuthenticationOperation());
+            assertNull(client.getStatus());
+            assertFalse(client.isCredentialsStoringEnabled());
+            assertFalse(client.hasStoredCredentials());
+            assertFalse(client.isAuthenticationAutoRenewalEnabled());
+        }
+    }
+
     @Override
-    protected BaseStatedHttpServiceClient<? extends Object> createClientFromUrl(
-            final @NotNull URL url) {
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp =
-                mock(AuthenticationOperation.class);
-        return createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp);
+    protected @NotNull BaseAuthenticableHttpServiceClient<? extends AuthenticableClientStatus, ?> createTestClient() {
+        return createTestClient(authInitOp, authOp);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    protected <T extends Object> BaseStatedHttpServiceClient<T> createClientFromUrlAndInitOp(
-            final @NotNull URL url,
-            final @NotNull StatusInitOperation<T> mockInitOp) {
-        final StatusInitOperation<TestState> castedMockInitOp =
-                (StatusInitOperation<TestState>) mockInitOp;
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp =
-                mock(AuthenticationOperation.class);
-        return (BaseStatedHttpServiceClient<T>) createClientFromUrlAndInitOpAndAuthOp(url, castedMockInitOp, mockAuthOp);
+    protected <S extends AuthenticableClientStatus, C> @NotNull BaseAuthenticableHttpServiceClient<S, C> createTestClient(
+            final @NotNull StatusInitOperation<S> initOp,
+            final @NotNull AuthenticationOperation<C, ?, S> authOp) {
+        return new BaseAuthenticableHttpServiceClient<>(
+                engine,
+                URI.create("http://example.org/base/path/"),
+                initOp,
+                authOp);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected <T extends TestState> BaseAuthenticableHttpServiceClient<T, Object> createClientFromUrlAndInitOpAndAuthOp(
-            final @NotNull URL url,
-            final @NotNull StatusInitOperation<T> mockInitOp,
-            final @NotNull AuthenticationOperation<Object, ?, T> mockAuthOp) {
-        return new BaseAuthenticableHttpServiceClient<T, Object>(
-                url, mockInitOp, mockAuthOp);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected BaseHttpServiceClient createClientFromParts(
-            final @NotNull HttpHost mockHost,
-            final @NotNull URI mockBaseUri,
-            final @NotNull CookieStore mockCookieStore,
-            final @NotNull CloseableHttpClient mockClient) {
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp =
-                mock(AuthenticationOperation.class);
-        return new BaseAuthenticableHttpServiceClient<TestState, Object>(
-                mockHost,
-                mockBaseUri,
-                mockCookieStore,
-                mockClient,
-                mockInitOp,
-                mockAuthOp);
+    protected AuthenticableClientStatus createStatus() {
+        return mock(AuthenticableClientStatus.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected TestState createMockStatus() {
-        return mock(TestState.class);
-    }
-
-    /**
-     * Creates a mock credentials for testing.
-     * 
-     * @return The created mock credentials
-     */
-    protected Object createMockCredentials() {
-        return mock(Object.class);
+    protected Object createCredentials() {
+        return new Object();
     }
 
     /**
@@ -254,20 +179,18 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     void testSetCredentialsStoringEnabled()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
+        try (final BaseAuthenticableHttpServiceClient client = createTestClient()) {
             assertFalse(client.isCredentialsStoringEnabled());
             client.setCredentialsStoringEnabled(true);
             assertTrue(client.isCredentialsStoringEnabled());
+            client.setStoredCredentials(createCredentials());
+            assertTrue(client.hasStoredCredentials());
             client.setCredentialsStoringEnabled(false);
             assertFalse(client.isCredentialsStoringEnabled());
+            assertFalse(client.hasStoredCredentials());
         }
     }
 
@@ -278,13 +201,7 @@ extends BaseStatedHttpServiceClientTest {
     @Test
     void testSetAuthenticationAutoRenewalEnabled()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
+        try (final BaseAuthenticableHttpServiceClient<?, ?> client = createTestClient()) {
             assertFalse(client.isAuthenticationAutoRenewalEnabled());
             client.setAuthenticationAutoRenewalEnabled(true);
             assertTrue(client.isAuthenticationAutoRenewalEnabled());
@@ -298,17 +215,15 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     void testSetStoredCredentials()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
+        try (final BaseAuthenticableHttpServiceClient client = createTestClient()) {
             assertFalse(client.hasStoredCredentials());
-            client.setStoredCredentials(new Object());
+            client.setStoredCredentials(createCredentials());
+            assertFalse(client.hasStoredCredentials());
+            client.setCredentialsStoringEnabled(true);
+            client.setStoredCredentials(createCredentials());
             assertTrue(client.hasStoredCredentials());
             client.setStoredCredentials(null);
             assertFalse(client.hasStoredCredentials());
@@ -319,26 +234,31 @@ extends BaseStatedHttpServiceClientTest {
      * Test for {@link BaseAuthenticableHttpServiceClient#authenticate(Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testAuthenticateCredentials()
+    @ParameterizedTest
+    @ValueSource(booleans = { true, false })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testAuthenticate(
+            final boolean credStorageEnabled)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            clientSpy.authenticate(mockCredentials);
-            final InOrder callOrder = inOrder(clientSpy, mockAuthOp);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockAuthOp, times(1)).execute(mockCredentials, clientSpy);
-            then(mockInitOp).shouldHaveNoInteractions();
-            assertFalse(clientSpy.hasStoredCredentials());
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setCredentialsStoringEnabled(credStorageEnabled);
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            final Object credentials = createCredentials();
+            final CompletableFuture futureAuthResult = new CompletableFuture<>();
+            given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
+            final CompletableFuture<?> futureResult = client.authenticate(credentials);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            final Object authResult = new Object();
+            futureAuthResult.complete(authResult);
+            assertTrue(futureResult.isDone());
+            assertSame(status, futureResult.get());
+            final InOrder callOrder = inOrder(client, client.getAuthenticationOperation());
+            callOrder.verify(client).ensureInitialized();
+            callOrder.verify(client.getAuthenticationOperation()).execute(credentials, status, client);
+            then(client.getAuthenticationOperation()).shouldHaveNoMoreInteractions();
+            assertEquals(credStorageEnabled, client.hasStoredCredentials());
         }
     }
 
@@ -346,32 +266,30 @@ extends BaseStatedHttpServiceClientTest {
      * Test for {@link BaseAuthenticableHttpServiceClient#authenticate(Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testAuthenticateCredentialsFail()
+    @ParameterizedTest
+    @ValueSource(booleans = { true, false })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testAuthenticate_initError(
+            final boolean credStorageEnabled)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        final HttpClientException mockResult = new HttpClientException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willThrow(mockResult).given(mockAuthOp).execute(mockCredentials, clientSpy);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.authenticate(mockCredentials);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder callOrder = inOrder(clientSpy, mockAuthOp);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockAuthOp, times(1)).execute(mockCredentials, clientSpy);
-            then(mockInitOp).shouldHaveNoInteractions();
-            assertFalse(clientSpy.hasStoredCredentials());
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setCredentialsStoringEnabled(credStorageEnabled);
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            final Object credentials = createCredentials();
+            final CompletableFuture futureInitResult = new CompletableFuture<>();
+            willReturn(futureInitResult).given(client).ensureInitialized();
+            final CompletableFuture<?> futureResult = client.authenticate(credentials);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            final HttpClientException exception = new HttpClientException();
+            futureInitResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            then(client.getStatusInitOperation()).shouldHaveNoInteractions();
+            then(client.getAuthenticationOperation()).shouldHaveNoInteractions();
+            assertFalse(client.hasStoredCredentials());
         }
     }
 
@@ -379,61 +297,33 @@ extends BaseStatedHttpServiceClientTest {
      * Test for {@link BaseAuthenticableHttpServiceClient#authenticate(Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testAuthenticateCredentialsStorageEnabled()
+    @ParameterizedTest
+    @ValueSource(booleans = { true, false })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testAuthenticate_authError(
+            final boolean credStorageEnabled)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setCredentialsStoringEnabled(true);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            clientSpy.authenticate(mockCredentials);
-            final InOrder callOrder = inOrder(clientSpy, mockAuthOp);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockAuthOp, times(1)).execute(mockCredentials, clientSpy);
-            then(mockInitOp).shouldHaveNoInteractions();
-            assertTrue(clientSpy.hasStoredCredentials());
-        }
-    }
-
-    /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#authenticate(Object)}.
-     * @throws Throwable Should not happen
-     */
-    @Test
-    void testAuthenticateCredentialsStorageEnabledFail()
-    throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        final HttpClientException mockResult = new HttpClientException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setCredentialsStoringEnabled(true);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willThrow(mockResult).given(mockAuthOp).execute(mockCredentials, clientSpy);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.authenticate(mockCredentials);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder callOrder = inOrder(clientSpy, mockAuthOp);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockAuthOp, times(1)).execute(mockCredentials, clientSpy);
-            then(mockInitOp).shouldHaveNoInteractions();
-            assertFalse(clientSpy.hasStoredCredentials());
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setCredentialsStoringEnabled(credStorageEnabled);
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            final Object credentials = createCredentials();
+            final CompletableFuture futureAuthResult = new CompletableFuture<>();
+            given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
+            final CompletableFuture<?> futureResult = client.authenticate(credentials);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            final HttpClientException exception = new HttpClientException();
+            futureAuthResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            final InOrder callOrder = inOrder(client, client.getAuthenticationOperation());
+            callOrder.verify(client).ensureInitialized();
+            callOrder.verify(client.getAuthenticationOperation()).execute(credentials, status, client);
+            then(client.getStatusInitOperation()).shouldHaveNoInteractions();
+            then(client.getAuthenticationOperation()).shouldHaveNoMoreInteractions();
+            assertFalse(client.hasStoredCredentials());
         }
     }
 
@@ -442,26 +332,29 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    void testAuthenticate()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testAuthenticate_storedCredentials()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setStoredCredentials(mockCredentials);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            clientSpy.authenticate();
-            final InOrder callOrder = inOrder(clientSpy, mockAuthOp);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockAuthOp, times(1)).execute(mockCredentials, clientSpy);
-            then(mockInitOp).shouldHaveNoInteractions();
-            assertTrue(clientSpy.hasStoredCredentials());
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setCredentialsStoringEnabled(true);
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            final Object credentials = createCredentials();
+            client.setStoredCredentials(credentials);
+            final CompletableFuture futureAuthResult = new CompletableFuture<>();
+            given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
+            final CompletableFuture<?> futureResult = client.authenticate();
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            final Object authResult = new Object();
+            futureAuthResult.complete(authResult);
+            assertTrue(futureResult.isDone());
+            assertSame(status, futureResult.get());
+            final InOrder callOrder = inOrder(client, client.getAuthenticationOperation());
+            callOrder.verify(client).ensureInitialized();
+            callOrder.verify(client.getAuthenticationOperation()).execute(credentials, status, client);
+            then(client.getAuthenticationOperation()).shouldHaveNoMoreInteractions();
+            assertTrue(client.hasStoredCredentials());
         }
     }
 
@@ -470,23 +363,28 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    void testAuthenticateNoStoredCredentials()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testAuthenticate_storedCredentials_initError()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            assertThrows(CredentialsNotStoredException.class, () -> {
-                clientSpy.authenticate();
-            });
-            then(mockInitOp).shouldHaveNoInteractions();
-            assertFalse(clientSpy.hasStoredCredentials());
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setCredentialsStoringEnabled(true);
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            final Object credentials = createCredentials();
+            client.setStoredCredentials(credentials);
+            final CompletableFuture futureInitResult = new CompletableFuture<>();
+            willReturn(futureInitResult).given(client).ensureInitialized();
+            final CompletableFuture<?> futureResult = client.authenticate();
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            final HttpClientException exception = new HttpClientException();
+            futureInitResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            then(client.getStatusInitOperation()).shouldHaveNoInteractions();
+            then(client.getAuthenticationOperation()).shouldHaveNoInteractions();
+            assertTrue(client.hasStoredCredentials());
         }
     }
 
@@ -495,32 +393,19 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    void testAuthenticateFail()
+    @SuppressWarnings({ "rawtypes" })
+    void testAuthenticate_storedCredentials_noCredentials()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        final HttpClientException mockResult = new HttpClientException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setStoredCredentials(mockCredentials);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willThrow(mockResult).given(mockAuthOp).execute(mockCredentials, clientSpy);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.authenticate();
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder callOrder = inOrder(clientSpy, mockAuthOp);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockAuthOp, times(1)).execute(mockCredentials, clientSpy);
-            then(mockInitOp).shouldHaveNoInteractions();
-            assertTrue(clientSpy.hasStoredCredentials());
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setCredentialsStoringEnabled(true);
+            final CompletableFuture<?> futureResult = client.authenticate();
+            assertNotNull(futureResult);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertInstanceOf(CredentialsNotStoredException.class, HttpClientException.unwrapFutureException(result));
+            then(client.getStatusInitOperation()).shouldHaveNoInteractions();
+            then(client.getAuthenticationOperation()).shouldHaveNoInteractions();
+            assertFalse(client.hasStoredCredentials());
         }
     }
 
@@ -529,32 +414,64 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    void testAuthenticateInvalidCrendentialsFail()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testAuthenticate_storedCredentials_authError()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        final CredentialsInvalidException mockResult = new CredentialsInvalidException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setStoredCredentials(mockCredentials);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willThrow(mockResult).given(mockAuthOp).execute(mockCredentials, clientSpy);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.authenticate();
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder callOrder = inOrder(clientSpy, mockAuthOp);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockAuthOp, times(1)).execute(mockCredentials, clientSpy);
-            then(mockInitOp).shouldHaveNoInteractions();
-            assertFalse(clientSpy.hasStoredCredentials());
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setCredentialsStoringEnabled(true);
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            final Object credentials = createCredentials();
+            client.setStoredCredentials(credentials);
+            final CompletableFuture futureAuthResult = new CompletableFuture<>();
+            given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
+            final CompletableFuture<?> futureResult = client.authenticate();
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            final HttpClientException exception = new HttpClientException();
+            futureAuthResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            final InOrder callOrder = inOrder(client, client.getAuthenticationOperation());
+            callOrder.verify(client, times(1)).ensureInitialized();
+            callOrder.verify(client.getAuthenticationOperation(), times(1)).execute(credentials, status, client);
+            then(client.getStatusInitOperation()).shouldHaveNoInteractions();
+            then(client.getAuthenticationOperation()).shouldHaveNoMoreInteractions();
+            assertTrue(client.hasStoredCredentials());
+        }
+    }
+
+    /**
+     * Test for {@link BaseAuthenticableHttpServiceClient#authenticate()}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testAuthenticate_storedCredentials_authInvalidCredentialsError()
+    throws Throwable {
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setCredentialsStoringEnabled(true);
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            final Object credentials = createCredentials();
+            client.setStoredCredentials(credentials);
+            final CompletableFuture futureAuthResult = new CompletableFuture<>();
+            given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
+            final CompletableFuture<?> futureResult = client.authenticate();
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            final CredentialsInvalidException exception = new CredentialsInvalidException();
+            futureAuthResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            final InOrder callOrder = inOrder(client, client.getAuthenticationOperation());
+            callOrder.verify(client, times(1)).ensureInitialized();
+            callOrder.verify(client.getAuthenticationOperation(), times(1)).execute(credentials, status, client);
+            then(client.getStatusInitOperation()).shouldHaveNoInteractions();
+            then(client.getAuthenticationOperation()).shouldHaveNoMoreInteractions();
+            assertFalse(client.hasStoredCredentials());
         }
     }
 
@@ -563,26 +480,29 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     void testEnsureAuthenticated()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willDoNothing().given(clientSpy).authenticate();
-            willReturn(false).given(mockStatus).isAuthenticated();
-            clientSpy.ensureAuthenticated();
-            final InOrder callOrder = inOrder(clientSpy, mockStatus);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockStatus, times(1)).isAuthenticated();
-            callOrder.verify(clientSpy, times(1)).authenticate();
-            then(mockInitOp).shouldHaveNoInteractions();
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureInitResult = new CompletableFuture<>();
+            willReturn(futureInitResult).given(client).ensureInitialized();
+            final CompletableFuture futureAuthResult = new CompletableFuture<>();
+            willReturn(futureAuthResult).given(client).authenticate();
+            final CompletableFuture<?> futureResult = client.ensureAuthenticated();
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(client).should(never()).authenticate();
+            final AuthenticableClientStatus status = createStatus();
+            given(status.isAuthenticated()).willReturn(false);
+            futureInitResult.complete(status);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(client).should().authenticate();
+            final AuthenticableClientStatus result = createStatus();
+            futureAuthResult.complete(result);
+            assertTrue(futureResult.isDone());
+            assertSame(result, futureResult.get());
         }
     }
 
@@ -591,31 +511,24 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    void testEnsureAuthenticatedFail()
+    @SuppressWarnings({ "rawtypes" })
+    void testEnsureAuthenticated_initError()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        final HttpClientException mockResult = new HttpClientException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willThrow(mockResult).given(clientSpy).authenticate();
-            willReturn(false).given(mockStatus).isAuthenticated();
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.ensureAuthenticated();
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder callOrder = inOrder(clientSpy, mockStatus);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockStatus, times(1)).isAuthenticated();
-            callOrder.verify(clientSpy, times(1)).authenticate();
-            then(mockInitOp).shouldHaveNoInteractions();
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureInitResult = new CompletableFuture<>();
+            willReturn(futureInitResult).given(client).ensureInitialized();
+            final CompletableFuture<?> futureResult = client.ensureAuthenticated();
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(client).should(never()).authenticate();
+            final HttpClientException exception = new HttpClientException();
+            futureInitResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            then(client).should().ensureInitialized();
+            then(client).should(never()).authenticate();
         }
     }
 
@@ -624,339 +537,293 @@ extends BaseStatedHttpServiceClientTest {
      * @throws Throwable Should not happen
      */
     @Test
-    void testEnsureAuthenticatedAlreadyAuthenticated()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testEnsureAuthenticated_alreadyAuthenticated()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        final TestState mockStatus = createMockStatus();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willDoNothing().given(clientSpy).authenticate();
-            willReturn(true).given(mockStatus).isAuthenticated();
-            clientSpy.ensureAuthenticated();
-            final InOrder callOrder = inOrder(clientSpy, mockStatus);
-            callOrder.verify(clientSpy, times(1)).ensureInitialized();
-            callOrder.verify(mockStatus, times(1)).isAuthenticated();
-            callOrder.verify(clientSpy, never()).authenticate();
-            then(mockAuthOp).shouldHaveNoInteractions();
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureInitResult = new CompletableFuture<>();
+            willReturn(futureInitResult).given(client).ensureInitialized();
+            final CompletableFuture<?> futureResult = client.ensureAuthenticated();
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(client).should(never()).authenticate();
+            final AuthenticableClientStatus status = createStatus();
+            given(status.isAuthenticated()).willReturn(true);
+            futureInitResult.complete(status);
+            assertTrue(futureResult.isDone());
+            assertSame(status, futureResult.get());
+            then(client).should().ensureInitialized();
+            then(client).should(never()).authenticate();
         }
     }
 
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#execute(StatusDependentOperation, Object)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#ensureAuthenticated()}.
      * @throws Throwable Should not happen
      */
     @Test
-    void testExecuteAuthenticated()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testEnsureAuthenticated_authError()
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticatedOperation<Object, Object, TestState> operation =
-                mock(AuthenticatedOperation.class);
-        final Object mockParam = new Object();
-        final TestState mockStatus = createMockStatus();
-        final Object mockResult = new Object();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willDoNothing().given(clientSpy).ensureAuthenticated();
-            willReturn(mockResult).given(operation).execute(mockParam, clientSpy);
-            final Object result = clientSpy.execute(operation, mockParam);
-            assertNotNull(result);
-            assertSame(mockResult, result);
-            final InOrder inOrder = inOrder(clientSpy, operation);
-            inOrder.verify(clientSpy, times(1)).ensureAuthenticated();
-            inOrder.verify(operation, times(1)).execute(mockParam, clientSpy);
-            inOrder.verifyNoMoreInteractions();
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureInitResult = new CompletableFuture<>();
+            willReturn(futureInitResult).given(client).ensureInitialized();
+            final CompletableFuture futureAuthResult = new CompletableFuture<>();
+            willReturn(futureAuthResult).given(client).authenticate();
+            final CompletableFuture<?> futureResult = client.ensureAuthenticated();
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(client).should(never()).authenticate();
+            final AuthenticableClientStatus status = createStatus();
+            given(status.isAuthenticated()).willReturn(false);
+            futureInitResult.complete(status);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureInitialized();
+            then(client).should().authenticate();
+            final HttpClientException exception = new HttpClientException();
+            futureAuthResult.completeExceptionally(exception);
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
         }
     }
 
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#execute(StatusDependentOperation, Object)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#executeAuthenticated(AuthenticatedOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteAuthenticatedEnsureAuthenticationFail()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteAuthenticated(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticatedOperation<Object, Object, TestState> operation =
+        final AuthenticatedOperation<Object, Object, AuthenticableClientStatus> operation =
                 mock(AuthenticatedOperation.class);
-        final Object mockParam = new Object();
-        final TestState mockStatus = createMockStatus();
-        final HttpClientException mockResult = new HttpClientException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willThrow(mockResult).given(clientSpy).ensureAuthenticated();
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.execute(operation, mockParam);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            then(clientSpy).should(times(1)).ensureAuthenticated();
-            then(operation).should(never()).execute(mockParam, clientSpy);
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureAuthenticated();
+            final CompletableFuture futureOperationResult = new CompletableFuture<>();
+            given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
+            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureAuthenticated();
+            then(operation).shouldHaveNoInteractions();
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            futureEnsureResult.complete(status);
+            assertFalse(futureResult.isDone());
+            final Object result = new Object();
+            futureOperationResult.complete(result);
+            assertTrue(futureResult.isDone());
+            assertSame(result, futureResult.get());
+            then(operation).should().execute(params, status, client);
+            then(operation).shouldHaveNoMoreInteractions();
         }
     }
 
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#execute(StatusDependentOperation, Object)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#executeAuthenticated(AuthenticatedOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteAuthenticatedFail()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteAuthenticated_initError(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticatedOperation<Object, Object, TestState> operation =
+        final AuthenticatedOperation<Object, Object, AuthenticableClientStatus> operation =
                 mock(AuthenticatedOperation.class);
-        final Object mockParam = new Object();
-        final TestState mockStatus = createMockStatus();
-        final HttpClientException mockResult = new HttpClientException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willDoNothing().given(clientSpy).ensureAuthenticated();
-            willThrow(mockResult).given(operation).execute(mockParam, clientSpy);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.execute(operation, mockParam);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder inOrder = inOrder(clientSpy, operation);
-            inOrder.verify(clientSpy, times(1)).ensureAuthenticated();
-            inOrder.verify(operation, times(1)).execute(mockParam, clientSpy);
-            inOrder.verifyNoMoreInteractions();
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureAuthenticated();
+            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureAuthenticated();
+            then(operation).shouldHaveNoInteractions();
+            final HttpClientException exception = new HttpClientException();
+            futureEnsureResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            then(operation).shouldHaveNoInteractions();
         }
     }
 
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#execute(StatusDependentOperation, Object)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#executeAuthenticated(AuthenticatedOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteAuthenticatedExpiredNoAutorenewal()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteAuthenticatedOperation_operationError(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticatedOperation<Object, Object, TestState> operation =
+        final AuthenticatedOperation<Object, Object, AuthenticableClientStatus> operation =
                 mock(AuthenticatedOperation.class);
-        final Object mockParam = new Object();
-        final TestState mockStatus = createMockStatus();
-        final AuthenticationExpiredException mockResult = new AuthenticationExpiredException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setAuthenticationAutoRenewalEnabled(false);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willDoNothing().given(clientSpy).ensureAuthenticated();
-            willThrow(mockResult).given(operation).execute(mockParam, clientSpy);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.execute(operation, mockParam);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder inOrder = inOrder(clientSpy, operation, mockStatus);
-            inOrder.verify(clientSpy, times(1)).ensureAuthenticated();
-            inOrder.verify(operation, times(1)).execute(mockParam, clientSpy);
-            inOrder.verify(mockStatus, times(1)).resetAuthentication();
-            inOrder.verifyNoMoreInteractions();
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureAuthenticated();
+            final CompletableFuture futureOperationResult = new CompletableFuture<>();
+            given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
+            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureAuthenticated();
+            then(operation).shouldHaveNoInteractions();
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            futureEnsureResult.complete(status);
+            assertFalse(futureResult.isDone());
+            final HttpClientException exception = new HttpClientException();
+            futureOperationResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            then(operation).should().execute(params, status, client);
+            then(operation).shouldHaveNoMoreInteractions();
         }
     }
 
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#execute(StatusDependentOperation, Object)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#executeAuthenticated(AuthenticatedOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteAuthenticatedExpiredNoStoredCredentials()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteAuthenticatedOperation_authExpired_noPolicy(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticatedOperation<Object, Object, TestState> operation =
+        final AuthenticatedOperation<Object, Object, AuthenticableClientStatus> operation =
                 mock(AuthenticatedOperation.class);
-        final Object mockParam = new Object();
-        final TestState mockStatus = createMockStatus();
-        final AuthenticationExpiredException mockResult = new AuthenticationExpiredException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setAuthenticationAutoRenewalEnabled(true);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willDoNothing().given(clientSpy).ensureAuthenticated();
-            willThrow(mockResult).given(operation).execute(mockParam, clientSpy);
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.execute(operation, mockParam);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder inOrder = inOrder(clientSpy, operation, mockStatus);
-            inOrder.verify(clientSpy, times(1)).ensureAuthenticated();
-            inOrder.verify(operation, times(1)).execute(mockParam, clientSpy);
-            inOrder.verify(mockStatus, times(1)).resetAuthentication();
-            inOrder.verifyNoMoreInteractions();
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setAuthenticationAutoRenewalEnabled(true);
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureAuthenticated();
+            final CompletableFuture futureOperationResult = new CompletableFuture<>();
+            given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
+            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureAuthenticated();
+            then(operation).shouldHaveNoInteractions();
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            futureEnsureResult.complete(status);
+            assertFalse(futureResult.isDone());
+            final AuthenticationExpiredException exception = new AuthenticationExpiredException();
+            futureOperationResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            then(operation).should().execute(params, status, client);
+            then(operation).shouldHaveNoMoreInteractions();
         }
     }
 
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#execute(StatusDependentOperation, Object)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#executeAuthenticated(AuthenticatedOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteAuthenticatedExpiredAutorenewal()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteAuthenticatedOperation_authExpired_renewalDisabled(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticatedOperation<Object, Object, TestState> operation =
+        final AuthenticatedOperation<Object, Object, AuthenticableClientStatus> operation =
                 mock(AuthenticatedOperation.class);
-        final Object mockParam = new Object();
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        final AuthenticationExpiredException mockExpired = new AuthenticationExpiredException();
-        final Object mockResult = new Object();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setAuthenticationAutoRenewalEnabled(true);
-            clientSpy.setStoredCredentials(mockCredentials);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willDoNothing().given(clientSpy).ensureAuthenticated();
-            will(new Answer<Object>() {
-                private int operationExecutions = 0;
-                @Override
-                public Object answer(
-                        final InvocationOnMock invocation)
-                throws Throwable {
-                    operationExecutions++;
-                    if (operationExecutions == 1) {
-                        throw mockExpired;
-                    } else {
-                        return mockResult;
-                    }
-                }
-            }).given(operation).execute(mockParam, clientSpy);
-            willDoNothing().given(clientSpy).authenticate();
-            final Object result = clientSpy.execute(operation, mockParam);
-            assertNotNull(result);
-            assertSame(mockResult, result);
-            final InOrder inOrder = inOrder(clientSpy, operation, mockStatus);
-            inOrder.verify(mockStatus, times(1)).resetAuthentication();
-            inOrder.verify(clientSpy, times(1)).authenticate();
-            inOrder.verify(operation, times(1)).execute(mockParam, clientSpy);
-            inOrder.verifyNoMoreInteractions();
+        final AuthenticationAutoRenewalPolicy policy = mock(AuthenticationAutoRenewalPolicy.class);
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            given(client.getAuthenticationOperation().getAutoRenewalPolicy()).willReturn(policy);
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureAuthenticated();
+            final CompletableFuture futureOperationResult = new CompletableFuture<>();
+            given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
+            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureAuthenticated();
+            then(operation).shouldHaveNoInteractions();
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            futureEnsureResult.complete(status);
+            assertFalse(futureResult.isDone());
+            final AuthenticationExpiredException exception = new AuthenticationExpiredException();
+            futureOperationResult.completeExceptionally(exception);
+            assertTrue(futureResult.isDone());
+            final Exception result = assertThrows(Exception.class, () -> futureResult.get());
+            assertSame(exception, HttpClientException.unwrapFutureException(result));
+            then(operation).should().execute(params, status, client);
+            then(operation).shouldHaveNoMoreInteractions();
+            then(policy).shouldHaveNoInteractions();
         }
     }
 
     /**
-     * Test for {@link BaseAuthenticableHttpServiceClient#execute(StatusDependentOperation, Object)}.
+     * Test for {@link BaseAuthenticableHttpServiceClient#executeAuthenticated(AuthenticatedOperation, Object)}.
      * @throws Throwable Should not happen
      */
-    @Test
-    void testExecuteAuthenticatedExpiredAutorenewalFail()
+    @ParameterizedTest
+    @MethodSource("operationParameters")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    void testExecuteAuthenticatedOperation_authExpired_renewalEnabled(
+            final Object params)
     throws Throwable {
-        final URL url = new URL("https", "some.host.example.com", 3654, "some/path");
-        @SuppressWarnings("unchecked")
-        final StatusInitOperation<TestState> mockInitOp = mock(StatusInitOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticationOperation<Object, ?, TestState> mockAuthOp = mock(AuthenticationOperation.class);
-        @SuppressWarnings("unchecked")
-        final AuthenticatedOperation<Object, Object, TestState> operation =
+        final AuthenticatedOperation<Object, Object, AuthenticableClientStatus> operation =
                 mock(AuthenticatedOperation.class);
-        final Object mockParam = new Object();
-        final TestState mockStatus = createMockStatus();
-        final Object mockCredentials = createMockCredentials();
-        final AuthenticationExpiredException mockExpired = new AuthenticationExpiredException();
-        final HttpClientException mockResult = new HttpClientException();
-        try (final BaseAuthenticableHttpServiceClient<TestState, Object> client =
-                createClientFromUrlAndInitOpAndAuthOp(url, mockInitOp, mockAuthOp)) {
-            final BaseAuthenticableHttpServiceClient<TestState, Object> clientSpy = spy(client);
-            clientSpy.setAuthenticationAutoRenewalEnabled(true);
-            clientSpy.setStoredCredentials(mockCredentials);
-            willReturn(mockStatus).given(clientSpy).ensureInitialized();
-            willDoNothing().given(clientSpy).ensureAuthenticated();
-            will(new Answer<Object>() {
-                private int operationExecutions = 0;
-                @Override
-                public Object answer(
-                        final InvocationOnMock invocation)
-                throws Throwable {
-                    operationExecutions++;
-                    if (operationExecutions == 1) {
-                        throw mockExpired;
-                    } else {
-                        throw mockResult;
-                    }
-                }
-            }).given(operation).execute(mockParam, clientSpy);
-            willDoNothing().given(clientSpy).authenticate();
-            final HttpClientException thrown = assertThrows(HttpClientException.class, () -> {
-                clientSpy.execute(operation, mockParam);
-            });
-            assertNotNull(thrown);
-            assertSame(mockResult, thrown);
-            final InOrder inOrder = inOrder(clientSpy, operation, mockStatus);
-            inOrder.verify(mockStatus, times(1)).resetAuthentication();
-            inOrder.verify(clientSpy, times(1)).authenticate();
-            inOrder.verify(operation, times(1)).execute(mockParam, clientSpy);
-            inOrder.verifyNoMoreInteractions();
-        }
-    }
-
-    /**
-     * Mock implementation of {@code AuthenticableClientStatus}
-     * for testing.
-     */
-    protected static class TestState
-    implements AuthenticableClientStatus {
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isAuthenticated() {
-            return false;
-        }
-
-        /**
-         * Mock implementation.
-         * {@inheritDoc}
-         */
-        @Override
-        public void resetAuthentication() {
-            
+        final AuthenticationAutoRenewalPolicy policy = mock(AuthenticationAutoRenewalPolicy.class);
+        try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
+            client.setAuthenticationAutoRenewalEnabled(true);
+            given(client.getAuthenticationOperation().getAutoRenewalPolicy()).willReturn(policy);
+            final CompletableFuture futureEnsureResult = new CompletableFuture<>();
+            willReturn(futureEnsureResult).given(client).ensureAuthenticated();
+            final CompletableFuture futureOperationResult = new CompletableFuture<>();
+            given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
+            final CompletableFuture<Object> futureResult = client.execute(operation, params);
+            assertNotNull(futureResult);
+            assertFalse(futureResult.isDone());
+            then(client).should().ensureAuthenticated();
+            then(operation).shouldHaveNoInteractions();
+            final AuthenticableClientStatus status = createStatus();
+            client.setStatus(status);
+            futureEnsureResult.complete(status);
+            assertFalse(futureResult.isDone());
+            final AuthenticationExpiredException exception = new AuthenticationExpiredException();
+            futureOperationResult.completeExceptionally(exception);
+            assertFalse(futureResult.isDone());
+            final ArgumentCaptor<Supplier<CompletableFuture<? extends AuthenticableClientStatus>>> doAuthenticateCaptor =
+                    ArgumentCaptor.forClass(Supplier.class);
+            final ArgumentCaptor<Function<AuthenticableClientStatus, CompletableFuture<Object>>> opExecuterCaptor =
+                    ArgumentCaptor.forClass(Function.class);
+            then(operation).should().execute(params, status, client);
+            then(operation).shouldHaveNoMoreInteractions();
+            then(policy).should().<Object, AuthenticableClientStatus>apply(
+                    doAuthenticateCaptor.capture(),
+                    opExecuterCaptor.capture(),
+                    eq(futureResult));
+            then(policy).shouldHaveNoMoreInteractions();
+            then(client).should(never()).authenticate();
+            final Object result = new Object();
+            futureResult.complete(result);
+            assertTrue(futureResult.isDone());
+            assertSame(result, futureResult.get());
+            // Verify authentication auto renewal parameters
+            final CompletableFuture futureDoAuthenticateResult = new CompletableFuture<>();
+            willReturn(futureDoAuthenticateResult).given(client).authenticate();
+            final CompletableFuture doAuthenticateResult = doAuthenticateCaptor.getValue().get();
+            assertSame(futureDoAuthenticateResult, doAuthenticateResult);
+            then(client).should().authenticate();
+            final CompletableFuture futureDoOperationResult = new CompletableFuture<>();
+            given(operation.execute(any(), any(), any())).willReturn(futureDoOperationResult);
+            final CompletableFuture doOperationResult = opExecuterCaptor.getValue().apply(status);
+            assertSame(futureDoOperationResult, doOperationResult);
+            then(operation).should(times(2)).execute(params, status, client);
         }
     }
 }

@@ -70,7 +70,7 @@ public final class MediaTypes {
      */
     public static boolean isFont(
             final @NotNull String mediaType) {
-        return mediaType.startsWith("audio/");
+        return mediaType.startsWith("font/");
     }
 
     /**
@@ -249,11 +249,11 @@ public final class MediaTypes {
     public static final class Font {
 
         public static final String COLLECTION = "font/collection";
-        public static final String OTF = "image/otf";
-        public static final String SFNT = "image/sfnt";
-        public static final String TTF = "image/ttf";
-        public static final String WOFF = "image/woff";
-        public static final String WOFF2 = "image/woff2";
+        public static final String OTF = "font/otf";
+        public static final String SFNT = "font/sfnt";
+        public static final String TTF = "font/ttf";
+        public static final String WOFF = "font/woff";
+        public static final String WOFF2 = "font/woff2";
 
         /**
          * Private constructor.

@@ -30,7 +30,7 @@ package dev.orne.http.client;
  * @since 0.1
  */
 public class HttpResponseStatusException
-extends HttpResponseHandlingException {
+extends HttpClientException {
 
     /** The Serial Version UID. */
     private static final long serialVersionUID = 1L;

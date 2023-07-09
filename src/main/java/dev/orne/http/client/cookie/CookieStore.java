@@ -26,6 +26,8 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.Validate;
+
 import dev.orne.http.client.HttpClientException;
 
 /**
@@ -67,6 +69,7 @@ public interface CookieStore {
     default Cookie getCookie(
             @NotNull String name)
     throws HttpClientException {
+        Validate.notNull(name);
         for (final Cookie cookie : getCookies()) {
             if (name.equals(cookie.getName())) {
                 return cookie;

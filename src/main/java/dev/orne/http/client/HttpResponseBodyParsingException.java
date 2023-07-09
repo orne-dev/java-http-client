@@ -1,4 +1,4 @@
-package dev.orne.http.client.body;
+package dev.orne.http.client;
 
 /*-
  * #%L
@@ -21,8 +21,6 @@ package dev.orne.http.client.body;
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
  * #L%
  */
-
-import dev.orne.http.client.HttpResponseHandlingException;
 
 /**
  * HTTP service client error for HTTP response parsing problems.

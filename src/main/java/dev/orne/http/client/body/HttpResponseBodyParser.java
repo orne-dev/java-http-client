@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import javax.validation.constraints.NotNull;
 
 import dev.orne.http.ContentType;
+import dev.orne.http.client.HttpResponseBodyParsingException;
 
 /**
  * Interface for parsers of HTTP response body entities.
@@ -52,7 +53,7 @@ public interface HttpResponseBodyParser<E> {
      * HTTP response body.
      */
     E parse(
-            @NotNull ContentType type,
+            ContentType type,
             @NotNull InputStream content,
             long length)
     throws HttpResponseBodyParsingException;
@@ -60,7 +61,8 @@ public interface HttpResponseBodyParser<E> {
     /**
      * Creates a HTTP response body reader.
      * <p>
-     * If the content type has no charset uses UTF-8 by default.
+     * If the content type id {@code null} or has no charset uses {@code UTF-8}
+     * by default.
      * <p>
      * The calling method is responsible of closing the reader.
      * 
@@ -69,9 +71,9 @@ public interface HttpResponseBodyParser<E> {
      * @return The created reader.
      */
     default Reader createReader(
-            final @NotNull ContentType contentType,
+            final ContentType contentType,
             final @NotNull InputStream is) {
-        if (contentType.getCharset() == null) {
+        if (contentType == null || contentType.getCharset() == null) {
             return new InputStreamReader(is, StandardCharsets.UTF_8);
         } else {
             return new InputStreamReader(is, contentType.getCharset());

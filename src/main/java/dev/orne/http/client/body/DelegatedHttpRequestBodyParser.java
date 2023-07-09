@@ -26,50 +26,78 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
 
 import dev.orne.http.ContentType;
+import dev.orne.http.client.HttpResponseBodyParsingException;
+import dev.orne.http.client.UnsupportedContentTypeException;
 
 /**
- * HTTP response body parser that delegates on an internal parser based on the
- * media type of the HTTP response content. 
+ * HTTP response body parser that delegates on internal parsers based on the
+ * media type of the HTTP response content.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
  * @param <E> The HTTP response body entity type.
  * @since 0.1
  */
-public class ByMediaTypeDelegatedHttpRequestBodyParser<E>
+public class DelegatedHttpRequestBodyParser<E>
 implements HttpResponseBodyMediaTypeParser<E> {
 
+    /** The default content type. */
+    private final @NotNull ContentType defaultContentType;
     /** The delegated HTTP response body parsers. */
-    private @NotNull Collection<@NotNull HttpResponseBodyMediaTypeParser<E>> parsers;
+    private final @NotNull Collection<@NotNull HttpResponseBodyMediaTypeParser<E>> parsers;
 
     /**
      * Creates a new instance.
      * 
+     * @param defaultContentType The default content type to use when response
+     * does not include content type header.
      * @param parsers The delegated HTTP response body parsers.
      */
     @SafeVarargs
-    public ByMediaTypeDelegatedHttpRequestBodyParser(
+    public DelegatedHttpRequestBodyParser(
+            final @NotNull ContentType defaultContentType,
             final @NotNull HttpResponseBodyMediaTypeParser<E>... parsers) {
-        this(Arrays.asList(parsers));
+        this(defaultContentType, Arrays.asList(parsers));
     }
 
     /**
      * Creates a new instance.
      * 
+     * @param defaultContentType The default content type to use when response
+     * does not include content type header.
      * @param parsers The delegated HTTP response body parsers.
      */
-    public ByMediaTypeDelegatedHttpRequestBodyParser(
+    public DelegatedHttpRequestBodyParser(
+            final @NotNull ContentType defaultContentType,
             final @NotNull Collection<@NotNull HttpResponseBodyMediaTypeParser<E>> parsers) {
         super();
-        Validate.notNull(parsers);
+        this.defaultContentType = Validate.notNull(defaultContentType);
+        this.parsers = new ArrayList<>(Validate.notNull(parsers));
         Validate.noNullElements(parsers);
-        this.parsers = new ArrayList<>(parsers);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContentType getDefaultContentType() {
+        return this.defaultContentType;
+    }
+
+    /**
+     * Returns a copy of the delegated HTTP response body parsers.
+     * 
+     * @return The delegated HTTP response body parsers.
+     */
+    public @NotNull Collection<HttpResponseBodyMediaTypeParser<E>> getParsers() {
+        return Collections.unmodifiableCollection(this.parsers);
     }
 
     /**
@@ -93,7 +121,7 @@ implements HttpResponseBodyMediaTypeParser<E> {
      * the specified content type. 
      */
     @Override
-    public E parse(
+    public E parseSupportedContent(
             final @NotNull ContentType type,
             final @NotNull InputStream content,
             final long length)

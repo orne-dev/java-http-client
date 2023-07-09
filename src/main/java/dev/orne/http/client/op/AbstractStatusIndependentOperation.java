@@ -30,9 +30,9 @@ import javax.validation.constraints.NotNull;
 
 import dev.orne.http.client.FutureUtils;
 import dev.orne.http.client.HttpClientException;
+import dev.orne.http.client.HttpResponseHandlingException;
 import dev.orne.http.client.HttpResponseStatusException;
 import dev.orne.http.client.HttpServiceClient;
-import dev.orne.http.client.body.HttpResponseBodyParsingException;
 import dev.orne.http.client.engine.HttpRequest;
 import dev.orne.http.client.engine.HttpResponse;
 import dev.orne.http.client.engine.HttpResponseBody;
@@ -68,7 +68,7 @@ implements StatusIndependentOperation<P, R> {
                     requestURI,
                     getRequestMethod(),
                     request -> prepareRequest(params, request),
-                    handler::handle)
+                    handler)
             .thenApply(nop -> {
                 try {
                     return handler.getResult();
@@ -136,8 +136,8 @@ implements StatusIndependentOperation<P, R> {
      * @throws HttpClientException If an error occurs during result generation.
      */
     protected R handleResponse(
-            P params,
-            @NotNull HttpResponse response)
+            final P params,
+            final @NotNull HttpResponse response)
     throws HttpClientException {
         try {
             processResponseStatus(response);
@@ -146,11 +146,15 @@ implements StatusIndependentOperation<P, R> {
             if (body == null) {
                 entity = null;
             } else {
-                entity = parseResponse(params, body);
+                entity = parseResponse(params, response, body);
             }
             return processResponse(params, entity, response);
         } catch (HttpResponseStatusException e) {
-            return processHttpResponseException(response, e);
+            final HttpResponseBody body = response.getBody();
+            if (body != null) {
+                body.discard();
+            }
+            return processResponseStatusException(response, e);
         }
     }
 
@@ -158,14 +162,17 @@ implements StatusIndependentOperation<P, R> {
      * Parses the HTTP response entity.
      * 
      * @param params The operation execution parameters.
-     * @param response The HTTP response body.
+     * @param response The HTTP response.
+     * @param body The HTTP response body.
      * @return The HTTP response entity.
-     * @throws HttpClientException If an error occurs parsing the entity.
+     * @throws HttpResponseHandlingException If an error occurs parsing the
+     * response entity.
      */
     protected abstract E parseResponse(
             P params,
+            @NotNull HttpResponse response,
             @NotNull HttpResponseBody body)
-    throws HttpResponseBodyParsingException;
+    throws HttpResponseHandlingException;
 
     /**
      * Processes the HTTP response and generates the result.
@@ -174,11 +181,14 @@ implements StatusIndependentOperation<P, R> {
      * @param entity The HTTP response entity.
      * @param response The HTTP response body.
      * @return The operation execution result.
+     * @throws HttpResponseHandlingException If an error occurs processing the
+     * response.
      */
     protected abstract R processResponse(
             P params,
             E entity,
-            @NotNull HttpResponse response);
+            @NotNull HttpResponse response)
+    throws HttpResponseHandlingException;
 
     /**
      * Internal implementation of {@code OperationResponseHandler} for

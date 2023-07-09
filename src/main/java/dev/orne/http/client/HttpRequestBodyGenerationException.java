@@ -1,4 +1,4 @@
-package dev.orne.http.client.body;
+package dev.orne.http.client;
 
 /*-
  * #%L
@@ -23,14 +23,14 @@ package dev.orne.http.client.body;
  */
 
 /**
- * HTTP service client error for responses with unsupported content type.
+ * HTTP service client error for HTTP request body generation problems.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
  * @since 0.1
  */
-public class UnsupportedContentTypeException
-extends HttpResponseBodyParsingException {
+public class HttpRequestBodyGenerationException
+extends HttpClientException {
 
     /** The Serial Version UID. */
     private static final long serialVersionUID = 1L;
@@ -40,7 +40,7 @@ extends HttpResponseBodyParsingException {
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      */
-    public UnsupportedContentTypeException() {
+    public HttpRequestBodyGenerationException() {
         super();
     }
 
@@ -52,7 +52,7 @@ extends HttpResponseBodyParsingException {
      * @param   message   the detail message. The detail message is saved for
      *          later retrieval by the {@link #getMessage()} method.
      */
-    public UnsupportedContentTypeException(
+    public HttpRequestBodyGenerationException(
             final String message) {
         super(message);
     }
@@ -70,7 +70,7 @@ extends HttpResponseBodyParsingException {
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
      */
-    public UnsupportedContentTypeException(
+    public HttpRequestBodyGenerationException(
             final Throwable cause) {
         super(cause);
     }
@@ -88,7 +88,7 @@ extends HttpResponseBodyParsingException {
      *         permitted, and indicates that the cause is nonexistent or
      *         unknown.)
      */
-    public UnsupportedContentTypeException(
+    public HttpRequestBodyGenerationException(
             final String message,
             final Throwable cause) {
         super(message, cause);
@@ -107,7 +107,7 @@ extends HttpResponseBodyParsingException {
      * @param writableStackTrace whether or not the stack trace should
      *                           be writable
      */
-    public UnsupportedContentTypeException(
+    public HttpRequestBodyGenerationException(
             final String message,
             final Throwable cause,
             final boolean enableSuppression,
