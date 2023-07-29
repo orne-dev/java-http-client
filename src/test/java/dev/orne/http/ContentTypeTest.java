@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -50,6 +51,48 @@ import dev.orne.test.rnd.Generators;
  */
 @Tag("ut")
 class ContentTypeTest {
+
+    /**
+     * Test for {@link ContentType#ContentType(String)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testDefaultConstructor()
+    throws Throwable {
+        assertThrows(NullPointerException.class, () -> new ContentType((String) null));
+        final String mediaType = "test/media";
+        final ContentType result = new ContentType(mediaType);
+        assertEquals(mediaType, result.getMediaType());
+        assertNull(result.getCharset());
+        assertNull(result.getBoundary());
+        assertTrue(result.getParameters().isEmpty());
+        assertEquals(mediaType, result.getHeader());
+    }
+
+    /**
+     * Test for {@link ContentType#ContentType(String, Map)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testValueConstructor()
+    throws Throwable {
+        final String mediaType = "test/media";
+        final LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
+        parameters.put("name", "value");
+        final LinkedHashMap<String, String> parametersBackup = new LinkedHashMap<>(parameters);
+        assertThrows(NullPointerException.class, () -> new ContentType(null, null));
+        assertThrows(NullPointerException.class, () -> new ContentType(null, parameters));
+        assertThrows(NullPointerException.class, () -> new ContentType(mediaType, null));
+        final ContentType result = new ContentType(mediaType, parameters);
+        assertEquals(mediaType, result.getMediaType());
+        assertNull(result.getCharset());
+        assertNull(result.getBoundary());
+        assertNotSame(parameters, result.getParameters());
+        assertEquals(parameters, result.getParameters());
+        parameters.put("name2", "value2");
+        assertNotEquals(parameters, result.getParameters());
+        assertEquals(parametersBackup, result.getParameters());
+    }
 
     /**
      * Test for {@link ContentType#of(String)}.
@@ -411,6 +454,83 @@ class ContentTypeTest {
     }
 
     /**
+     * Test for {@link ContentType#withParameter(String, String)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testWithParameter()
+    throws Throwable {
+        final String param = "test";
+        final String value = "test value";
+        final ContentType base = Generators.randomValue(ContentType.class)
+                .withoutParameter(param);
+        final ContentType copy = new ContentType(base);
+        assertThrows(NullPointerException.class, () -> base.withParameter(null, value));
+        assertEquals(copy, base);
+        final ContentType result = base.withParameter(param, value);
+        assertNotSame(base, result);
+        assertEquals(copy, base);
+        assertEquals(base.getMediaType(), result.getMediaType());
+        assertEquals(base.getParameters().size() + 1, result.getParameters().size());
+        for (final String originalParam : base.getParameters().keySet()) {
+            assertEquals(base.getParameter(originalParam), result.getParameter(originalParam));
+        }
+        assertEquals(value, result.getParameter(param));
+    }
+
+    /**
+     * Test for {@link ContentType#withParameter(String, String)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testWithParameter_NullValue()
+    throws Throwable {
+        final String param = "test";
+        final String value = "test value";
+        final ContentType base = Generators.randomValue(ContentType.class)
+                .withParameter(param, value);
+        final ContentType copy = new ContentType(base);
+        final ContentType result = base.withParameter(param, null);
+        assertNotSame(base, result);
+        assertEquals(copy, base);
+        assertEquals(base.getMediaType(), result.getMediaType());
+        assertEquals(base.getParameters().size() - 1, result.getParameters().size());
+        for (final String originalParam : base.getParameters().keySet()) {
+            if (!param.equals(originalParam)) {
+                assertEquals(base.getParameter(originalParam), result.getParameter(originalParam));
+            }
+        }
+        assertNull(result.getParameter(param));
+    }
+
+    /**
+     * Test for {@link ContentType#withoutParameter(String)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testWithoutParameter()
+    throws Throwable {
+        final String param = "test";
+        final String value = "test value";
+        final ContentType base = Generators.randomValue(ContentType.class)
+                .withParameter(param, value);
+        final ContentType copy = new ContentType(base);
+        assertThrows(NullPointerException.class, () -> base.withoutParameter(null));
+        assertEquals(copy, base);
+        final ContentType result = base.withoutParameter(param);
+        assertNotSame(base, result);
+        assertEquals(copy, base);
+        assertEquals(base.getMediaType(), result.getMediaType());
+        assertEquals(base.getParameters().size() - 1, result.getParameters().size());
+        for (final String originalParam : base.getParameters().keySet()) {
+            if (!param.equals(originalParam)) {
+                assertEquals(base.getParameter(originalParam), result.getParameter(originalParam));
+            }
+        }
+        assertNull(result.getParameter(param));
+    }
+
+    /**
      * Test for {@link ContentType#getHeader()}.
      * @throws Throwable Should not happen
      */
@@ -452,32 +572,20 @@ class ContentTypeTest {
      * @throws Throwable Should not happen
      */
     @Test
-    void testParse()
+    void testEqualsHashCode()
     throws Throwable {
-        assertThrows(NullPointerException.class, () -> ContentType.parse(null));
-        assertThrows(IllegalArgumentException.class, () -> ContentType.parse(""));
-        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
-            boolean withoutParameters = false;
-            boolean withParameters = false;
-            boolean withCharset = false;
-            boolean withBoundary = false;
-            while (!withoutParameters ||
-                    !withParameters ||
-                    !withCharset ||
-                    !withBoundary) {
-                final ContentType expected = Generators.randomValue(ContentType.class);
-                final String header = expected.getHeader();
-                if (expected.getParameters().isEmpty()) {
-                    withoutParameters = true;
-                } else {
-                    withParameters = true;
-                    withCharset = withCharset || expected.getCharset() != null;
-                    withBoundary = withBoundary || expected.getBoundary() != null;
-                }
-                final ContentType result = ContentType.parse(header);
-                assertEquals(expected, result);
-            }
-        });
+        final String param = "test";
+        final String value = "test value";
+        final ContentType base = Generators.randomValue(ContentType.class)
+                .withoutParameter(param);
+        assertFalse(base.equals(null));
+        assertTrue(base.equals(base));
+        assertFalse(base.equals(new Object()));
+        final ContentType copy = new ContentType(base);
+        assertEquals(base, copy);
+        assertEquals(base.hashCode(), copy.hashCode());
+        final ContentType other = base.withParameter(param, value);
+        assertNotEquals(base, other);
     }
 
     /**
@@ -502,9 +610,25 @@ class ContentTypeTest {
     throws Throwable {
         assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
             final HashSet<Integer> parameters = new HashSet<>();
+            boolean application = false;
+            boolean audio = false;
+            boolean font = false;
+            boolean image = false;
+//            boolean message = false;
+            boolean multipart = false;
+            boolean text = false;
+            boolean video = false;
             boolean withCharset = false;
             boolean withBoundary = false;
             while (parameters.size() < 4 ||
+                    !application ||
+                    !audio ||
+                    !font ||
+                    !image ||
+//                    !message ||
+                    !multipart ||
+                    !text ||
+                    !video ||
                     !withCharset ||
                     !withBoundary) {
                 final ContentType contentType = Generators.randomValue(ContentType.class);
@@ -513,6 +637,14 @@ class ContentTypeTest {
                     withCharset = withCharset || contentType.getCharset() != null;
                     withBoundary = withBoundary || contentType.getBoundary() != null;
                 }
+                application = application || MediaTypes.isApplication(contentType.getMediaType());
+                audio = audio || MediaTypes.isAudio(contentType.getMediaType());
+                font = font || MediaTypes.isFont(contentType.getMediaType());
+                image = image || MediaTypes.isImage(contentType.getMediaType());
+//                message = message || MediaTypes.isMessage(contentType.getMediaType());
+                multipart = multipart || MediaTypes.isMultipart(contentType.getMediaType());
+                text = text || MediaTypes.isText(contentType.getMediaType());
+                video = video || MediaTypes.isVideo(contentType.getMediaType());
             }
         });
     }

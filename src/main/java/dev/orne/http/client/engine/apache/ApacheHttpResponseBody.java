@@ -24,11 +24,16 @@ package dev.orne.http.client.engine.apache;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicHeaderValueParser;
+import org.apache.hc.core5.http.message.ParserCursor;
 
 import dev.orne.http.ContentType;
 import dev.orne.http.client.HttpResponseHandlingException;
@@ -47,8 +52,6 @@ implements HttpResponseBody {
 
     /** The delegated Apache HTTP client response entity. */
     private final @NotNull HttpEntity entity;
-    /** The response entity content type. */
-    private final ContentType contentType;
 
     /**
      * Creates a new intance.
@@ -59,12 +62,6 @@ implements HttpResponseBody {
             final @NotNull HttpEntity entity) {
         super();
         this.entity = entity;
-        final String typeHeader = entity.getContentType();
-        if (typeHeader == null) {
-            this.contentType = null;
-        } else {
-            this.contentType = ContentType.parse(typeHeader);
-        }
     }
 
     /**
@@ -73,7 +70,14 @@ implements HttpResponseBody {
     @Override
     public ContentType getContentType()
     throws HttpResponseHandlingException {
-        return this.contentType;
+        final String typeHeader = entity.getContentType();
+        final ContentType result;
+        if (typeHeader == null) {
+            result = null;
+        } else {
+            result = parseContentType(typeHeader);
+        }
+        return result;
     }
 
     /**
@@ -109,5 +113,36 @@ implements HttpResponseBody {
         } catch (final IOException e) {
             throw new HttpResponseHandlingException("Error discarding HTTP response body content", e);
         }
+    }
+
+    /**
+     * Parses the specified content type header and creates a
+     * {@code ContentType} instance with the header values.
+     * 
+     * @param header The content type header value.
+     * @return The parsed content type.
+     * @throws HttpResponseHandlingException
+     */
+    public static ContentType parseContentType(
+            final String header)
+    throws HttpResponseHandlingException {
+        if (header == null || header.trim().isEmpty()) {
+            return null;
+        }
+        final ParserCursor cursor = new ParserCursor(0, header.length());
+        final HeaderElement[] elements = BasicHeaderValueParser.INSTANCE.parseElements(header, cursor);
+        if (elements.length != 1) {
+            throw new HttpResponseHandlingException("Received illegal Content-Type header: " + header);
+        }
+        final HeaderElement element = elements[0];
+        if (element.getValue() != null) {
+            throw new HttpResponseHandlingException("Received illegal Content-Type header: " + header);
+        }
+        final String mimeType = element.getName();
+        final LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
+        for (NameValuePair parameter : element.getParameters()) {
+            parameters.put(parameter.getName(), parameter.getValue());
+        }
+        return new ContentType(mimeType, parameters);
     }
 }

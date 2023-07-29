@@ -27,7 +27,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,6 +37,8 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dev.orne.test.rnd.AbstractTypedGenerator;
 import dev.orne.test.rnd.Generators;
@@ -48,6 +52,9 @@ import dev.orne.test.rnd.Generators;
  */
 public class ContentTypeGenerator
 extends AbstractTypedGenerator<ContentType> {
+
+    /** The class logger. */
+    private static final Logger LOG = LoggerFactory.getLogger(ContentTypeGenerator.class);
 
     /** The known media types. */
     private static final @NotNull List<String> knownMediaTypes =
@@ -81,9 +88,11 @@ extends AbstractTypedGenerator<ContentType> {
                     try {
                         return String.valueOf(field.get(null));
                     } catch (ReflectiveOperationException e) {
-                        throw new RuntimeException(e);
+                        LOG.error("Cannot access media type " + field + " constant", e);
+                        return null;
                     }
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -101,35 +110,29 @@ extends AbstractTypedGenerator<ContentType> {
     @Override
     public @NotNull ContentType randomValue() {
         final String mediaType = randomMediaType();
-        final ContentType result;
-        if (MediaTypes.isAudio(mediaType) ||
-                MediaTypes.isFont(mediaType) ||
-                MediaTypes.isImage(mediaType) ||
-                MediaTypes.isVideo(mediaType)) {
-            result = ContentType.of(mediaType);
-        } else if (MediaTypes.isMultipart(mediaType)) {
-            final String boundary = randomMultipartBoundary();
-            result = ContentType.multipart(mediaType, boundary);
+        final LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
+        if (MediaTypes.isMultipart(mediaType)) {
+            parameters.put(ContentType.BOUNDARY_PARAM, randomMultipartBoundary());
         } else if (MediaTypes.isText(mediaType)) {
             final Charset charset = Generators.randomValue(Charset.class);
-            result = ContentType.of(mediaType, charset);
-        } else {
-            if (RandomUtils.nextBoolean()) {
-                final Charset charset = Generators.randomValue(Charset.class);
-                result = ContentType.of(mediaType, charset);
-            } else {
-                result = ContentType.of(mediaType);
-            }
+            parameters.put(ContentType.CHARSET_PARAM, charset.name());
+        } else if (!MediaTypes.isAudio(mediaType) &&
+                !MediaTypes.isFont(mediaType) &&
+                !MediaTypes.isImage(mediaType) &&
+                !MediaTypes.isVideo(mediaType) &&
+                RandomUtils.nextBoolean()) {
+            final Charset charset = Generators.randomValue(Charset.class);
+            parameters.put(ContentType.CHARSET_PARAM, charset.name());
         }
         if (RandomUtils.nextFloat(0, 1) < EXTRA_PARAMS_P) {
             final int extraParams = RandomUtils.nextInt(1, 3);
             for (int i = 0; i < extraParams; i++) {
-                final String name = RandomStringUtils.randomAlphanumeric(10);
-                final String value = RandomStringUtils.randomAlphanumeric(10);
-                result.setParameter(name, value);
+                final String name = randomParameterName();
+                final String value = randomParameterValue();
+                parameters.put(name, value);
             }
         }
-        return result;
+        return new ContentType(mediaType, parameters);
     }
 
     /**

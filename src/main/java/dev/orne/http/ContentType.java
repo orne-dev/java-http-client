@@ -28,7 +28,6 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.validation.constraints.NotNull;
 
@@ -60,11 +59,40 @@ public class ContentType {
     private Map<String, String> parameters = new LinkedHashMap<>();
 
     /**
-     * Private constructor.
-     * Use factory methods instead.
+     * Default constructor.
+     * 
+     * @param mediaType The content media type.
      */
-    private ContentType() {
+    public ContentType(
+            final @NotNull String mediaType) {
         super();
+        this.mediaType = Validate.notNull(mediaType);
+    }
+
+    /**
+     * Value constructor.
+     * 
+     * @param mediaType The content media type.
+     * @param parameters The content type parameters.
+     */
+    public ContentType(
+            final @NotNull String mediaType,
+            final @NotNull Map<String, String> parameters) {
+        super();
+        this.mediaType = Validate.notNull(mediaType);
+        this.parameters.putAll(parameters);
+    }
+
+    /**
+     * Copy constructor.
+     * 
+     * @param copy The instance to copy.
+     */
+    protected ContentType(
+            final @NotNull ContentType copy) {
+        super();
+        this.mediaType = copy.mediaType;
+        this.parameters.putAll(copy.parameters);
     }
 
     /**
@@ -79,9 +107,7 @@ public class ContentType {
         Validate.notNull(mediaType);
         Validate.isTrue(!MediaTypes.isMultipart(mediaType));
         Validate.isTrue(!MediaTypes.isText(mediaType));
-        final ContentType result = new ContentType();
-        result.mediaType = mediaType;
-        return result;
+        return new ContentType(mediaType);
     }
 
     /**
@@ -100,8 +126,7 @@ public class ContentType {
         Validate.isTrue(!MediaTypes.isImage(mediaType));
         Validate.isTrue(!MediaTypes.isMultipart(mediaType));
         Validate.isTrue(!MediaTypes.isVideo(mediaType));
-        final ContentType result = new ContentType();
-        result.mediaType = mediaType;
+        final ContentType result = new ContentType(mediaType);
         result.parameters.put(CHARSET_PARAM, charset.name());
         return result;
     }
@@ -119,40 +144,8 @@ public class ContentType {
         Validate.notNull(mediaType);
         Validate.isTrue(MediaTypes.isMultipart(mediaType));
         Validate.notNull(boundary);
-        final ContentType result = new ContentType();
-        result.mediaType = mediaType;
+        final ContentType result = new ContentType(mediaType);
         result.parameters.put(BOUNDARY_PARAM, boundary);
-        return result;
-    }
-
-    /**
-     * Parses the specified HTTP content type header value.
-     * 
-     * @param header The HTTP content type header value.
-     * @return The parsed content type;
-     * @throws UnsupportedCharsetException If the parsed content type uses an
-     * unsupported charset.
-     */
-    public static ContentType parse(
-            final @NotNull String header)
-    throws UnsupportedCharsetException {
-        Validate.notNull(header);
-        final ContentType result = new ContentType();
-        final StringTokenizer tokenizer = new StringTokenizer(
-                header,
-                PARAMETER_SEPARATOR + PARAMETER_VALUE_SEPARATOR);
-        if (!tokenizer.hasMoreTokens()) {
-            throw new IllegalArgumentException("Illegal HTTP content type header value. No media type : " + header);
-        }
-        result.mediaType = tokenizer.nextToken().trim();
-        while (tokenizer.hasMoreTokens()) {
-            final String name = tokenizer.nextToken().trim().toLowerCase();
-            String value = tokenizer.nextToken().trim();
-            if (value.length() > 1 &&  value.startsWith("\"") && value.endsWith("\"")) {
-                value = value.substring(1, value.length() - 1);
-            }
-            result.parameters.put(name, value);
-        }
         return result;
     }
 
@@ -225,34 +218,38 @@ public class ContentType {
     }
 
     /**
-     * Sets the value of the specified parameter.
+     * Returns a copy of this instance with the specified parameter set
+     * to the specified value.
+     * <p>
      * If the parameter value is {@code null} the parameter is removed.
      * 
      * @param name The parameter name.
      * @param value The parameter value.
      */
-    public void setParameter(
+    public @NotNull ContentType withParameter(
             final @NotNull String name,
             final String value) {
         if (value == null) {
-            removeParameter(name);
+            return withoutParameter(name);
         } else {
-            this.parameters.put(
+            final ContentType copy = new ContentType(this);
+            copy.parameters.put(
                     Validate.notNull(name).toLowerCase(),
                     Validate.notNull(value));
+            return copy;
         }
     }
 
     /**
-     * Sets the value of the specified parameter.
-     * If the parameter value is {@code null} the parameter is removed.
+     * Returns a copy of this instance with the specified parameter removed.
      * 
      * @param name The parameter name.
-     * @param value The parameter value.
      */
-    public void removeParameter(
+    public @NotNull ContentType withoutParameter(
             final @NotNull String name) {
-        this.parameters.remove(Validate.notNull(name).toLowerCase());
+        final ContentType copy = new ContentType(this);
+        copy.parameters.remove(Validate.notNull(name).toLowerCase());
+        return copy;
     }
 
     /**
