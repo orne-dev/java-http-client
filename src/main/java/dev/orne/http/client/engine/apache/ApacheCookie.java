@@ -27,6 +27,10 @@ import java.time.Instant;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 
 import dev.orne.http.client.cookie.Cookie;
@@ -54,6 +58,15 @@ implements Cookie {
             final @NotNull org.apache.hc.client5.http.cookie.Cookie delegate) {
         super();
         this.delegate = Validate.notNull(delegate, "The delegated cookie is required");
+    }
+
+    /**
+     * Returns the delegated Apache HTTP Client cookie.
+     * 
+     * @return The Apache HTTP Client cookie.
+     */
+    protected @NotNull org.apache.hc.client5.http.cookie.Cookie getDelegate() {
+        return delegate;
     }
 
     /**
@@ -152,5 +165,41 @@ implements Cookie {
     @Override
     public boolean isHttpOnly() {
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(getClass())
+                .append(this.delegate)
+                .toHashCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(
+            final Object obj) {
+        if (obj == null) { return false; }
+        if (obj == this) { return true; }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        final ApacheCookie other = (ApacheCookie) obj;
+        return new EqualsBuilder()
+                .append(this.delegate, other.delegate)
+                .isEquals();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

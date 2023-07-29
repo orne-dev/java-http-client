@@ -46,8 +46,8 @@ import dev.orne.http.client.engine.HttpResponseBody;
 public class ApacheHttpResponse
 implements HttpResponse {
 
-    /** The delegated Apache HTTP client response. */
-    private final @NotNull org.apache.hc.core5.http.HttpResponse delegated;
+    /** The Apache HTTP client response. */
+    private final @NotNull org.apache.hc.core5.http.HttpResponse delegate;
 
     /**
      * Creates a new instance.
@@ -57,7 +57,16 @@ implements HttpResponse {
     public ApacheHttpResponse(
             final @NotNull org.apache.hc.core5.http.HttpResponse delegated) {
         super();
-        this.delegated = Validate.notNull(delegated);
+        this.delegate = Validate.notNull(delegated);
+    }
+
+    /**
+     * Returns the delegated Apache HTTP client response.
+     * 
+     * @return The Apache HTTP client response.
+     */
+    protected @NotNull org.apache.hc.core5.http.HttpResponse getDelegate() {
+        return this.delegate;
     }
 
     /**
@@ -65,7 +74,7 @@ implements HttpResponse {
      */
     @Override
     public int getStatusCode() {
-        return this.delegated.getCode();
+        return this.delegate.getCode();
     }
 
     /**
@@ -73,7 +82,7 @@ implements HttpResponse {
      */
     @Override
     public String getStatusReason() {
-        return this.delegated.getReasonPhrase();
+        return this.delegate.getReasonPhrase();
     }
 
     /**
@@ -83,7 +92,8 @@ implements HttpResponse {
     public boolean containsHeader(
             final @NotNull String header)
     throws HttpClientException {
-        return this.delegated.containsHeader(header);
+        Validate.notNull(header);
+        return this.delegate.containsHeader(header);
     }
 
     /**
@@ -93,7 +103,8 @@ implements HttpResponse {
     public @NotNull String[] getHeader(
             final @NotNull String header)
     throws HttpClientException {
-        return Stream.of(this.delegated.getHeaders(header))
+        Validate.notNull(header);
+        return Stream.of(this.delegate.getHeaders(header))
             .map(Header::getValue)
             .toArray(String[]::new);
     }
@@ -105,7 +116,8 @@ implements HttpResponse {
     public String getFirstHeaderValue(
             final @NotNull String header)
     throws HttpClientException {
-        final Header tmp = this.delegated.getFirstHeader(header);
+        Validate.notNull(header);
+        final Header tmp = this.delegate.getFirstHeader(header);
         if (tmp == null) {
             return null;
         } else {
@@ -120,7 +132,8 @@ implements HttpResponse {
     public String getLastHeaderValue(
             final @NotNull String header)
     throws HttpClientException {
-        final Header tmp = this.delegated.getLastHeader(header);
+        Validate.notNull(header);
+        final Header tmp = this.delegate.getLastHeader(header);
         if (tmp == null) {
             return null;
         } else {
@@ -135,8 +148,8 @@ implements HttpResponse {
     public HttpResponseBody getBody()
     throws HttpClientException {
         HttpResponseBody result = null;
-        if (this.delegated instanceof HttpEntityContainer) {
-            final HttpEntity entity = ((HttpEntityContainer) this.delegated).getEntity();
+        if (this.delegate instanceof HttpEntityContainer) {
+            final HttpEntity entity = ((HttpEntityContainer) this.delegate).getEntity();
             if (entity == null) {
                 return null;
             } else {

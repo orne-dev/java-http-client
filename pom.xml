@@ -36,14 +36,14 @@
   </developers>
 
   <scm>
-    <url>http://github.com/orne-dev/java-http-client/tree/master</url>
+    <url>https://github.com/orne-dev/java-http-client/tree/master</url>
     <connection>scm:git:git://github.com/orne-dev/java-http-client.git</connection>
     <developerConnection>scm:git:ssh://github.com:orne-dev/java-http-client.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
   <properties>
-    <java.version>1.8</java.version>
+    <java.version>8</java.version>
     <java.module.name>dev.orne.http-client</java.module.name>
     <license.licenseName>lgpl_v3</license.licenseName>
 
@@ -54,9 +54,9 @@
     <javax.validation.version>2.0.1.Final</javax.validation.version>
     <fasterxml.jackson.version>2.15.2</fasterxml.jackson.version>
 
-    <orne.generators.version>0.1.1</orne.generators.version>
+    <orne.generators.version>0.1.2-SNAPSHOT</orne.generators.version>
 
-    <sonar.projectKey>java-http-client</sonar.projectKey>
+    <sonar.projectKey>orne-dev_java-http-client</sonar.projectKey>
   </properties>
 
   <dependencies>

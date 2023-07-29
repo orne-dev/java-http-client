@@ -262,6 +262,7 @@ public class ContentType {
         final StringBuilder builder = new StringBuilder(this.mediaType);
         for (final Map.Entry<String, String> param : this.parameters.entrySet()) {
             builder.append(PARAMETER_SEPARATOR)
+                .append(" ")
                 .append(param.getKey())
                 .append(PARAMETER_VALUE_SEPARATOR)
                 .append(param.getValue());

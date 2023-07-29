@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
@@ -50,18 +51,27 @@ import dev.orne.http.client.engine.HttpResponseBody;
 class ApacheHttpResponseBody
 implements HttpResponseBody {
 
-    /** The delegated Apache HTTP client response entity. */
-    private final @NotNull HttpEntity entity;
+    /** The Apache HTTP client response entity. */
+    private final @NotNull HttpEntity delegate;
 
     /**
      * Creates a new intance.
      * 
-     * @param entity The delegated Apache HTTP client response entity.
+     * @param entity The Apache HTTP client response entity.
      */
     public ApacheHttpResponseBody(
-            final @NotNull HttpEntity entity) {
+            final @NotNull HttpEntity delegate) {
         super();
-        this.entity = entity;
+        this.delegate = Validate.notNull(delegate);
+    }
+
+    /**
+     * Returns the delegated Apache HTTP client response entity.
+     * 
+     * @return The Apache HTTP client response entity.
+     */
+    public HttpEntity getDelegate() {
+        return delegate;
     }
 
     /**
@@ -70,7 +80,7 @@ implements HttpResponseBody {
     @Override
     public ContentType getContentType()
     throws HttpResponseHandlingException {
-        final String typeHeader = entity.getContentType();
+        final String typeHeader = this.delegate.getContentType();
         final ContentType result;
         if (typeHeader == null) {
             result = null;
@@ -86,7 +96,7 @@ implements HttpResponseBody {
     @Override
     public long getContentLength()
     throws HttpResponseHandlingException {
-        return this.entity.getContentLength();
+        return this.delegate.getContentLength();
     }
 
     /**
@@ -96,8 +106,8 @@ implements HttpResponseBody {
     public InputStream getContent()
     throws HttpResponseHandlingException {
         try {
-            return this.entity.getContent();
-        } catch (UnsupportedOperationException | IOException e) {
+            return this.delegate.getContent();
+        } catch (final UnsupportedOperationException | IOException e) {
             throw new HttpResponseHandlingException("Error retrieving HTTP response body content", e);
         }
     }
@@ -109,8 +119,8 @@ implements HttpResponseBody {
     public void discard()
     throws HttpResponseHandlingException {
         try {
-            EntityUtils.consume(this.entity);
-        } catch (final IOException e) {
+            EntityUtils.consume(this.delegate);
+        } catch (final UnsupportedOperationException | IOException e) {
             throw new HttpResponseHandlingException("Error discarding HTTP response body content", e);
         }
     }

@@ -46,18 +46,27 @@ import dev.orne.http.client.engine.HttpRequest;
 public class ApacheHttpRequest
 implements HttpRequest {
 
-    /** The delegated Apache HTTP client request. */
-    private final @NotNull org.apache.hc.core5.http.HttpRequest delegated;
+    /** The Apache HTTP client request. */
+    private final @NotNull org.apache.hc.core5.http.HttpRequest delegate;
 
     /**
      * Creates a new instance.
      * 
-     * @param delegated The delegated Apache HTTP client request.
+     * @param delegate The Apache HTTP client request.
      */
     public ApacheHttpRequest(
-            final @NotNull org.apache.hc.core5.http.HttpRequest delegated) {
+            final @NotNull org.apache.hc.core5.http.HttpRequest delegate) {
         super();
-        this.delegated = Validate.notNull(delegated);
+        this.delegate = Validate.notNull(delegate);
+    }
+
+    /**
+     * Returns the delegated Apache HTTP client request.
+     * 
+     * @return The Apache HTTP client request.
+     */
+    protected @NotNull org.apache.hc.core5.http.HttpRequest getDelegate() {
+        return this.delegate;
     }
 
     /**
@@ -68,8 +77,11 @@ implements HttpRequest {
             final @NotNull String header,
             final @NotNull String... values)
     throws HttpClientException {
+        Validate.notNull(header);
+        Validate.notNull(values);
+        Validate.noNullElements(values);
         for (final String value : values) {
-            this.delegated.addHeader(header, value);
+            this.delegate.addHeader(header, value);
         }
     }
 
@@ -81,6 +93,7 @@ implements HttpRequest {
             final @NotNull ContentType contentType,
             final @NotNull String body)
     throws HttpClientException {
+        Validate.notNull(body);
         setEntity(HttpEntities.create(
                 body,
                 asApacheContentType(contentType)));
@@ -94,6 +107,7 @@ implements HttpRequest {
             final @NotNull ContentType contentType,
             final @NotNull byte[] body)
     throws HttpClientException {
+        Validate.notNull(body);
         setEntity(HttpEntities.create(
                 body,
                 asApacheContentType(contentType)));
@@ -108,6 +122,7 @@ implements HttpRequest {
             final long length,
             final @NotNull BodyProducer dataProvider)
     throws HttpClientException {
+        Validate.notNull(dataProvider);
         setEntity(HttpEntities.create(
                 output -> {
                     dataProvider.writeBody(output);
@@ -128,9 +143,9 @@ implements HttpRequest {
     protected void setEntity(
             final @NotNull HttpEntity entity) {
         Validate.validState(
-                this.delegated instanceof HttpEntityContainer,
+                this.delegate instanceof HttpEntityContainer,
                 "The HTTP method of the request does not allow request body");
-        ((HttpEntityContainer) this.delegated).setEntity(entity);
+        ((HttpEntityContainer) this.delegate).setEntity(entity);
     }
 
     /**
@@ -141,6 +156,7 @@ implements HttpRequest {
      */
     protected @NotNull org.apache.hc.core5.http.ContentType asApacheContentType(
             final @NotNull ContentType contentType) {
+        Validate.notNull(contentType);
         final NameValuePair[] pairs = contentType.getParameters().entrySet().stream()
                 .map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
                 .toArray(NameValuePair[]::new); 

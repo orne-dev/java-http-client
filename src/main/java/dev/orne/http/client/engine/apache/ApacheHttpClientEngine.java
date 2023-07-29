@@ -179,27 +179,27 @@ implements HttpClientEngine {
         final HttpHost host = new HttpHost(uri.getScheme(), uri.getHost(), uri.getPort());
         final URI path = URI.create(uri.getPath());
         final ClassicHttpRequest request = createRequest(method, path);
-        if (requestCustomizer != null) {
-            requestCustomizer.customizeRequest(new ApacheHttpRequest(request));
-        }
-        final CompletableFuture<Void> result = new CompletableFuture<>();
-        this.executor.submit(() -> {
-            try {
-                this.client.execute(
-                    host,
-                    request,
-                    getHttpContext(),
-                    response -> {
-                        responseHandler.handle(new ApacheHttpResponse(response));
-                        result.complete(null);
-                        return null;
-                    });
-            } catch (final HttpClientException | IOException e) {
-                result.completeExceptionally(e);
-            }
-            
-        });
-        return result;
+        requestCustomizer.customizeRequest(new ApacheHttpRequest(request));
+        final HttpContext context = getHttpContext();
+        final CompletableFuture<Void> responseFuture = new CompletableFuture<>();
+        final CompletableFuture<Void> result = CompletableFuture.runAsync(
+                () -> {
+                    try {
+                        this.client.execute(
+                            host,
+                            request,
+                            context,
+                            response -> {
+                                responseHandler.handle(new ApacheHttpResponse(response));
+                                responseFuture.complete(null);
+                                return null;
+                            });
+                    } catch (final IOException e) {
+                        responseFuture.completeExceptionally(e);
+                    }
+                },
+                this.executor);
+        return result.thenCompose(nop -> responseFuture);
     }
 
     /**

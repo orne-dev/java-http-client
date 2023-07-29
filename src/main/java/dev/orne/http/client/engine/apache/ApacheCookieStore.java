@@ -72,7 +72,7 @@ implements CookieStore {
      * 
      * @return The Apache HTTP Client cookie store.
      */
-    public @NotNull org.apache.hc.client5.http.cookie.CookieStore getDelegate() {
+    protected @NotNull org.apache.hc.client5.http.cookie.CookieStore getDelegate() {
         return this.delegate;
     }
 

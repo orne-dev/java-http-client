@@ -245,7 +245,7 @@ class ContentTypeTest {
         assertEquals(1, result.getParameters().size());
         assertEquals(charset.name(), result.getParameter(ContentType.CHARSET_PARAM));
         final String header =
-                mediaType + ContentType.PARAMETER_SEPARATOR +
+                mediaType + ContentType.PARAMETER_SEPARATOR + " " +
                 ContentType.CHARSET_PARAM + ContentType.PARAMETER_VALUE_SEPARATOR + charset.name();
         assertEquals(header, result.getHeader());
     }
@@ -320,7 +320,7 @@ class ContentTypeTest {
         assertEquals(1, result.getParameters().size());
         assertEquals(charset.name(), result.getParameter(ContentType.CHARSET_PARAM));
         final String header =
-                mediaType + ContentType.PARAMETER_SEPARATOR +
+                mediaType + ContentType.PARAMETER_SEPARATOR + " " +
                 ContentType.CHARSET_PARAM + ContentType.PARAMETER_VALUE_SEPARATOR + charset.name();
         assertEquals(header, result.getHeader());
     }
@@ -409,7 +409,7 @@ class ContentTypeTest {
         assertEquals(1, result.getParameters().size());
         assertEquals(boundary, result.getParameter(ContentType.BOUNDARY_PARAM));
         final String header =
-                mediaType + ContentType.PARAMETER_SEPARATOR +
+                mediaType + ContentType.PARAMETER_SEPARATOR + " " +
                 ContentType.BOUNDARY_PARAM + ContentType.PARAMETER_VALUE_SEPARATOR + boundary;
         assertEquals(header, result.getHeader());
     }
@@ -557,9 +557,10 @@ class ContentTypeTest {
                     withBoundary = withBoundary || contentType.getBoundary() != null;
                     for (final Map.Entry<String, String> entry : contentType.getParameters().entrySet()) {
                         expected.append(ContentType.PARAMETER_SEPARATOR)
-                        .append(entry.getKey())
-                        .append(ContentType.PARAMETER_VALUE_SEPARATOR)
-                        .append(entry.getValue());
+                            .append(" ")
+                            .append(entry.getKey())
+                            .append(ContentType.PARAMETER_VALUE_SEPARATOR)
+                            .append(entry.getValue());
                     }
                 }
                 assertEquals(expected.toString(), contentType.getHeader());
