@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 
 import dev.orne.http.ContentType;
 import dev.orne.http.client.HttpClientException;
+import dev.orne.http.client.HttpRequestBodyGenerationException;
 import dev.orne.http.client.body.HttpRequestBodyProducer;
 
 /**
@@ -136,10 +137,12 @@ public interface HttpRequest {
          * Writes the HTTP request body content.
          * 
          * @param output The output stream to write the body to.
-         * @throws IOException If an error occurs producing the request body
+         * @throws IOException If an error occurs writing body to the request.
+         * @throws HttpRequestBodyGenerationException If an error occurs
+         * producing the request body.
          */
         void writeBody(
                 @NotNull OutputStream output)
-        throws IOException;
+        throws IOException, HttpRequestBodyGenerationException;
     }
 }

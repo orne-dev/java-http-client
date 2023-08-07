@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Tag;
@@ -41,7 +42,6 @@ import dev.orne.http.ContentType;
 import dev.orne.http.client.HttpResponseHandlingException;
 import dev.orne.http.client.body.HttpResponseBodyParser;
 import dev.orne.test.rnd.Generators;
-import sun.nio.cs.HistoricallyNamedCharset;
 
 /**
  * Unit tests for {@code HttpResponseBody}.
@@ -83,13 +83,11 @@ class HttpResponseBodyTest {
         if (hasContent) {
             assertNotNull(result);
             final InputStreamReader reader = assertInstanceOf(InputStreamReader.class, result);
+            final Charset readerCharset = Charset.forName(reader.getEncoding());
             if (hasCharset) {
-                final String encoding = charset instanceof HistoricallyNamedCharset
-                        ? ((HistoricallyNamedCharset) charset).historicalName()
-                        : charset.name();
-                assertEquals(encoding, reader.getEncoding());
+                assertEquals(charset, readerCharset);
             } else {
-                assertEquals("UTF8", reader.getEncoding());
+                assertEquals(StandardCharsets.UTF_8, readerCharset);
             }
         } else {
             assertNull(result);

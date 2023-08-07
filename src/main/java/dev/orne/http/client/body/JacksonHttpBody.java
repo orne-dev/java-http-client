@@ -139,6 +139,9 @@ public final class JacksonHttpBody {
     throws HttpClientException {
         Validate.notNull(request);
         Validate.notNull(contentType);
+        Validate.notNull(
+                contentType.getCharset(),
+                "Content type must include a charset parameter.");
         Validate.notNull(mapper);
         request.setBody(contentType, output -> {
             final OutputStreamWriter writer = new OutputStreamWriter(
@@ -268,41 +271,92 @@ public final class JacksonHttpBody {
             final @NotNull Class<? extends E> entityType,
             final @NotNull ContentType defaultContentType,
             final @NotNull ObjectMapper mapper) {
-        Validate.notNull(entityType);
-        Validate.notNull(defaultContentType);
-        Validate.notNull(
-                defaultContentType.getCharset(),
-                "Default content type must include a charset parameter.");
-        Validate.notNull(mapper);
-        return new JsonHttpResponseBodyParser<E>() {
+        return new JacksonBodyParser<>(entityType, defaultContentType, mapper);
+    }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public @NotNull ContentType getDefaultContentType() {
-                return defaultContentType;
-            }
+    /**
+     * Jackson based implementation of {@code JsonHttpResponseBodyParser}.
+     * 
+     * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+     * @version 1.0, 2023-07
+     * @param <E> The HTTP response body entity type.
+     * @since 0.1
+     */
+    public static class JacksonBodyParser<E>
+    implements JsonHttpResponseBodyParser<E> {
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public E parseSupportedContent(
-                    final @NotNull ContentType type,
-                    final @NotNull InputStream content,
-                    final long length)
-            throws HttpResponseBodyParsingException {
-                try (final InputStreamReader reader = new InputStreamReader(
-                        content,
-                        ObjectUtils.defaultIfNull(
-                            type.getCharset(),
-                            defaultContentType.getCharset()))) {
-                    return mapper.readValue(reader, entityType);
-                } catch (IOException e) {
-                    throw new HttpResponseBodyParsingException("Error parsing HTTP response body", e);
-                }
+        /** The HTTP response body entity type. */
+        private final @NotNull Class<? extends E> entityType;
+        /** The default content type to use. */
+        private final @NotNull ContentType defaultContentType;
+        /** The Jackson object mapper to use. */
+        private final @NotNull ObjectMapper mapper;
+
+        /**
+         * Creates a new instance.
+         * 
+         * @param entityType The HTTP response body entity type.
+         * @param defaultContentType The default content type to use if the HTTP
+         * response does not specify one.
+         * @param mapper The Jackson object mapper to use.
+         */
+        public JacksonBodyParser(
+                final @NotNull Class<? extends E> entityType,
+                final @NotNull ContentType defaultContentType,
+                final @NotNull ObjectMapper mapper) {
+            super();
+            this.entityType = Validate.notNull(entityType);
+            this.defaultContentType = Validate.notNull(defaultContentType);
+            Validate.notNull(
+                    defaultContentType.getCharset(),
+                    "Default content type must include a charset parameter.");
+            this.mapper = Validate.notNull(mapper);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public @NotNull ContentType getDefaultContentType() {
+            return this.defaultContentType;
+        }
+
+        /**
+         * Returns the HTTP response body entity type.
+         * 
+         * @return The HTTP response body entity type.
+         */
+        protected @NotNull Class<? extends E> getEntityType() {
+            return this.entityType;
+        }
+
+        /**
+         * Returns the Jackson object mapper to use.
+         * 
+         * @return The Jackson object mapper to use.
+         */
+        protected @NotNull ObjectMapper getMapper() {
+            return this.mapper;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public E parseSupportedContent(
+                final @NotNull ContentType type,
+                final @NotNull InputStream content,
+                final long length)
+        throws HttpResponseBodyParsingException {
+            try (final InputStreamReader reader = new InputStreamReader(
+                    content,
+                    ObjectUtils.defaultIfNull(
+                        type.getCharset(),
+                        this.defaultContentType.getCharset()))) {
+                return this.mapper.readValue(reader, this.entityType);
+            } catch (IOException e) {
+                throw new HttpResponseBodyParsingException("Error parsing HTTP response body", e);
             }
-        };
+        }
     }
 }

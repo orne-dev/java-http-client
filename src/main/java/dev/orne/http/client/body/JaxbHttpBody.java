@@ -22,7 +22,6 @@ package dev.orne.http.client.body;
  * #L%
  */
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -155,10 +154,13 @@ public final class JaxbHttpBody {
                 try (final OutputStreamWriter writer = new OutputStreamWriter(
                         output,
                         contentType.getCharset())) {
+                    marshaller.setProperty(
+                            Marshaller.JAXB_ENCODING,
+                            contentType.getCharset().name());
                     marshaller.marshal(entity, writer);
                 }
             } catch (final JAXBException e) {
-                throw new IOException("Error producing HTTP request body", e);
+                throw new HttpRequestBodyGenerationException("Error producing HTTP request body", e);
             }
         });
     }
@@ -184,7 +186,7 @@ public final class JaxbHttpBody {
             return parse(
                     body,
                     entityType,
-                    JsonHttpResponseBodyParser.DEFAULT_CONTENT_TYPE,
+                    XmlHttpResponseBodyParser.DEFAULT_CONTENT_TYPE,
                     JAXBContext.newInstance(entityType));
         } catch (final JAXBException e) {
             throw new HttpResponseBodyParsingException(JAXB_CREATE_ERR, e);
@@ -258,14 +260,14 @@ public final class JaxbHttpBody {
      * @return The created HTTP response body parser.
      * @throws HttpClientException If an error occurs creating the parser.
      */
-    public static <E> @NotNull JsonHttpResponseBodyParser<E> parser(
+    public static <E> @NotNull XmlHttpResponseBodyParser<E> parser(
             final @NotNull Class<? extends E> entityType)
     throws HttpClientException {
         Validate.notNull(entityType);
         try {
             return parser(
                     entityType,
-                    JsonHttpResponseBodyParser.DEFAULT_CONTENT_TYPE,
+                    XmlHttpResponseBodyParser.DEFAULT_CONTENT_TYPE,
                     JAXBContext.newInstance(entityType));
         } catch (final JAXBException e) {
             throw new HttpClientException(JAXB_CREATE_ERR, e);
@@ -285,7 +287,7 @@ public final class JaxbHttpBody {
      * @return The created HTTP response body parser.
      * @throws HttpClientException If an error occurs creating the parser.
      */
-    public static <E> @NotNull JsonHttpResponseBodyParser<E> parser(
+    public static <E> @NotNull XmlHttpResponseBodyParser<E> parser(
             final @NotNull Class<? extends E> entityType,
             final @NotNull ContentType defaultContentType)
     throws HttpClientException {
@@ -311,70 +313,118 @@ public final class JaxbHttpBody {
      * @param context The JAXB context to use.
      * @return The created HTTP response body parser.
      */
-    public static <E> @NotNull JsonHttpResponseBodyParser<E> parser(
+    public static <E> @NotNull XmlHttpResponseBodyParser<E> parser(
             final @NotNull Class<? extends E> entityType,
             final @NotNull ContentType defaultContentType,
             final @NotNull JAXBContext context) {
-        Validate.notNull(entityType);
-        Validate.notNull(defaultContentType);
-        Validate.notNull(
-                defaultContentType.getCharset(),
-                "Default content type must include a default charset parameter.");
-        Validate.notNull(context);
-        return new JsonHttpResponseBodyParser<E>() {
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public @NotNull ContentType getDefaultContentType() {
-                return defaultContentType;
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public E parseSupportedContent(
-                    final @NotNull ContentType type,
-                    final @NotNull InputStream content,
-                    final long length)
-            throws HttpResponseBodyParsingException {
-                E result = null;
-                try {
-                    final Unmarshaller unmarshaller = context.createUnmarshaller();
-                    final JAXBElement<? extends E> element = unmarshaller.unmarshal(
-                            createSource(content, type),
-                            entityType);
-                    if (element != null) {
-                        result = element.getValue();
-                    }
-                } catch (final JAXBException e) {
-                    throw new HttpResponseBodyParsingException("Error parsing HTTP response body", e);
-                }
-                return result;
-            }
-        };
+        return new JaxbBodyParser<>(entityType, defaultContentType, context);
     }
 
     /**
-     * Creates a {@code StreamSource} for the HTTP response body
-     * {@code InputStream}.
+     * JAXB based implementation of {@code XmlHttpResponseBodyParser}.
      * 
-     * @param content The entity's content {@code InputStream}
-     * @param type The entity's content type
-     * @return The source to use for reading the entity's content
+     * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+     * @version 1.0, 2023-07
+     * @param <E> The HTTP response body entity type.
+     * @since 0.1
      */
-    private static @NotNull StreamSource createSource(
-            final @NotNull InputStream content,
-            final @NotNull ContentType type) {
-        final StreamSource source;
-        if (type.getCharset() == null) {
-            source = new StreamSource(content);
-        } else {
-            source = new StreamSource(new InputStreamReader(
-                    content, type.getCharset()));
+    public static class JaxbBodyParser<E>
+    implements XmlHttpResponseBodyParser<E> {
+
+        /** The HTTP response body entity type. */
+        private final @NotNull Class<? extends E> entityType;
+        /** The default content type to use. */
+        private final @NotNull ContentType defaultContentType;
+        /** The JAXB context to use. */
+        private final @NotNull JAXBContext context;
+
+        /**
+         * Creates a new instance.
+         * 
+         * @param entityType The HTTP response body entity type.
+         * @param defaultContentType The default content type to use if the
+         * HTTP response does not specify one.
+         * @param context The JAXB context to use.
+         */
+        public JaxbBodyParser(
+                final @NotNull Class<? extends E> entityType,
+                final @NotNull ContentType defaultContentType,
+                final @NotNull JAXBContext context) {
+            super();
+            this.entityType = Validate.notNull(entityType);
+            this.defaultContentType = Validate.notNull(defaultContentType);
+            this.context = Validate.notNull(context);
         }
-        return source;
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public @NotNull ContentType getDefaultContentType() {
+            return this.defaultContentType;
+        }
+
+        /**
+         * Returns the HTTP response body entity type.
+         * 
+         * @return The HTTP response body entity type.
+         */
+        protected @NotNull Class<? extends E> getEntityType() {
+            return this.entityType;
+        }
+
+        /**
+         * Returns the JAXB context to use.
+         * 
+         * @return The JAXB context to use.
+         */
+        protected @NotNull JAXBContext getContext() {
+            return this.context;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public E parseSupportedContent(
+                final @NotNull ContentType type,
+                final @NotNull InputStream content,
+                final long length)
+        throws HttpResponseBodyParsingException {
+            E result = null;
+            try {
+                final Unmarshaller unmarshaller = this.context.createUnmarshaller();
+                final JAXBElement<? extends E> element = unmarshaller.unmarshal(
+                        createSource(content, type),
+                        this.entityType);
+                if (element != null) {
+                    result = element.getValue();
+                }
+            } catch (final JAXBException e) {
+                throw new HttpResponseBodyParsingException("Error parsing HTTP response body", e);
+            }
+            return result;
+        }
+
+        /**
+         * Creates a {@code StreamSource} for the HTTP response body
+         * {@code InputStream}.
+         * 
+         * @param content The entity's content {@code InputStream}
+         * @param type The entity's content type
+         * @return The source to use for reading the entity's content
+         */
+        protected @NotNull StreamSource createSource(
+                final @NotNull InputStream content,
+                final @NotNull ContentType type) {
+            final StreamSource source;
+            if (type.getCharset() == null) {
+                source = new StreamSource(content);
+            } else {
+                source = new StreamSource(new InputStreamReader(
+                        content, type.getCharset()));
+            }
+            return source;
+        }
     }
 }

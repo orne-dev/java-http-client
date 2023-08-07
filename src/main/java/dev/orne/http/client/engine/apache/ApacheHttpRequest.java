@@ -1,5 +1,7 @@
 package dev.orne.http.client.engine.apache;
 
+import java.io.IOException;
+
 /*-
  * #%L
  * Orne HTTP Client
@@ -33,6 +35,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 import dev.orne.http.ContentType;
 import dev.orne.http.client.HttpClientException;
+import dev.orne.http.client.HttpRequestBodyGenerationException;
 import dev.orne.http.client.engine.HttpRequest;
 
 /**
@@ -125,7 +128,11 @@ implements HttpRequest {
         Validate.notNull(dataProvider);
         setEntity(HttpEntities.create(
                 output -> {
-                    dataProvider.writeBody(output);
+                    try {
+                        dataProvider.writeBody(output);
+                    } catch (final HttpRequestBodyGenerationException e) {
+                        throw new IOException(e);
+                    }
                     output.flush();
                 },
                 asApacheContentType(contentType)));

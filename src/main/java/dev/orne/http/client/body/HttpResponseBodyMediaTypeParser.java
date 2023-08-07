@@ -27,6 +27,7 @@ import java.io.InputStream;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.Validate;
 
 import dev.orne.http.ContentType;
 import dev.orne.http.client.HttpResponseBodyParsingException;
@@ -71,6 +72,7 @@ extends HttpResponseBodyParser<E> {
             final @NotNull InputStream content,
             final long length)
     throws HttpResponseBodyParsingException {
+        Validate.notNull(content);
         type = ObjectUtils.defaultIfNull(type, getDefaultContentType());
         if (!supportsMediaType(type.getMediaType())) {
             throw new UnsupportedContentTypeException(

@@ -29,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.Validate;
+
 import dev.orne.http.ContentType;
 import dev.orne.http.client.HttpResponseBodyParsingException;
 
@@ -67,16 +69,17 @@ public interface HttpResponseBodyParser<E> {
      * The calling method is responsible of closing the reader.
      * 
      * @param type The HTTP response body content type.
-     * @param is The HTTP response body stream.
+     * @param input The HTTP response body stream.
      * @return The created reader.
      */
     default Reader createReader(
             final ContentType contentType,
-            final @NotNull InputStream is) {
+            final @NotNull InputStream input) {
+        Validate.notNull(input);
         if (contentType == null || contentType.getCharset() == null) {
-            return new InputStreamReader(is, StandardCharsets.UTF_8);
+            return new InputStreamReader(input, StandardCharsets.UTF_8);
         } else {
-            return new InputStreamReader(is, contentType.getCharset());
+            return new InputStreamReader(input, contentType.getCharset());
         }
     }
 }

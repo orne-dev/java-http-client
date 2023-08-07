@@ -1,6 +1,7 @@
 package dev.orne.http.client.body;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 /*-
  * #%L
@@ -26,6 +27,8 @@ import java.nio.charset.StandardCharsets;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import dev.orne.http.ContentType;
 import dev.orne.http.MediaTypes;
 
@@ -34,16 +37,15 @@ import dev.orne.http.MediaTypes;
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-07
- * @param <E> The HTTP response body entity type.
  * @since 0.1
  */
-public interface UrlEncodedHttpResponseBodyParser<E>
-extends HttpResponseBodyMediaTypeParser<E> {
+public interface WWWFormHttpResponseBodyParser
+extends HttpResponseBodyMediaTypeParser<Collection<@NotNull Pair<@NotNull String, @NotNull String>>> {
 
     /** The default content type: {@code application/x-www-form-urlencoded;charset=UTF-8}. */
     public static final @NotNull ContentType DEFAULT_CONTENT_TYPE = 
             ContentType.of(
-                MediaTypes.Application.X_WWW_FROM_URLENCODED,
+                MediaTypes.Application.X_WWW_FORM_URLENCODED,
                 StandardCharsets.UTF_8);
 
     /**
@@ -60,6 +62,6 @@ extends HttpResponseBodyMediaTypeParser<E> {
     @Override
     default boolean supportsMediaType(
             final @NotNull String mediaType) {
-        return MediaTypes.Application.X_WWW_FROM_URLENCODED.equalsIgnoreCase(mediaType);
+        return MediaTypes.Application.X_WWW_FORM_URLENCODED.equalsIgnoreCase(mediaType);
     }
 }

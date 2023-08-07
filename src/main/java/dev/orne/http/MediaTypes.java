@@ -195,7 +195,7 @@ public final class MediaTypes {
         public static final String VCARD_XML = "application/vcard+xml";
         public static final String WASM = "application/wasm";
         public static final String X_PKI_MESSAGE = "application/x-pki-message";
-        public static final String X_WWW_FROM_URLENCODED = "application/x-www-form-urlencoded";
+        public static final String X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
         public static final String X_X509_CA_CERT = "application/x-x509-ca-cert";
         public static final String X_X509_CA_RA_CERT = "application/x-x509-ca-ra-cert";
         public static final String X_X509_NEXT_RA_CERT = "application/x-x509-next-ra-cert";

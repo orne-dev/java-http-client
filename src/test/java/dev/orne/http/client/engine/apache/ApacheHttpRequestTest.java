@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.RandomUtils;
@@ -43,6 +45,7 @@ import org.mockito.MockitoAnnotations;
 
 import dev.orne.http.ContentType;
 import dev.orne.http.MediaTypes;
+import dev.orne.http.client.HttpRequestBodyGenerationException;
 import dev.orne.http.client.engine.HttpRequest.BodyProducer;
 import dev.orne.test.rnd.Generators;
 
@@ -190,7 +193,7 @@ class ApacheHttpRequestTest {
     }
 
     /**
-     * Test for {@link ApacheHttpRequest#setBody(dev.orne.http.ContentType, byte[])}.
+     * Test for {@link ApacheHttpRequest#setBody(ContentType, BodyProducer)}.
      * @throws Throwable Should not happen
      */
     @Test
@@ -217,7 +220,7 @@ class ApacheHttpRequestTest {
     }
 
     /**
-     * Test for {@link ApacheHttpRequest#setBody(dev.orne.http.ContentType, byte[])}.
+     * Test for {@link ApacheHttpRequest#setBody(ContentType, BodyProducer)}.
      * @throws Throwable Should not happen
      */
     @Test
@@ -230,6 +233,55 @@ class ApacheHttpRequestTest {
         assertThrows(IllegalStateException.class, () -> request.setBody(contentType, producer));
         then(delegate).shouldHaveNoInteractions();
         then(producer).shouldHaveNoInteractions();
+    }
+
+    /**
+     * Test for {@link ApacheHttpRequest#setBody(ContentType, BodyProducer)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testSetBody_BodyProducer_IOException()
+    throws Throwable {
+        final ApacheHttpRequest request = new ApacheHttpRequest(entityDelegate);
+        final dev.orne.http.ContentType contentType = Generators.randomValue(
+                dev.orne.http.ContentType.class);
+        final IOException exception = new IOException();
+        final BodyProducer producer = output -> { throw exception; };
+        request.setBody(contentType, producer);
+        then(entityDelegate).should().setEntity(
+                entityCaptor.capture());
+        then(entityDelegate).shouldHaveNoMoreInteractions();
+        final HttpEntity entity = entityCaptor.getValue();
+        assertEquals(contentType.getHeader(), entity.getContentType());
+        final OutputStream stream = mock(OutputStream.class);
+        final IOException result = assertThrows(IOException.class, () -> entity.writeTo(stream));
+        assertSame(exception, result);
+        then(stream).shouldHaveNoInteractions();
+    }
+
+    /**
+     * Test for {@link ApacheHttpRequest#setBody(ContentType, BodyProducer)}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testSetBody_BodyProducer_GenerationException()
+    throws Throwable {
+        final ApacheHttpRequest request = new ApacheHttpRequest(entityDelegate);
+        final dev.orne.http.ContentType contentType = Generators.randomValue(
+                dev.orne.http.ContentType.class);
+        final HttpRequestBodyGenerationException exception =
+                new HttpRequestBodyGenerationException();
+        final BodyProducer producer = output -> { throw exception; };
+        request.setBody(contentType, producer);
+        then(entityDelegate).should().setEntity(
+                entityCaptor.capture());
+        then(entityDelegate).shouldHaveNoMoreInteractions();
+        final HttpEntity entity = entityCaptor.getValue();
+        assertEquals(contentType.getHeader(), entity.getContentType());
+        final OutputStream stream = mock(OutputStream.class);
+        final IOException result = assertThrows(IOException.class, () -> entity.writeTo(stream));
+        assertSame(exception, result.getCause());
+        then(stream).shouldHaveNoInteractions();
     }
 
     private interface HttpRequestWithEntity
