@@ -30,6 +30,7 @@ import java.util.Collections;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 
 import dev.orne.http.ContentType;
@@ -51,7 +52,7 @@ implements HttpResponseBodyMediaTypeParser<E> {
     /** The default content type. */
     private final @NotNull ContentType defaultContentType;
     /** The delegated HTTP response body parsers. */
-    private final @NotNull Collection<@NotNull HttpResponseBodyMediaTypeParser<E>> parsers;
+    private final @NotNull Collection<@NotNull HttpResponseBodyMediaTypeParser<? extends E>> parsers;
 
     /**
      * Creates a new instance.
@@ -63,7 +64,7 @@ implements HttpResponseBodyMediaTypeParser<E> {
     @SafeVarargs
     public DelegatedHttpRequestBodyParser(
             final @NotNull ContentType defaultContentType,
-            final @NotNull HttpResponseBodyMediaTypeParser<E>... parsers) {
+            final @NotNull HttpResponseBodyMediaTypeParser<? extends E>... parsers) {
         this(defaultContentType, Arrays.asList(parsers));
     }
 
@@ -76,7 +77,7 @@ implements HttpResponseBodyMediaTypeParser<E> {
      */
     public DelegatedHttpRequestBodyParser(
             final @NotNull ContentType defaultContentType,
-            final @NotNull Collection<@NotNull HttpResponseBodyMediaTypeParser<E>> parsers) {
+            final @NotNull Collection<@NotNull HttpResponseBodyMediaTypeParser<? extends E>> parsers) {
         super();
         this.defaultContentType = Validate.notNull(defaultContentType);
         this.parsers = new ArrayList<>(Validate.notNull(parsers));
@@ -96,7 +97,7 @@ implements HttpResponseBodyMediaTypeParser<E> {
      * 
      * @return The delegated HTTP response body parsers.
      */
-    public @NotNull Collection<HttpResponseBodyMediaTypeParser<E>> getParsers() {
+    public @NotNull Collection<HttpResponseBodyMediaTypeParser<? extends E>> getParsers() {
         return Collections.unmodifiableCollection(this.parsers);
     }
 
@@ -106,12 +107,35 @@ implements HttpResponseBodyMediaTypeParser<E> {
     @Override
     public boolean supportsMediaType(
             final @NotNull String mediaType) {
-        for (final HttpResponseBodyMediaTypeParser<E> parser : this.parsers) {
+        for (final HttpResponseBodyMediaTypeParser<? extends E> parser : this.parsers) {
             if (parser.supportsMediaType(mediaType)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the parser to use for the specified content type.
+     * 
+     * @param type The content type to return the parser for.
+     * @return The parser suitable for specified content type.
+     * @throws HttpResponseBodyParsingException If an error occurs finding the
+     * parser.
+     * @throws UnsupportedContentTypeException If no parser is available for
+     * the specified content type. 
+     */
+    protected @NotNull HttpResponseBodyMediaTypeParser<? extends E> getParser(
+            final @NotNull ContentType type)
+    throws HttpResponseBodyParsingException {
+        Validate.notNull(type);
+        final String mediaType = type.getMediaType();
+        for (final HttpResponseBodyMediaTypeParser<? extends E> parser : this.parsers) {
+            if (parser.supportsMediaType(mediaType)) {
+                return parser;
+            }
+        }
+        throw new UnsupportedContentTypeException("Unsupported content type: " + type);
     }
 
     /**
@@ -121,17 +145,14 @@ implements HttpResponseBodyMediaTypeParser<E> {
      * the specified content type. 
      */
     @Override
-    public E parseSupportedContent(
-            final @NotNull ContentType type,
-            final @NotNull InputStream content,
-            final long length)
+    public E parse(
+            final ContentType type,
+            @NotNull InputStream content,
+            long length)
     throws HttpResponseBodyParsingException {
-        final String mediaType = type.getMediaType();
-        for (final HttpResponseBodyMediaTypeParser<E> parser : this.parsers) {
-            if (parser.supportsMediaType(mediaType)) {
-                return parser.parse(type, content, length);
-            }
-        }
-        throw new UnsupportedContentTypeException("Unsupported content type: " + type);
+        ContentType effectiveType = ObjectUtils.defaultIfNull(
+                type,
+                getDefaultContentType());
+        return getParser(effectiveType).parse(effectiveType, content, length);
     }
 }

@@ -217,6 +217,7 @@ public final class WWWFormHttpBody {
      * @since 0.1
      */
     public static class WWWFormBodyParser
+    extends AbstractHttpResponseBodyMediaTypeParser<Collection<@NotNull Pair<@NotNull String, @NotNull String>>>
     implements WWWFormHttpResponseBodyParser {
 
         /** The default content type to use. */
@@ -249,7 +250,7 @@ public final class WWWFormHttpBody {
          * {@inheritDoc}
          */
         @Override
-        public Collection<@NotNull Pair<@NotNull String, @NotNull String>> parseSupportedContent(
+        protected Collection<@NotNull Pair<@NotNull String, @NotNull String>> parseSupportedContent(
                 final @NotNull ContentType type,
                 final @NotNull InputStream content,
                 final long length)

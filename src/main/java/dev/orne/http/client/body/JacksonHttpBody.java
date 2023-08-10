@@ -283,6 +283,7 @@ public final class JacksonHttpBody {
      * @since 0.1
      */
     public static class JacksonBodyParser<E>
+    extends AbstractHttpResponseBodyMediaTypeParser<E>
     implements JsonHttpResponseBodyParser<E> {
 
         /** The HTTP response body entity type. */
@@ -343,7 +344,7 @@ public final class JacksonHttpBody {
          * {@inheritDoc}
          */
         @Override
-        public E parseSupportedContent(
+        protected E parseSupportedContent(
                 final @NotNull ContentType type,
                 final @NotNull InputStream content,
                 final long length)

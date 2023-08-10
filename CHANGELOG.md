@@ -63,6 +63,7 @@
     01. Added class `dev.orne.http.client.AbstractStatusIndependentOperation`
     01. Added class `dev.orne.http.client.AbstractStatusDependentOperation`
 01. :gift: Added default HTTP request and response body handlers implementations.
+    01. Added class `dev.orne.http.client.body.AbstractHttpResponseBodyMediaTypeParser`
     01. Added interface `dev.orne.http.client.body.WWWFormHttpResponseBodyParser`
     01. Added class `dev.orne.http.client.body.WWWFormHttpBody`
     01. Added interface `dev.orne.http.client.body.XmlHttpResponseBodyParser`

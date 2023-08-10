@@ -329,6 +329,7 @@ public final class JaxbHttpBody {
      * @since 0.1
      */
     public static class JaxbBodyParser<E>
+    extends AbstractHttpResponseBodyMediaTypeParser<E>
     implements XmlHttpResponseBodyParser<E> {
 
         /** The HTTP response body entity type. */
@@ -386,7 +387,7 @@ public final class JaxbHttpBody {
          * {@inheritDoc}
          */
         @Override
-        public E parseSupportedContent(
+        protected E parseSupportedContent(
                 final @NotNull ContentType type,
                 final @NotNull InputStream content,
                 final long length)

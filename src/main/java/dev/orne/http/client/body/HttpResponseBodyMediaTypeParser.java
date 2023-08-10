@@ -1,7 +1,5 @@
 package dev.orne.http.client.body;
 
-import java.io.InputStream;
-
 /*-
  * #%L
  * Orne HTTP Client
@@ -26,12 +24,8 @@ import java.io.InputStream;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.Validate;
 
 import dev.orne.http.ContentType;
-import dev.orne.http.client.HttpResponseBodyParsingException;
-import dev.orne.http.client.UnsupportedContentTypeException;
 
 /**
  * Interface for parsers of HTTP response body entities that can parse
@@ -62,38 +56,4 @@ extends HttpResponseBodyParser<E> {
      */
     boolean supportsMediaType(
             @NotNull String mediaType);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    default E parse(
-            ContentType type,
-            final @NotNull InputStream content,
-            final long length)
-    throws HttpResponseBodyParsingException {
-        Validate.notNull(content);
-        type = ObjectUtils.defaultIfNull(type, getDefaultContentType());
-        if (!supportsMediaType(type.getMediaType())) {
-            throw new UnsupportedContentTypeException(
-                    "Unsupported content type on HTTP response body: " + type);
-        }
-        return parseSupportedContent(type, content, length);
-    }
-
-    /**
-     * Parses the HTTP response body entity.
-     * 
-     * @param type The HTTP response body content type.
-     * @param content The HTTP response body content.
-     * @param length HTTP response body content length.
-     * @return The parsed HTTP response body entity.
-     * @throws HttpResponseBodyParsingException If an error occurs parsing the
-     * HTTP response body.
-     */
-    E parseSupportedContent(
-            @NotNull ContentType type,
-            @NotNull InputStream content,
-            long length)
-    throws HttpResponseBodyParsingException;
 }
