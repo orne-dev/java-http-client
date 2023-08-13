@@ -44,7 +44,7 @@
 
   <properties>
     <java.version>8</java.version>
-    <java.module.name>dev.orne.http-client</java.module.name>
+    <java.module.name>dev.orne.http.client</java.module.name>
     <license.licenseName>lgpl_v3</license.licenseName>
 
     <commons.lang.version>3.12.0</commons.lang.version>
