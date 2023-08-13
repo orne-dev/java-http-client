@@ -4,7 +4,7 @@ package dev.orne.http.client;
  * #%L
  * Orne HTTP Client
  * %%
- * Copyright (C) 2020 - 2021 Orne Developments
+ * Copyright (C) 2020 - 2023 Orne Developments
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as

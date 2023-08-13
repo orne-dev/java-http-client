@@ -25,7 +25,9 @@ package dev.orne.http.client.engine.apache;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.HashSet;
 
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
@@ -251,5 +253,103 @@ class ApacheCookieTest {
         other = new ApacheCookie(otherDelegate);
         assertNotEquals(cookie, other);
         assertNotEquals(cookie.toString(), other.toString());
+    }
+
+    /**
+     * Test for {@link ApacheCookieGenerator#defaultValue()}.
+     */
+    @Test
+    void testDefaultValueGeneration() {
+        final BasicClientCookie cookie = Generators.defaultValue(BasicClientCookie.class);
+        assertNotNull(cookie.getName());
+        assertNotNull(cookie.getValue());
+        assertNull(cookie.getDomain());
+        assertNull(cookie.getPath());
+        assertNull(cookie.getCreationInstant());
+        assertFalse(cookie.isPersistent());
+        assertFalse(cookie.isSecure());
+        assertFalse(cookie.isHttpOnly());
+    }
+
+    /**
+     * Test for {@link ApacheCookieGenerator#defaultValue()}.
+     */
+    @Test
+    void testRandomValueGeneration() {
+        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+            final HashSet<String> name = new HashSet<>();
+            final HashSet<String> value = new HashSet<>();
+            final HashSet<String> domain = new HashSet<>();
+            final HashSet<String> path = new HashSet<>();
+            final HashSet<Instant> creation = new HashSet<>();
+            final HashSet<Boolean> persistent = new HashSet<>();
+            final HashSet<Boolean> secure = new HashSet<>();
+            final HashSet<Boolean> http = new HashSet<>();
+            while (name.size() < 10 ||
+                    value.size() < 10 ||
+                    domain.size() < 10 || !domain.contains(null) ||
+                    path.size() < 10 || !path.contains(null) ||
+                    creation.size() < 10 || !creation.contains(null) ||
+                    persistent.size() < 2 ||
+                    secure.size() < 2 ||
+                    http.size() < 2) {
+                final BasicClientCookie cookie = Generators.randomValue(BasicClientCookie.class);
+                name.add(cookie.getName());
+                value.add(cookie.getValue());
+                domain.add(cookie.getDomain());
+                path.add(cookie.getPath());
+                creation.add(cookie.getCreationInstant());
+                persistent.add(cookie.isPersistent());
+                secure.add(cookie.isSecure());
+                http.add(cookie.isHttpOnly());
+            }
+        });
+    }
+
+    /**
+     * Test for {@link ApacheCookieGenerator#defaultValue()}.
+     */
+    @Test
+    void testDefaultValueGeneration_Generic() {
+        final Cookie cookie = Generators.defaultValue(Cookie.class);
+        assertNotNull(cookie.getName());
+        assertNotNull(cookie.getValue());
+        assertNull(cookie.getDomain());
+        assertNull(cookie.getPath());
+        assertFalse(cookie.isPersistent());
+        assertFalse(cookie.isSecure());
+        assertFalse(cookie.isHttpOnly());
+    }
+
+    /**
+     * Test for {@link ApacheCookieGenerator#defaultValue()}.
+     */
+    @Test
+    void testRandomValueGeneration_Generic() {
+        assertTimeoutPreemptively(Duration.ofSeconds(1), () -> {
+            final HashSet<String> name = new HashSet<>();
+            final HashSet<String> value = new HashSet<>();
+            final HashSet<String> domain = new HashSet<>();
+            final HashSet<String> path = new HashSet<>();
+            final HashSet<Boolean> persistent = new HashSet<>();
+            final HashSet<Boolean> secure = new HashSet<>();
+            final HashSet<Boolean> http = new HashSet<>();
+            while (name.size() < 10 ||
+                    value.size() < 10 ||
+                    domain.size() < 10 || !domain.contains(null) ||
+                    path.size() < 10 || !path.contains(null) ||
+                    persistent.size() < 2 ||
+                    secure.size() < 2 ||
+                    http.size() < 2) {
+                final Cookie cookie = Generators.randomValue(Cookie.class);
+                name.add(cookie.getName());
+                value.add(cookie.getValue());
+                domain.add(cookie.getDomain());
+                path.add(cookie.getPath());
+                persistent.add(cookie.isPersistent());
+                secure.add(cookie.isSecure());
+                http.add(cookie.isHttpOnly());
+            }
+        });
     }
 }

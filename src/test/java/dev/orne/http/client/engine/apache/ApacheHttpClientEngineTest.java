@@ -38,7 +38,6 @@ import org.apache.hc.client5.http.cookie.CookieStore;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
@@ -193,8 +192,6 @@ class ApacheHttpClientEngineTest {
                 URIGenerator.randomHostName(),
                 URIGenerator.randomAbsolutePath(),
                 null);
-        final HttpHost host = new HttpHost(uri.getScheme(), uri.getHost(), uri.getPort());
-        final URI path = URI.create(uri.getPath());
         final HttpRequestCustomizer requestCustomizer = mock(HttpRequestCustomizer.class);
         final HttpResponseHandler responseHandler = mock(HttpResponseHandler.class);
         final ClassicHttpRequest apacheRequest = mock(ClassicHttpRequest.class);
@@ -204,7 +201,7 @@ class ApacheHttpClientEngineTest {
                 cookieStore,
                 client,
                 executor))) {
-            willReturn(apacheRequest).given(engine).createRequest(method, path);
+            willReturn(apacheRequest).given(engine).createRequest(method, uri);
             willReturn(context).given(engine).getHttpContext();
             final CompletableFuture<Void> result = engine.executeHttpRequest(
                     uri,
@@ -225,7 +222,6 @@ class ApacheHttpClientEngineTest {
             final Runnable delayedTask = runnableCaptor.getValue();
             delayedTask.run();
             then(client).should().execute(
-                    eq(host),
                     eq(apacheRequest),
                     eq(context),
                     engineHandlerCaptor.capture());
@@ -259,8 +255,6 @@ class ApacheHttpClientEngineTest {
                 URIGenerator.randomHostName(),
                 URIGenerator.randomAbsolutePath(),
                 null);
-        final HttpHost host = new HttpHost(uri.getScheme(), uri.getHost(), uri.getPort());
-        final URI path = URI.create(uri.getPath());
         final HttpRequestCustomizer requestCustomizer = mock(HttpRequestCustomizer.class);
         final HttpResponseHandler responseHandler = mock(HttpResponseHandler.class);
         final ClassicHttpRequest apacheRequest = mock(ClassicHttpRequest.class);
@@ -270,7 +264,7 @@ class ApacheHttpClientEngineTest {
                 cookieStore,
                 client,
                 executor))) {
-            willReturn(apacheRequest).given(engine).createRequest(method, path);
+            willReturn(apacheRequest).given(engine).createRequest(method, uri);
             willReturn(context).given(engine).getHttpContext();
             final CompletableFuture<Void> result = engine.executeHttpRequest(
                     uri,
@@ -288,11 +282,10 @@ class ApacheHttpClientEngineTest {
                     ApacheHttpRequest.class,
                     requestCaptor.getValue());
             assertSame(apacheRequest, request.getDelegate());
-            given(client.execute(eq(host), eq(apacheRequest), eq(context), any())).willThrow(clientException);
+            given(client.execute(eq(apacheRequest), eq(context), any())).willThrow(clientException);
             final Runnable delayedTask = runnableCaptor.getValue();
             delayedTask.run();
             then(client).should().execute(
-                    eq(host),
                     eq(apacheRequest),
                     eq(context),
                     engineHandlerCaptor.capture());

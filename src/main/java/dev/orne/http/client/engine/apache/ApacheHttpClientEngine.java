@@ -25,6 +25,7 @@ package dev.orne.http.client.engine.apache;
 import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,7 +45,6 @@ import org.apache.hc.client5.http.cookie.CookieStore;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
 
@@ -168,7 +168,7 @@ implements HttpClientEngine {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull CompletableFuture<Void> executeHttpRequest(
+    public @NotNull CompletionStage<Void> executeHttpRequest(
             final @NotNull URI uri,
             final @NotNull String method,
             final @NotNull HttpRequestCustomizer requestCustomizer,
@@ -176,9 +176,7 @@ implements HttpClientEngine {
     throws HttpClientException {
         Validate.notNull(uri);
         Validate.isTrue(uri.isAbsolute(), "The request URI must be absolute");
-        final HttpHost host = new HttpHost(uri.getScheme(), uri.getHost(), uri.getPort());
-        final URI path = URI.create(uri.getPath());
-        final ClassicHttpRequest request = createRequest(method, path);
+        final ClassicHttpRequest request = createRequest(method, uri);
         requestCustomizer.customizeRequest(new ApacheHttpRequest(request));
         final HttpContext context = getHttpContext();
         final CompletableFuture<Void> responseFuture = new CompletableFuture<>();
@@ -186,7 +184,6 @@ implements HttpClientEngine {
                 () -> {
                     try {
                         this.client.execute(
-                            host,
                             request,
                             context,
                             response -> {
