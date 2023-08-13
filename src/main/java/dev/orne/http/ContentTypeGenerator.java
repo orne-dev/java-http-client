@@ -37,6 +37,7 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apiguardian.api.API;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,7 @@ import dev.orne.test.rnd.Generators;
  * @version 1.0, 2023-07
  * @since 0.1
  */
+@API(status = API.Status.INTERNAL, since = "0.1")
 public class ContentTypeGenerator
 extends AbstractTypedGenerator<ContentType> {
 

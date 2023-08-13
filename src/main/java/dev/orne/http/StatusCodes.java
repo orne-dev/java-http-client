@@ -22,6 +22,8 @@ package dev.orne.http;
  * #L%
  */
 
+import org.apiguardian.api.API;
+
 /**
  * Constants for HTTP status codes.
  * 
@@ -224,6 +226,7 @@ public class StatusCodes {
      * @version 1.0, 2023-06
      * @since StatusCodes 1.0
      */
+    @API(status = API.Status.EXPERIMENTAL, since = "0.1")
     public static final class Experimental {
 
         // --- 1xx Informational ---
@@ -261,6 +264,7 @@ public class StatusCodes {
      * @version 1.0, 2023-06
      * @since StatusCodes 1.0
      */
+    @API(status = API.Status.EXPERIMENTAL, since = "0.1")
     public static final class WebDav {
 
         // --- 1xx Informational ---

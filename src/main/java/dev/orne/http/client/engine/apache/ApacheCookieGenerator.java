@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
+import org.apiguardian.api.API;
 
 import dev.orne.http.client.cookie.DefaultCookieGenerator;
 import dev.orne.test.rnd.AbstractTypedGenerator;
@@ -42,6 +43,7 @@ import dev.orne.test.rnd.generators.URIGenerator;
  * @version 1.0, 2023-07
  * @since 0.1
  */
+@API(status = API.Status.INTERNAL, since = "0.1")
 public class ApacheCookieGenerator
 extends AbstractTypedGenerator<BasicClientCookie> {
 

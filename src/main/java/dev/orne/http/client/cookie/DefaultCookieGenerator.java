@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apiguardian.api.API;
 
 import dev.orne.test.rnd.AbstractTypedGenerator;
 import dev.orne.test.rnd.Generators;
@@ -40,6 +41,7 @@ import dev.orne.test.rnd.generators.URIGenerator;
  * @version 1.0, 2023-07
  * @since 0.1
  */
+@API(status = API.Status.INTERNAL, since = "0.1")
 public class DefaultCookieGenerator
 extends AbstractTypedGenerator<DefaultCookie>  {
 
