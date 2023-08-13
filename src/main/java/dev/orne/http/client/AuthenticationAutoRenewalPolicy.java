@@ -22,7 +22,7 @@ package dev.orne.http.client;
  * #L%
  */
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -51,7 +51,7 @@ public interface AuthenticationAutoRenewalPolicy {
      * @param result The result future to update the results into.
      */
     <R, S extends AuthenticableClientStatus> void apply(
-            @NotNull Supplier<CompletableFuture<? extends S>> doAuthenticate,
-            @NotNull Function<S, CompletableFuture<R>> doOperation,
-            @NotNull CompletableFuture<R> result);
+            @NotNull Supplier<? extends CompletionStage<? extends S>> doAuthenticate,
+            @NotNull Function<S, ? extends CompletionStage<R>> doOperation,
+            @NotNull CompletionStage<R> result);
 }

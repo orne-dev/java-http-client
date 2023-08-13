@@ -297,7 +297,7 @@ extends AbstractHttpServiceOperationTest {
         final CompletableFuture<Void> engineFuture = new CompletableFuture<>();
         given(engine.executeHttpRequest(eq(requestURI), eq(operationMethod), any(), any())).willReturn(engineFuture);
         
-        final CompletableFuture<Object> futureResult = operation.execute(params, status, client);
+        final CompletableFuture<Object> futureResult = operation.execute(params, status, client).toCompletableFuture();
         assertNotNull(futureResult);
         then(operation).should().execute(params, status, client);
         then(operation).should().getRequestURI(params, status);
@@ -344,7 +344,7 @@ extends AbstractHttpServiceOperationTest {
         final OperationResponseHandler<Object> handler = mock(OperationResponseHandler.class);
         given(operation.createResponseHandler(params, status)).willReturn(handler);
         
-        final CompletableFuture<Object> futureResult = operation.execute(params, status, client);
+        final CompletableFuture<Object> futureResult = operation.execute(params, status, client).toCompletableFuture();
         assertNotNull(futureResult);
         final ExecutionException result = assertThrows(ExecutionException.class, futureResult::get);
         assertSame(exception, HttpClientException.unwrapFutureException(result));
@@ -381,7 +381,7 @@ extends AbstractHttpServiceOperationTest {
         final OperationResponseHandler<Object> handler = mock(OperationResponseHandler.class);
         given(operation.createResponseHandler(params, status)).willReturn(handler);
         
-        final CompletableFuture<Object> futureResult = operation.execute(params, status, client);
+        final CompletableFuture<Object> futureResult = operation.execute(params, status, client).toCompletableFuture();
         assertNotNull(futureResult);
         final ExecutionException result = assertThrows(ExecutionException.class, futureResult::get);
         assertSame(exception, HttpClientException.unwrapFutureException(result));
@@ -419,7 +419,7 @@ extends AbstractHttpServiceOperationTest {
         final CompletableFuture<Void> engineFuture = new CompletableFuture<>();
         given(engine.executeHttpRequest(eq(requestURI), eq(operationMethod), any(), any())).willReturn(engineFuture);
         
-        final CompletableFuture<Object> futureResult = operation.execute(params, status, client);
+        final CompletableFuture<Object> futureResult = operation.execute(params, status, client).toCompletableFuture();
         assertNotNull(futureResult);
         final ExecutionException result = assertThrows(ExecutionException.class, futureResult::get);
         assertSame(exception, HttpClientException.unwrapFutureException(result));
@@ -457,7 +457,7 @@ extends AbstractHttpServiceOperationTest {
         final HttpClientException exception = new HttpClientException();
         given(engine.executeHttpRequest(eq(requestURI), eq(operationMethod), any(), any())).willThrow(exception);
         
-        final CompletableFuture<Object> futureResult = operation.execute(params, status, client);
+        final CompletableFuture<Object> futureResult = operation.execute(params, status, client).toCompletableFuture();
         assertNotNull(futureResult);
         final ExecutionException result = assertThrows(ExecutionException.class, futureResult::get);
         assertSame(exception, HttpClientException.unwrapFutureException(result));
@@ -502,7 +502,7 @@ extends AbstractHttpServiceOperationTest {
         final CompletableFuture<Void> engineFuture = new CompletableFuture<>();
         given(engine.executeHttpRequest(eq(requestURI), eq(operationMethod), any(), any())).willReturn(engineFuture);
         
-        final CompletableFuture<Object> futureResult = operation.execute(params, status, client);
+        final CompletableFuture<Object> futureResult = operation.execute(params, status, client).toCompletableFuture();
         assertNotNull(futureResult);
         then(operation).should().execute(params, status, client);
         then(operation).should().getRequestURI(params, status);
@@ -557,7 +557,7 @@ extends AbstractHttpServiceOperationTest {
         final CompletableFuture<Void> engineFuture = new CompletableFuture<>();
         given(engine.executeHttpRequest(eq(requestURI), eq(operationMethod), any(), any())).willReturn(engineFuture);
         
-        final CompletableFuture<Object> futureResult = operation.execute(params, status, client);
+        final CompletableFuture<Object> futureResult = operation.execute(params, status, client).toCompletableFuture();
         assertNotNull(futureResult);
         then(operation).should().execute(params, status, client);
         then(operation).should().getRequestURI(params, status);
@@ -613,7 +613,7 @@ extends AbstractHttpServiceOperationTest {
         final CompletableFuture<Void> engineFuture = new CompletableFuture<>();
         given(engine.executeHttpRequest(eq(requestURI), eq(operationMethod), any(), any())).willReturn(engineFuture);
         
-        final CompletableFuture<Object> futureResult = operation.execute(params, status, client);
+        final CompletableFuture<Object> futureResult = operation.execute(params, status, client).toCompletableFuture();
         assertNotNull(futureResult);
         then(operation).should().execute(params, status, client);
         then(operation).should().getRequestURI(params, status);

@@ -28,6 +28,7 @@ import static org.mockito.BDDMockito.*;
 import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
@@ -185,7 +186,7 @@ class BaseHttpServiceClientTest {
         final CompletableFuture<Object> mockResult = new CompletableFuture<Object>();
         try (final BaseHttpServiceClient client = createTestClient()) {
             given(operation.execute(params, client)).willReturn(mockResult);
-            final CompletableFuture<Object> result = client.execute(operation, params);
+            final CompletionStage<Object> result = client.execute(operation, params);
             assertNotNull(result);
             assertSame(mockResult, result);
             then(operation).should().execute(params, client);

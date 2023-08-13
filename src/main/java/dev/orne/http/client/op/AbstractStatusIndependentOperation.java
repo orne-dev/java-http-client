@@ -23,7 +23,7 @@ package dev.orne.http.client.op;
  */
 
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletionException;
 
 import javax.validation.constraints.NotNull;
@@ -55,7 +55,7 @@ implements StatusIndependentOperation<P, R> {
      * {@inheritDoc}
      */
     @Override
-    public @NotNull CompletableFuture<R> execute(
+    public @NotNull CompletionStage<R> execute(
             final P params,
             final @NotNull HttpServiceClient client) {
         try {

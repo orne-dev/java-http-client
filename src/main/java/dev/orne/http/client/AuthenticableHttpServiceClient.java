@@ -22,7 +22,8 @@ package dev.orne.http.client;
  * #L%
  */
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import javax.validation.constraints.NotNull;
 
 /**
@@ -83,7 +84,7 @@ extends StatedHttpServiceClient<S> {
      * 
      * @return The client's status.
      */
-    @NotNull CompletableFuture<@NotNull S> ensureAuthenticated();
+    @NotNull CompletionStage<@NotNull S> ensureAuthenticated();
 
     /**
      * Authenticates against the HTTP service using the specified credentials.
@@ -93,7 +94,7 @@ extends StatedHttpServiceClient<S> {
      * @param credentials The credentials to use.
      * @return The client's status.
      */
-    @NotNull CompletableFuture<@NotNull S> authenticate(
+    @NotNull CompletionStage<@NotNull S> authenticate(
             @NotNull C credentials);
 
     /**
@@ -104,5 +105,5 @@ extends StatedHttpServiceClient<S> {
      * been store with a previous call to {@link #authenticate(Object)}.
      * @return The client's status.
      */
-    @NotNull CompletableFuture<@NotNull S> authenticate();
+    @NotNull CompletionStage<@NotNull S> authenticate();
 }

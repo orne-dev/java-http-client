@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.validation.constraints.NotNull;
 
@@ -118,7 +118,7 @@ implements HttpServiceClient {
      * @param params The operation parameter
      * @return The operation execution's result
      */
-    public <P, R> @NotNull CompletableFuture<R> execute(
+    public <P, R> @NotNull CompletionStage<R> execute(
             final @NotNull StatusIndependentOperation<P, R> operation,
             final P params) {
         return operation.execute(params, this);

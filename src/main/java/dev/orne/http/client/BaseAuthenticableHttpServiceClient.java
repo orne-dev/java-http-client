@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.validation.constraints.NotNull;
 
@@ -177,8 +178,8 @@ implements AuthenticableHttpServiceClient<S, C> {
      * {@inheritDoc}
      */
     @Override
-    public synchronized @NotNull CompletableFuture<@NotNull S> authenticate() {
-        final CompletableFuture<S> result;
+    public synchronized @NotNull CompletionStage<@NotNull S> authenticate() {
+        final CompletionStage<S> result;
         if (this.storedCredentials != null) {
             final Logger logger = LoggerFactory.getLogger(getClass());
             logger.debug("Authenticating with stored credentials...");
@@ -206,7 +207,7 @@ implements AuthenticableHttpServiceClient<S, C> {
      * {@inheritDoc}
      */
     @Override
-    public synchronized @NotNull CompletableFuture<@NotNull S> authenticate(
+    public synchronized @NotNull CompletionStage<@NotNull S> authenticate(
             final @NotNull C credentials) {
         final Logger logger = LoggerFactory.getLogger(getClass());
         logger.debug("Authenticating...");
@@ -228,7 +229,7 @@ implements AuthenticableHttpServiceClient<S, C> {
      * @param credentials The credentials to use in the authentication attempt.
      * @return The updated client status.
      */
-    protected @NotNull CompletableFuture<@NotNull S> executeAuthentication(
+    protected @NotNull CompletionStage<@NotNull S> executeAuthentication(
             final @NotNull C credentials) {
         return execute(this.authenticationOperation, credentials)
             .thenApply(nop -> getStatus());
@@ -237,7 +238,7 @@ implements AuthenticableHttpServiceClient<S, C> {
     /**
      * {@inheritDoc}
      */
-    public synchronized @NotNull CompletableFuture<@NotNull S> ensureAuthenticated() {
+    public synchronized @NotNull CompletionStage<@NotNull S> ensureAuthenticated() {
         return ensureInitialized().thenCompose(status -> {
             if (status.isAuthenticated()) {
                 return CompletableFuture.completedFuture(status);
@@ -251,7 +252,7 @@ implements AuthenticableHttpServiceClient<S, C> {
      * {@inheritDoc}
      */
     @Override
-    public <P, R> @NotNull CompletableFuture<@NotNull R> execute(
+    public <P, R> @NotNull CompletionStage<@NotNull R> execute(
             final @NotNull StatusDependentOperation<P, R, ? super S> operation,
             final P params) {
         if (operation instanceof AuthenticatedOperation) {
@@ -275,11 +276,11 @@ implements AuthenticableHttpServiceClient<S, C> {
      * @param params The operation parameter
      * @return The operation execution's result
      */
-    protected <P, R> @NotNull CompletableFuture<@NotNull R> executeAuthenticated(
+    protected <P, R> @NotNull CompletionStage<@NotNull R> executeAuthenticated(
             final @NotNull AuthenticatedOperation<P, R, ? super S> operation,
             final P params) {
         final CompletableFuture<R> future = new CompletableFuture<>();
-        final CompletableFuture<R> base = ensureAuthenticated()
+        final CompletionStage<R> base = ensureAuthenticated()
                 .thenCompose(status -> super.execute(operation, params));
         base.whenComplete((result, t) -> {
             if (t == null) {

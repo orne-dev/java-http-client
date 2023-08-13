@@ -24,7 +24,7 @@ package dev.orne.http.client.engine;
 
 import java.io.Closeable;
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.validation.constraints.NotNull;
 
@@ -57,7 +57,7 @@ extends Closeable {
      * @throws HttpClientException If an exception occurs executing the
      * request
      */
-    @NotNull CompletableFuture<Void> executeHttpRequest(
+    @NotNull CompletionStage<Void> executeHttpRequest(
             @NotNull URI uri,
             @NotNull String method,
             @NotNull HttpRequestCustomizer requestCustomizer,

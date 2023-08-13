@@ -247,7 +247,7 @@ extends BaseStatedHttpServiceClientTest {
             final Object credentials = createCredentials();
             final CompletableFuture futureAuthResult = new CompletableFuture<>();
             given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
-            final CompletableFuture<?> futureResult = client.authenticate(credentials);
+            final CompletableFuture<?> futureResult = client.authenticate(credentials).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             final Object authResult = new Object();
@@ -279,7 +279,7 @@ extends BaseStatedHttpServiceClientTest {
             final Object credentials = createCredentials();
             final CompletableFuture futureInitResult = new CompletableFuture<>();
             willReturn(futureInitResult).given(client).ensureInitialized();
-            final CompletableFuture<?> futureResult = client.authenticate(credentials);
+            final CompletableFuture<?> futureResult = client.authenticate(credentials).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             final HttpClientException exception = new HttpClientException();
@@ -310,7 +310,7 @@ extends BaseStatedHttpServiceClientTest {
             final Object credentials = createCredentials();
             final CompletableFuture futureAuthResult = new CompletableFuture<>();
             given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
-            final CompletableFuture<?> futureResult = client.authenticate(credentials);
+            final CompletableFuture<?> futureResult = client.authenticate(credentials).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             final HttpClientException exception = new HttpClientException();
@@ -343,7 +343,7 @@ extends BaseStatedHttpServiceClientTest {
             client.setStoredCredentials(credentials);
             final CompletableFuture futureAuthResult = new CompletableFuture<>();
             given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
-            final CompletableFuture<?> futureResult = client.authenticate();
+            final CompletableFuture<?> futureResult = client.authenticate().toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             final Object authResult = new Object();
@@ -374,7 +374,7 @@ extends BaseStatedHttpServiceClientTest {
             client.setStoredCredentials(credentials);
             final CompletableFuture futureInitResult = new CompletableFuture<>();
             willReturn(futureInitResult).given(client).ensureInitialized();
-            final CompletableFuture<?> futureResult = client.authenticate();
+            final CompletableFuture<?> futureResult = client.authenticate().toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             final HttpClientException exception = new HttpClientException();
@@ -398,7 +398,7 @@ extends BaseStatedHttpServiceClientTest {
     throws Throwable {
         try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
             client.setCredentialsStoringEnabled(true);
-            final CompletableFuture<?> futureResult = client.authenticate();
+            final CompletableFuture<?> futureResult = client.authenticate().toCompletableFuture();
             assertNotNull(futureResult);
             assertTrue(futureResult.isDone());
             final Exception result = assertThrows(Exception.class, () -> futureResult.get());
@@ -425,7 +425,7 @@ extends BaseStatedHttpServiceClientTest {
             client.setStoredCredentials(credentials);
             final CompletableFuture futureAuthResult = new CompletableFuture<>();
             given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
-            final CompletableFuture<?> futureResult = client.authenticate();
+            final CompletableFuture<?> futureResult = client.authenticate().toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             final HttpClientException exception = new HttpClientException();
@@ -458,7 +458,7 @@ extends BaseStatedHttpServiceClientTest {
             client.setStoredCredentials(credentials);
             final CompletableFuture futureAuthResult = new CompletableFuture<>();
             given(client.getAuthenticationOperation().execute(any(), any(), same(client))).willReturn(futureAuthResult);
-            final CompletableFuture<?> futureResult = client.authenticate();
+            final CompletableFuture<?> futureResult = client.authenticate().toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             final CredentialsInvalidException exception = new CredentialsInvalidException();
@@ -488,7 +488,7 @@ extends BaseStatedHttpServiceClientTest {
             willReturn(futureInitResult).given(client).ensureInitialized();
             final CompletableFuture futureAuthResult = new CompletableFuture<>();
             willReturn(futureAuthResult).given(client).authenticate();
-            final CompletableFuture<?> futureResult = client.ensureAuthenticated();
+            final CompletableFuture<?> futureResult = client.ensureAuthenticated().toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureInitialized();
@@ -517,7 +517,7 @@ extends BaseStatedHttpServiceClientTest {
         try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
             final CompletableFuture futureInitResult = new CompletableFuture<>();
             willReturn(futureInitResult).given(client).ensureInitialized();
-            final CompletableFuture<?> futureResult = client.ensureAuthenticated();
+            final CompletableFuture<?> futureResult = client.ensureAuthenticated().toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureInitialized();
@@ -543,7 +543,7 @@ extends BaseStatedHttpServiceClientTest {
         try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
             final CompletableFuture futureInitResult = new CompletableFuture<>();
             willReturn(futureInitResult).given(client).ensureInitialized();
-            final CompletableFuture<?> futureResult = client.ensureAuthenticated();
+            final CompletableFuture<?> futureResult = client.ensureAuthenticated().toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureInitialized();
@@ -571,7 +571,7 @@ extends BaseStatedHttpServiceClientTest {
             willReturn(futureInitResult).given(client).ensureInitialized();
             final CompletableFuture futureAuthResult = new CompletableFuture<>();
             willReturn(futureAuthResult).given(client).authenticate();
-            final CompletableFuture<?> futureResult = client.ensureAuthenticated();
+            final CompletableFuture<?> futureResult = client.ensureAuthenticated().toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureInitialized();
@@ -606,7 +606,7 @@ extends BaseStatedHttpServiceClientTest {
             willReturn(futureEnsureResult).given(client).ensureAuthenticated();
             final CompletableFuture futureOperationResult = new CompletableFuture<>();
             given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
-            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            final CompletableFuture<?> futureResult = client.execute(operation, params).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureAuthenticated();
@@ -639,7 +639,7 @@ extends BaseStatedHttpServiceClientTest {
         try (final BaseAuthenticableHttpServiceClient client = spy(createTestClient())) {
             final CompletableFuture futureEnsureResult = new CompletableFuture<>();
             willReturn(futureEnsureResult).given(client).ensureAuthenticated();
-            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            final CompletableFuture<?> futureResult = client.execute(operation, params).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureAuthenticated();
@@ -670,7 +670,7 @@ extends BaseStatedHttpServiceClientTest {
             willReturn(futureEnsureResult).given(client).ensureAuthenticated();
             final CompletableFuture futureOperationResult = new CompletableFuture<>();
             given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
-            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            final CompletableFuture<?> futureResult = client.execute(operation, params).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureAuthenticated();
@@ -707,7 +707,7 @@ extends BaseStatedHttpServiceClientTest {
             willReturn(futureEnsureResult).given(client).ensureAuthenticated();
             final CompletableFuture futureOperationResult = new CompletableFuture<>();
             given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
-            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            final CompletableFuture<?> futureResult = client.execute(operation, params).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureAuthenticated();
@@ -745,7 +745,7 @@ extends BaseStatedHttpServiceClientTest {
             willReturn(futureEnsureResult).given(client).ensureAuthenticated();
             final CompletableFuture futureOperationResult = new CompletableFuture<>();
             given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
-            final CompletableFuture<?> futureResult = client.execute(operation, params);
+            final CompletableFuture<?> futureResult = client.execute(operation, params).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureAuthenticated();
@@ -785,7 +785,7 @@ extends BaseStatedHttpServiceClientTest {
             willReturn(futureEnsureResult).given(client).ensureAuthenticated();
             final CompletableFuture futureOperationResult = new CompletableFuture<>();
             given(operation.execute(any(), any(), any())).willReturn(futureOperationResult);
-            final CompletableFuture<Object> futureResult = client.execute(operation, params);
+            final CompletableFuture<Object> futureResult = client.execute(operation, params).toCompletableFuture();
             assertNotNull(futureResult);
             assertFalse(futureResult.isDone());
             then(client).should().ensureAuthenticated();

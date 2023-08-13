@@ -22,7 +22,7 @@ package dev.orne.http.client.op;
  * #L%
  */
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.validation.constraints.NotNull;
 
@@ -58,7 +58,7 @@ extends StatusDependentOperation<P, R, S> {
      * failed
      */
     @Override
-    public CompletableFuture<R> execute(
+    public CompletionStage<R> execute(
             P params,
             @NotNull S status,
             @NotNull StatedHttpServiceClient<? extends S> client);

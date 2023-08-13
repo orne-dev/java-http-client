@@ -210,7 +210,7 @@ class ApacheHttpClientEngineTest {
                     uri,
                     method,
                     requestCustomizer,
-                    responseHandler);
+                    responseHandler).toCompletableFuture();
             then(requestCustomizer).should().customizeRequest(requestCaptor.capture());
             then(requestCustomizer).shouldHaveNoMoreInteractions();
             then(responseHandler).shouldHaveNoInteractions();
@@ -276,7 +276,7 @@ class ApacheHttpClientEngineTest {
                     uri,
                     method,
                     requestCustomizer,
-                    responseHandler);
+                    responseHandler).toCompletableFuture();
             then(requestCustomizer).should().customizeRequest(requestCaptor.capture());
             then(requestCustomizer).shouldHaveNoMoreInteractions();
             then(responseHandler).shouldHaveNoInteractions();

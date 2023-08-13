@@ -22,7 +22,8 @@ package dev.orne.http.client;
  * #L%
  */
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import javax.validation.constraints.NotNull;
 
 import dev.orne.http.client.op.StatusDependentOperation;
@@ -43,14 +44,14 @@ extends HttpServiceClient {
      * 
      * @return The client's status
      */
-    public @NotNull CompletableFuture<@NotNull S> ensureInitialized();
+    public @NotNull CompletionStage<@NotNull S> ensureInitialized();
 
     /**
      * Initializes client's status.
      * 
      * @return The new client status
      */
-    public @NotNull CompletableFuture<@NotNull S> initializeStatus();
+    public @NotNull CompletionStage<@NotNull S> initializeStatus();
 
     /**
      * Executes the specified status aware operation for this HTTP service
@@ -62,7 +63,7 @@ extends HttpServiceClient {
      * @param params The operation parameter
      * @return The operation execution's result
      */
-    public <P, R> @NotNull CompletableFuture<R> execute(
+    public <P, R> @NotNull CompletionStage<R> execute(
             final @NotNull StatusDependentOperation<P, R, ? super S> operation,
             final P params);
 

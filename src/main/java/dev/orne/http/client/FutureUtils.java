@@ -23,6 +23,7 @@ package dev.orne.http.client;
  */
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.validation.constraints.NotNull;
 
@@ -53,7 +54,7 @@ public final class FutureUtils {
      * @param t The failure cause.
      * @return The completed {@code CompletableFuture}.
      */
-    public static <R> @NotNull CompletableFuture<R> completableFailure(
+    public static <R> @NotNull CompletionStage<R> completableFailure(
             final @NotNull Throwable t) {
         final CompletableFuture<R> result = new CompletableFuture<>();
         result.completeExceptionally(t);

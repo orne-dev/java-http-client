@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.validation.constraints.NotNull;
 
@@ -106,7 +107,7 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    public <P, R> @NotNull CompletableFuture<R> execute(
+    public <P, R> @NotNull CompletionStage<R> execute(
             final @NotNull StatusDependentOperation<P, R, ? super S> operation,
             final P params) {
         return ensureInitialized().thenCompose(opStatus -> operation.execute(params, opStatus, this));
@@ -116,8 +117,8 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    public synchronized @NotNull CompletableFuture<@NotNull S> ensureInitialized() {
-        final CompletableFuture<@NotNull S> result;
+    public synchronized @NotNull CompletionStage<@NotNull S> ensureInitialized() {
+        final CompletionStage<@NotNull S> result;
         if (this.status == null) {
             result = initializeStatus();
         } else {
@@ -130,7 +131,7 @@ implements StatedHttpServiceClient<S> {
      * {@inheritDoc}
      */
     @Override
-    public synchronized @NotNull CompletableFuture<@NotNull S> initializeStatus() {
+    public synchronized @NotNull CompletionStage<@NotNull S> initializeStatus() {
         final Logger logger = LoggerFactory.getLogger(getClass());
         logger.debug("Initializing client status...");
         return this.statusInitOperation.execute(

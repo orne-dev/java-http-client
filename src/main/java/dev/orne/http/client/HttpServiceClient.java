@@ -24,7 +24,7 @@ package dev.orne.http.client;
 
 import java.io.Closeable;
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.validation.constraints.NotNull;
 
@@ -72,7 +72,7 @@ extends Closeable {
      * @param params The operation parameter
      * @return The operation execution's result
      */
-    <P, R> @NotNull CompletableFuture<R> execute(
+    <P, R> @NotNull CompletionStage<R> execute(
             @NotNull StatusIndependentOperation<P, R> operation,
             P params);
 }
