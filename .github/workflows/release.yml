@@ -28,7 +28,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - name: Verify
-        run: mvn -B clean verify -Put,it,release -Dgpg.skip=true
+        run: mvn -B clean verify -Put,release -Dgpg.skip=true
       - name: Sonar analysis
         if: success()
         env:

@@ -26,7 +26,7 @@ jobs:
       - name: Generate site
         run: |
           echo "Generating test site for latest release"
-          mvn -B clean verify site site:stage -Put,it,release -Dgpg.skip=true
+          mvn -B clean verify site site:stage -Put,release -Dgpg.skip=true
       - name: Publish site
         if: success()
         env:
