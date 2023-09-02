@@ -1,4 +1,4 @@
-package dev.orne.http.client.example;
+package dev.orne.http.client.example.ipify;
 
 /*-
  * #%L
@@ -39,6 +39,9 @@ import dev.orne.http.client.engine.apache.ApacheHttpClientEngine;
  * <p>
  * Requires access to {@linkplain https://www.ipify.org/}.
  * 
+ * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
+ * @version 1.0, 2023-08
+ * @since 0.1
  * @see IpifyClient
  * @see {@linkplain https://www.ipify.org/}
  */

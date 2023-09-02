@@ -1,4 +1,4 @@
-package dev.orne.http.client.example;
+package dev.orne.http.client.example.ipify;
 
 /*-
  * #%L
@@ -33,8 +33,11 @@ import dev.orne.http.client.BaseHttpServiceClient;
 import dev.orne.http.client.engine.HttpClientEngine;
 
 /**
- * Example {@code ipify} client.
+ * Example {@code Ipify} client.
  * 
+ * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
+ * @version 1.0, 2023-08
+ * @since 0.1
  * @see {@linkplain https://www.ipify.org/}
  */
 public class IpifyClient

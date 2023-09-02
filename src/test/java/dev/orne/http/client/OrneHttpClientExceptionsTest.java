@@ -50,6 +50,7 @@ import org.junit.jupiter.api.Test;
  * @see AuthenticationExpiredException
  * @see CredentialsInvalidException
  * @see CredentialsNotStoredException
+ * @see AuthorizationException
  */
 @Tag("ut")
 class OrneHttpClientExceptionsTest {
@@ -275,6 +276,19 @@ class OrneHttpClientExceptionsTest {
         assertFullException(new CredentialsNotStoredException(TEST_MESSAGE, TEST_CAUSE));
         assertFullException(new CredentialsNotStoredException(TEST_MESSAGE, TEST_CAUSE, false, false));
         assertTrue(AuthenticationRequiredException.class.isAssignableFrom(CredentialsNotStoredException.class));
+    }
+
+    /**
+     * Test for {@link AuthorizationException}.
+     */
+    @Test
+    void testAuthorizationException() {
+        assertEmptyException(new AuthorizationException());
+        assertMessageException(new AuthorizationException(TEST_MESSAGE));
+        assertCauseException(new AuthorizationException(TEST_CAUSE));
+        assertFullException(new AuthorizationException(TEST_MESSAGE, TEST_CAUSE));
+        assertFullException(new AuthorizationException(TEST_MESSAGE, TEST_CAUSE, false, false));
+        assertTrue(HttpClientException.class.isAssignableFrom(AuthorizationException.class));
     }
 
     /**

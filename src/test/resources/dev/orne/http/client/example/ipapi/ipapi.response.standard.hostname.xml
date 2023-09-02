@@ -1,0 +1,47 @@
+<result>
+    <ip>161.185.160.93</ip>
+    <hostname>example.org</hostname>
+    <type>ipv4</type>
+    <continent_code>NA</continent_code>
+    <continent_name>North America</continent_name>
+    <country_code>US</country_code>
+    <country_name>United States</country_name>
+    <region_code>NY</region_code>
+    <region_name>New York</region_name>
+    <city>Brooklyn</city>
+    <zip>11238</zip>
+    <latitude>40.676</latitude>
+    <longitude>-73.9629</longitude>
+    <location>
+        <geoname_id>5110302</geoname_id>
+        <capital>Washington D.C.</capital>
+        <languages>
+            <code>en</code>
+            <name>English</name>
+            <native>English</native>
+        </languages>
+        <country_flag>https://assets.ipapi.com/images/assets/flags_svg/us.svg</country_flag>
+        <country_flag_emoji>&#xD83C;&#xDDFA;&#xD83C;&#xDDF8;</country_flag_emoji>
+        <country_flag_emoji_unicode>U+1F1FA U+1F1F8</country_flag_emoji_unicode>
+        <calling_code>1</calling_code>
+        <is_eu/>
+      </location>
+      <time_zone>
+          <id>America/New_York</id>
+          <current_time>2018-09-24T08:27:07-04:00</current_time>
+          <gmt_offset>-14400</gmt_offset>
+          <code>EDT</code>
+          <is_daylight_saving>1</is_daylight_saving>
+      </time_zone>
+      <currency>
+          <code>USD</code>
+          <name>US Dollar</name>
+          <plural>US dollars</plural>
+          <symbol>$</symbol>
+          <symbol_native>$</symbol_native>
+      </currency>
+      <connection>
+          <asn>22252</asn>
+          <isp>The City of New York</isp>
+      </connection>
+</result>

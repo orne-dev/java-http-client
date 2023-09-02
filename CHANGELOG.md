@@ -6,6 +6,7 @@
     01. Added class `dev.orne.http.MediaTypes`
     01. Added class `dev.orne.http.ContentType`
     01. Added class `dev.orne.http.StatusCodes`
+    01. Added interface `dev.orne.http.UriBuilder`
 01. :gift: Added HTTP client engine abstraction system.
     01. Added interface `dev.orne.http.client.engine.HttpRequest`
     01. Added interface `dev.orne.http.client.engine.HttpResponse`
@@ -30,6 +31,7 @@
     01. Added exception `dev.orne.http.client.CredentialsInvalidException`
     01. Added exception `dev.orne.http.client.HttpResponseBodyParsingException`
     01. Added exception `dev.orne.http.client.UnsupportedContentTypeException`
+    01. Added exception `dev.orne.http.client.AuthorizationException`
     01. Added interface `dev.orne.http.client.HttpServiceClient`
     01. Added interface `dev.orne.http.client.StatedHttpServiceClient`
     01. Added interface `dev.orne.http.client.AuthenticableClientStatus`
@@ -58,6 +60,7 @@
     01. Added class `dev.orne.http.client.engine.apache.ApacheHttpResponse`
     01. Added class `dev.orne.http.client.engine.apache.ApacheHttpResponseBody`
     01. Added class `dev.orne.http.client.engine.apache.ApacheHttpClientEngine`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheUriBuilder`
 01. :gift: Added base abstract operation implementations.
     01. Added class `dev.orne.http.client.AbstractHttpServiceOperation`
     01. Added class `dev.orne.http.client.AbstractStatusIndependentOperation`

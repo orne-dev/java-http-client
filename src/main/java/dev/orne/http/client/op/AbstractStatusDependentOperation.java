@@ -193,7 +193,7 @@ implements StatusDependentOperation<P, R, S> {
      * @param entity The HTTP response entity.
      * @param response The HTTP response body.
      * @return The operation execution result.
-     * @throws HttpResponseHandlingException If an error occurs processing the
+     * @throws HttpClientException If an error occurs processing the
      * response.
      */
     protected abstract R processResponse(
@@ -201,7 +201,7 @@ implements StatusDependentOperation<P, R, S> {
             @NotNull S status,
             E entity,
             @NotNull HttpResponse response)
-    throws HttpResponseHandlingException;
+    throws HttpClientException;
 
     /**
      * Internal implementation of {@code OperationResponseHandler} for

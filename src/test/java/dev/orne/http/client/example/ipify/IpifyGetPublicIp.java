@@ -1,4 +1,4 @@
-package dev.orne.http.client.example;
+package dev.orne.http.client.example.ipify;
 
 /*-
  * #%L
@@ -38,8 +38,11 @@ import dev.orne.http.client.engine.HttpResponseBody;
 import dev.orne.http.client.op.AbstractStatusIndependentOperation;
 
 /**
- * Example operation of {@code ipify} "get public IP address as text" request.
+ * Example operation of {@code Ipify} "get public IP address as text" request.
  * 
+ * @author <a href="mailto:wamphiry@orne.dev">(w) Iker Hernaez</a>
+ * @version 1.0, 2023-08
+ * @since 0.1
  * @see {@linkplain https://www.ipify.org/}
  */
 public class IpifyGetPublicIp
