@@ -159,15 +159,6 @@ public class ContentType {
     }
 
     /**
-     * Returns {@code true} if the content type consists in multiple parts.
-     * 
-     * @return {@code true} if the content type consists in multiple parts.
-     */
-    public boolean isMultipart() {
-        return MediaTypes.isMultipart(this.mediaType);
-    }
-
-    /**
      * Returns the content charset.
      * 
      * @return The content charset.

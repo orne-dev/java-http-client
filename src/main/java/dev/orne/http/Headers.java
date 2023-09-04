@@ -43,7 +43,7 @@ public final class Headers {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since HttpHeaders 1.0
+     * @since 0.1
      */
     public static final class Request {
 
@@ -564,7 +564,7 @@ public final class Headers {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since HttpHeaders 1.0
+     * @since 0.1
      */
     public static final class Response {
 

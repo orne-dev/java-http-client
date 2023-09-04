@@ -144,7 +144,7 @@ public final class MediaTypes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since MediaTypes 1.0
+     * @since 0.1
      */
     public static final class Application {
 
@@ -222,7 +222,7 @@ public final class MediaTypes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since MediaTypes 1.0
+     * @since 0.1
      */
     public static final class Audio {
 
@@ -244,7 +244,7 @@ public final class MediaTypes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since MediaTypes 1.0
+     * @since 0.1
      */
     public static final class Font {
 
@@ -268,7 +268,7 @@ public final class MediaTypes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since MediaTypes 1.0
+     * @since 0.1
      */
     public static final class Image {
 
@@ -291,7 +291,7 @@ public final class MediaTypes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since MediaTypes 1.0
+     * @since 0.1
      */
     public static final class Multipart {
 
@@ -317,7 +317,7 @@ public final class MediaTypes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since MediaTypes 1.0
+     * @since 0.1
      */
     public static final class Text {
 
@@ -354,7 +354,7 @@ public final class MediaTypes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since MediaTypes 1.0
+     * @since 0.1
      */
     public static final class Video {
 

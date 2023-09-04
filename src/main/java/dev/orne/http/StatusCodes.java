@@ -224,7 +224,7 @@ public class StatusCodes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since StatusCodes 1.0
+     * @since 0.1
      */
     @API(status = API.Status.EXPERIMENTAL, since = "0.1")
     public static final class Experimental {
@@ -262,7 +262,7 @@ public class StatusCodes {
      * 
      * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
      * @version 1.0, 2023-06
-     * @since StatusCodes 1.0
+     * @since 0.1
      */
     @API(status = API.Status.EXPERIMENTAL, since = "0.1")
     public static final class WebDav {
