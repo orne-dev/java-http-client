@@ -1,5 +1,7 @@
 # :package: 0.1.0
 
+## http-client-core
+
 01. :gift: Added HTTP utility classes.
     01. Added class `dev.orne.http.Methods`
     01. Added class `dev.orne.http.Headers`
@@ -53,14 +55,6 @@
     01. Added class `dev.orne.http.client.BaseHttpServiceClient`
     01. Added class `dev.orne.http.client.BaseStatedHttpServiceClient`
     01. Added class `dev.orne.http.client.BaseAuthenticableHttpServiceClient`
-01. Added Apache HTTP Client 5.x based HTTP client engine.
-    01. Added class `dev.orne.http.client.engine.apache.ApacheCookie`
-    01. Added class `dev.orne.http.client.engine.apache.ApacheCookieStore`
-    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpRequest`
-    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpResponse`
-    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpResponseBody`
-    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpClientEngine`
-    01. Added class `dev.orne.http.client.engine.apache.ApacheUriBuilder`
 01. :gift: Added base abstract operation implementations.
     01. Added class `dev.orne.http.client.AbstractHttpServiceOperation`
     01. Added class `dev.orne.http.client.AbstractStatusIndependentOperation`
@@ -80,3 +74,14 @@
     01. Added class `dev.orne.http.ContentTypeGenerator`
     01. Added class `dev.orne.http.client.DefaultCookieGenerator`
     01. Added class `dev.orne.http.client.engine.apache.ApacheCookieGenerator`
+
+## http-client-apache
+
+01. Added Apache HTTP Client 5.x based HTTP client engine.
+    01. Added class `dev.orne.http.client.engine.apache.ApacheCookie`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheCookieStore`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpRequest`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpResponse`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpResponseBody`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheHttpClientEngine`
+    01. Added class `dev.orne.http.client.engine.apache.ApacheUriBuilder`

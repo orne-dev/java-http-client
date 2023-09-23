@@ -1,0 +1,27 @@
+# HTTP services client engine based on Apache HTTP client
+
+## Usage
+
+This module provides a HTTP client engine implementation based on
+[Apache HTTP Client][apache http client] to be included in the class-path
+when using HTTP service clients.
+
+Supports Java 8 and above.
+
+```xml
+<project ...>
+...
+  <dependencies>
+    ...
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>${project.artifactId}</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    ...
+  <dependencies>
+...
+</project>
+```
+
+[apache http client]: https://hc.apache.org/httpcomponents-client-ga/

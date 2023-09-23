@@ -49,6 +49,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import dev.orne.http.UriBuilder;
 import dev.orne.test.rnd.Generators;
 import dev.orne.test.rnd.params.GenerationParameters;
 
@@ -75,6 +76,16 @@ class ApacheUriBuilderTest {
     }
 
     /**
+     * Test for {@link UriBuilder#create()}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testSPI()
+    throws Throwable {
+        assertInstanceOf(ApacheUriBuilder.class, UriBuilder.create());
+    }
+
+    /**
      * Test for {@link ApacheUriBuilder#ApacheUriBuilder(URIBuilder)}.
      * @throws Throwable Should not happen
      */
@@ -82,8 +93,8 @@ class ApacheUriBuilderTest {
     void testConstructor()
     throws Throwable {
         assertThrows(NullPointerException.class, () -> new ApacheUriBuilder(null));
-        final ApacheUriBuilder cookie = new ApacheUriBuilder(delegate);
-        assertEquals(delegate, cookie.getDelegate());
+        final ApacheUriBuilder builder = new ApacheUriBuilder(delegate);
+        assertEquals(delegate, builder.getDelegate());
         then(delegate).shouldHaveNoInteractions();
     }
 

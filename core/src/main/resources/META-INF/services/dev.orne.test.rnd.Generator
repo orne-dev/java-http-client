@@ -1,3 +1,2 @@
 dev.orne.http.ContentTypeGenerator
 dev.orne.http.client.cookie.DefaultCookieGenerator
-dev.orne.http.client.engine.apache.ApacheCookieGenerator
