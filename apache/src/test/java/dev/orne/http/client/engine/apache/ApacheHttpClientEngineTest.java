@@ -21,9 +21,22 @@ package dev.orne.http.client.engine.apache;
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
  * #L%
  */
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -55,6 +68,7 @@ import org.mockito.MockitoAnnotations;
 
 import dev.orne.http.Methods;
 import dev.orne.http.client.HttpClientException;
+import dev.orne.http.client.engine.HttpClientEngine;
 import dev.orne.http.client.engine.HttpRequest;
 import dev.orne.http.client.engine.HttpRequestCustomizer;
 import dev.orne.http.client.engine.HttpResponse;
@@ -87,6 +101,16 @@ class ApacheHttpClientEngineTest {
 
     @AfterEach public void releaseMocks() throws Exception {
         this.mocks.close();
+    }
+
+    /**
+     * Test for {@link HttpClientEngine#fromSpi()}.
+     * @throws Throwable Should not happen
+     */
+    @Test
+    void testSPI()
+    throws Throwable {
+        assertInstanceOf(ApacheHttpClientEngine.class, HttpClientEngine.fromSpi());
     }
 
     /**

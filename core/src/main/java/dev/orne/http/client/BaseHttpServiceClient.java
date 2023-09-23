@@ -56,6 +56,39 @@ implements HttpServiceClient {
      * <p>
      * The base URI must be absolute, as is used to resolve
      * relative URIs of operations.
+     * <p>
+     * The HTTP engine to use is loaded through SPI.
+     * 
+     * @param baseURI The HTTP service's base URI.
+     * @see HttpClientEngine#fromSpi()
+     */
+    public BaseHttpServiceClient(
+            final @NotNull URI baseURI) {
+        this(HttpClientEngine.fromSpi(), baseURI);
+    }
+
+    /**
+     * Creates a new instance.
+     * <p>
+     * The base URL, must be absolute, as is used to resolve
+     * relative URIs of operations.
+     * <p>
+     * The HTTP engine to use is loaded through SPI.
+     * 
+     * @param baseURL The HTTP service's base URL.
+     * @throws URISyntaxException If the provided base URL is not a valid URI.
+     */
+    public BaseHttpServiceClient(
+            final @NotNull URL baseURL)
+    throws URISyntaxException {
+        this(HttpClientEngine.fromSpi(), baseURL);
+    }
+
+    /**
+     * Creates a new instance.
+     * <p>
+     * The base URI must be absolute, as is used to resolve
+     * relative URIs of operations.
      * 
      * @param engine The HTTP client engine.
      * @param baseURI The HTTP service's base URI.

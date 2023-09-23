@@ -57,10 +57,50 @@ implements StatedHttpServiceClient<S> {
 
     /**
      * Creates a new instance.
+     * <p>
+     * The base URI must be absolute, as is used to resolve
+     * relative URIs of operations.
+     * <p>
+     * The HTTP engine to use is loaded through SPI.
+     * 
+     * @param baseURI The HTTP service's base URI.
+     * @param statusInitOperation The status initialization operation.
+     * @see HttpClientEngine#fromSpi()
+     */
+    public BaseStatedHttpServiceClient(
+            final @NotNull URI baseURI,
+            final @NotNull StatusInitOperation<S> statusInitOperation) {
+        this(HttpClientEngine.fromSpi(), baseURI, statusInitOperation);
+    }
+
+    /**
+     * Creates a new instance.
+     * <p>
+     * The base URL, must be absolute, as is used to resolve
+     * relative URIs of operations.
+     * <p>
+     * The HTTP engine to use is loaded through SPI.
+     * 
+     * @param baseURL The HTTP service's base URL.
+     * @param statusInitOperation The status initialization operation.
+     * @throws URISyntaxException If the provided base URL is not a valid URI.
+     */
+    public BaseStatedHttpServiceClient(
+            final @NotNull URL baseURL,
+            final @NotNull StatusInitOperation<S> statusInitOperation)
+    throws URISyntaxException {
+        this(HttpClientEngine.fromSpi(), baseURL, statusInitOperation);
+    }
+
+    /**
+     * Creates a new instance.
+     * <p>
+     * The base URI must be absolute, as is used to resolve
+     * relative URIs of operations.
      * 
      * @param engine The HTTP client engine.
-     * @param baseURI The HTTP service's base URI
-     * @param statusInitOperation The status initialization operation
+     * @param baseURI The HTTP service's base URI.
+     * @param statusInitOperation The status initialization operation.
      */
     public BaseStatedHttpServiceClient(
             final @NotNull HttpClientEngine engine,
@@ -80,7 +120,7 @@ implements StatedHttpServiceClient<S> {
      * 
      * @param engine The HTTP client engine.
      * @param baseURL The HTTP service's base URL.
-     * @param statusInitOperation The status initialization operation
+     * @param statusInitOperation The status initialization operation.
      * @throws URISyntaxException If the provided base URL is not a valid URI.
      */
     public BaseStatedHttpServiceClient(

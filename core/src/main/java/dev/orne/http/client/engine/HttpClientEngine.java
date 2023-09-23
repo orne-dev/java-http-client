@@ -24,6 +24,8 @@ package dev.orne.http.client.engine;
 
 import java.io.Closeable;
 import java.net.URI;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 import java.util.concurrent.CompletionStage;
 
 import javax.validation.constraints.NotNull;
@@ -63,4 +65,26 @@ extends Closeable {
             @NotNull HttpRequestCustomizer requestCustomizer,
             @NotNull HttpResponseHandler responseHandler)
     throws HttpClientException;
+
+    /**
+     * Returns the first HTTP client engine declared through file
+     * {@code META-INF/services/dev.orne.http.client.engine.HttpClientEngine}
+     * <p>
+     * Note that if multiple HTTP client engine implementations are in the
+     * class-path the first implementation instantiated by
+     * {@code ServiceLoader} will be returned. To choose a specific engine
+     * when multiple implementations are available use client's constructor
+     * that accepts a engine as argument.
+     * 
+     * @return The HTTP client engine to use.
+     */
+    static @NotNull HttpClientEngine fromSpi() {
+        final ServiceLoader<HttpClientEngine> loader = ServiceLoader.load(HttpClientEngine.class);
+        final Iterator<HttpClientEngine> iterator = loader.iterator();
+        if (iterator.hasNext()) {
+            return iterator.next();
+        } else {
+            throw new IllegalStateException("No HTTP service client engine in classpath");
+        }
+    }
 }

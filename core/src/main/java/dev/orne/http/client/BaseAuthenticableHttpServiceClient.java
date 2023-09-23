@@ -67,10 +67,52 @@ implements AuthenticableHttpServiceClient<S, C> {
 
     /**
      * Creates a new instance.
+     * <p>
+     * The base URI must be absolute, as is used to resolve
+     * relative URIs of operations.
+     * <p>
+     * The HTTP engine to use is loaded through SPI.
+     * 
+     * @param baseURI The HTTP service's base URI.
+     * @param statusInitOperation The status initialization operation.
+     * @param authenticationOperation The authentication operation.
+     * @see HttpClientEngine#fromSpi()
+     */
+    public BaseAuthenticableHttpServiceClient(
+            final @NotNull URI baseURI,
+            final @NotNull StatusInitOperation<S> statusInitOperation,
+            final @NotNull AuthenticationOperation<C, ?, S> authenticationOperation) {
+        this(HttpClientEngine.fromSpi(), baseURI, statusInitOperation, authenticationOperation);
+    }
+
+    /**
+     * Creates a new instance.
+     * <p>
+     * The base URL, must be absolute, as is used to resolve
+     * relative URIs of operations.
+     * <p>
+     * The HTTP engine to use is loaded through SPI.
+     * 
+     * @param baseURL The HTTP service's base URL.
+     * @param statusInitOperation The status initialization operation.
+     * @param authenticationOperation The authentication operation.
+     * @throws URISyntaxException If the provided base URL is not a valid URI.
+     */
+    public BaseAuthenticableHttpServiceClient(
+            final @NotNull URL baseURL,
+            final @NotNull StatusInitOperation<S> statusInitOperation,
+            final @NotNull AuthenticationOperation<C, ?, S> authenticationOperation)
+    throws URISyntaxException {
+        this(HttpClientEngine.fromSpi(), baseURL, statusInitOperation, authenticationOperation);
+    }
+
+    /**
+     * Creates a new instance.
      * 
      * @param engine The HTTP client engine.
      * @param baseURI The HTTP service's base URI
-     * @param statusInitOperation The status initialization operation
+     * @param statusInitOperation The status initialization operation.
+     * @param authenticationOperation The authentication operation.
      */
     public BaseAuthenticableHttpServiceClient(
             final @NotNull HttpClientEngine engine,
@@ -91,7 +133,8 @@ implements AuthenticableHttpServiceClient<S, C> {
      * 
      * @param engine The HTTP client engine.
      * @param baseURL The HTTP service's base URL.
-     * @param statusInitOperation The status initialization operation
+     * @param statusInitOperation The status initialization operation.
+     * @param authenticationOperation The authentication operation.
      * @throws URISyntaxException If the provided base URL is not a valid URI.
      */
     public BaseAuthenticableHttpServiceClient(

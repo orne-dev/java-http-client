@@ -15,7 +15,7 @@
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>HTTP services client Apache HTTP Client engine</name>
+  <name>HTTP services client Apache engine</name>
   <description>Orne HTTP services client engine based on Apache HTTP Client.</description>
   <inceptionYear>2020</inceptionYear>
   <url>${github.page.url}apache/</url>
