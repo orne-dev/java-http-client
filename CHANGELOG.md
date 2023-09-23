@@ -1,6 +1,6 @@
-# :package: 0.1.0
+# 0.1.0
 
-## http-client-core
+## :package: http-client-core
 
 01. :gift: Added HTTP utility classes.
     01. Added class `dev.orne.http.Methods`
@@ -75,7 +75,7 @@
     01. Added class `dev.orne.http.client.DefaultCookieGenerator`
     01. Added class `dev.orne.http.client.engine.apache.ApacheCookieGenerator`
 
-## http-client-apache
+## :package: http-client-apache
 
 01. Added Apache HTTP Client 5.x based HTTP client engine.
     01. Added class `dev.orne.http.client.engine.apache.ApacheCookie`

@@ -42,6 +42,7 @@
     <github.project.id>java-http-client</github.project.id>
     <sonar.projectKey>orne-dev_http-client</sonar.projectKey>
 
+    <it.skip>true</it.skip>
     <install.skip>true</install.skip>
     <deploy.skip>true</deploy.skip>
   </properties>
@@ -63,5 +64,24 @@
       <url>${project.url}</url>
     </site>
   </distributionManagement>
+
+  <profiles>
+    <profile>
+      <id>it</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <configuration>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <skipInstallation>${it.skip}</skipInstallation>
+              <skipInvocation>${it.skip}</skipInvocation>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

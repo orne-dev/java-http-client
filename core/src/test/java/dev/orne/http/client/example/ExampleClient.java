@@ -30,46 +30,38 @@ import javax.validation.constraints.NotNull;
 
 import dev.orne.http.client.BaseAuthenticableHttpServiceClient;
 import dev.orne.http.client.engine.HttpClientEngine;
-import dev.orne.http.client.example.ExampleAuthenticationOperation.Credentials;
-import dev.orne.http.client.op.AuthenticationOperation;
-import dev.orne.http.client.op.StatusInitOperation;
 
 public class ExampleClient
 extends BaseAuthenticableHttpServiceClient<
         ExampleStatus,
         ExampleAuthenticationOperation.Credentials> {
 
+    private static final ExampleStatusInitOperation initOp =
+            new ExampleStatusInitOperation();
+    private static final ExampleAuthenticationOperation authOp =
+            new ExampleAuthenticationOperation();
+
+    public ExampleClient(
+            @NotNull URI baseURI) {
+        super(baseURI, initOp, authOp);
+    }
+
+    public ExampleClient(
+            @NotNull URL baseURL)
+            throws URISyntaxException {
+        super(baseURL, initOp, authOp);
+    }
+
     public ExampleClient(
             @NotNull HttpClientEngine engine,
             @NotNull URI baseURI) {
-        this(engine, baseURI,
-                new ExampleStatusInitOperation(),
-                new ExampleAuthenticationOperation());
+        super(engine, baseURI, initOp, authOp);
     }
 
     public ExampleClient(
             @NotNull HttpClientEngine engine,
             @NotNull URL baseURL)
             throws URISyntaxException {
-        this(engine, baseURL,
-                new ExampleStatusInitOperation(),
-                new ExampleAuthenticationOperation());
-    }
-
-    protected ExampleClient(
-            @NotNull HttpClientEngine engine,
-            @NotNull URI baseURI,
-            @NotNull StatusInitOperation<ExampleStatus> statusInitOperation,
-            @NotNull AuthenticationOperation<Credentials, ?, ExampleStatus> authenticationOperation) {
-        super(engine, baseURI, statusInitOperation, authenticationOperation);
-    }
-
-    protected ExampleClient(
-            @NotNull HttpClientEngine engine,
-            @NotNull URL baseURL,
-            @NotNull StatusInitOperation<ExampleStatus> statusInitOperation,
-            @NotNull AuthenticationOperation<Credentials, ?, ExampleStatus> authenticationOperation)
-            throws URISyntaxException {
-        super(engine, baseURL, statusInitOperation, authenticationOperation);
+        super(engine, baseURL, initOp, authOp);
     }
 }
