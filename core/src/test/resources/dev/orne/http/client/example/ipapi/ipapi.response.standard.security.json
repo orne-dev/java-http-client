@@ -1,0 +1,82 @@
+/*-
+ * #%L
+ * Orne HTTP Client
+ * %%
+ * Copyright (C) 2020 - 2023 Orne Developments
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Lesser Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+ * #L%
+ */
+{
+    "ip": "161.185.160.93",
+    "type": "ipv4",
+    "continent_code": "NA",
+    "continent_name": "North America",
+    "country_code": "US",
+    "country_name": "United States",
+    "region_code": "NY",
+    "region_name": "New York",
+    "city": "Brooklyn",
+    "zip": "11238",
+    "latitude": 40.676,
+    "longitude": -73.9629,
+    "location": {
+        "geoname_id": 5110302,
+        "capital": "Washington D.C.",
+        "languages": [
+            {
+                "code": "en",
+                "name": "English",
+                "native": "English"
+            }
+        ],
+        "country_flag": "http://assets.ipapi.com/flags/us.svg",
+        "country_flag_emoji": "\uD83C\uDDFA\uD83C\uDDF8",
+        "country_flag_emoji_unicode": "U+1F1FA U+1F1F8",
+        "calling_code": "1",
+        "is_eu": false
+    },
+    "time_zone": {
+        "id": "America/New_York",
+        "current_time": "2018-09-24T05:07:10-04:00",
+        "gmt_offset": -14400,
+        "code": "EDT",
+        "is_daylight_saving": true
+    },
+    "currency": {
+        "code": "USD",
+        "name": "US Dollar",
+        "plural": "US dollars",
+        "symbol": "$",
+        "symbol_native": "$"
+    },
+    "connection": {
+        "asn": 22252,
+        "isp": "The City of New York"
+    },
+    "security": {
+        "is_proxy": false,
+        "proxy_type": null,
+        "is_crawler": false,
+        "crawler_name": null,
+        "crawler_type": null,
+        "is_tor": false,
+        "threat_level": "high",
+        "threat_types": [
+            "attack_source",
+            "attack_source_mail"
+        ]
+    }
+}

@@ -1,8 +1,0 @@
-{
-    "success": false,
-    "error": {
-        "code": 104,
-        "type": "usage_limit_reached",
-        "info": "Your monthly API request volume has been reached. Please upgrade your plan."
-    }
-}

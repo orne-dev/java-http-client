@@ -40,10 +40,23 @@
     </fluidoSkin>
   </custom>
   <body>
+    <head><![CDATA[
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.4.0/dist/mermaid.esm.min.mjs';
+      mermaid.init({ startOnLoad: true });
+      document.querySelectorAll('.language-mermaid').forEach(s => s.parentElement.classList.remove("prettyprint"));
+      await mermaid.run({
+        querySelector: '.language-mermaid',
+        suppressErrors: true,
+      });
+    </script>
+    ]]></head>
     <menu name="Overview">
       <item name="Introduction" href="index.html"/>
     </menu>
-    <menu ref="modules" inherit="bottom" />
+    <menu name="Parent project">
+      <item name="HTTP services client" href="../index.html"/>
+    </menu>
     <menu ref="reports" inherit="bottom" />
   </body>
 </project>

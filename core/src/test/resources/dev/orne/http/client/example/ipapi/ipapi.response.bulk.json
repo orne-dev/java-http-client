@@ -1,0 +1,63 @@
+/*-
+ * #%L
+ * Orne HTTP Client
+ * %%
+ * Copyright (C) 2020 - 2023 Orne Developments
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Lesser Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+ * #L%
+ */
+{
+    "ip": "161.185.160.93",
+    "type": "ipv4",
+    "continent_code": "NA",
+    "continent_name": "North America",
+    "country_code": "US",
+    "country_name": "United States",
+    "region_code": "NY",
+    "region_name": "New York",
+    "city": "Brooklyn",
+    "zip": "11238",
+    "latitude": 40.676,
+    "longitude": -73.9629,
+},
+{
+    "ip": "161.185.160.93",
+    "type": "ipv4",
+    "continent_code": "EU",
+    "continent_name": "Europe",
+    "country_code": "ES",
+    "country_name": "Spain",
+    "region_code": "GA",
+    "region_name": "Galicia",
+    "city": "Santiago de Compostela",
+    "zip": "15781",
+    "latitude": 42.88,
+    "longitude": -8.5448,
+},
+{
+    "ip": "210.138.184.59",
+    "type": "ipv4",
+    "continent_code": "AS",
+    "continent_name": "Asia",
+    "country_code": "JP",
+    "country_name": "Japan",
+    "region_code": "13",
+    "region_name": "Tokyo",
+    "city": "Tokyo",
+    "zip": "102-0082",
+    "latitude": 35.685,
+    "longitude": 139.7514,
+}
