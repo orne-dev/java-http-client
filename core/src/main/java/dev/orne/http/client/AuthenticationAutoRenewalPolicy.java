@@ -45,7 +45,7 @@ public interface AuthenticationAutoRenewalPolicy {
      * execution of the requested operations.
      * 
      * @param <R> The operation result type.
-     * @param <R> The client status type.
+     * @param <S> The client status type.
      * @param doAuthenticate The authentication operation execution lamda.
      * @param doOperation The post authenticated operation(s) execution lamda.
      * @param result The result future to update the results into.

@@ -32,7 +32,6 @@ import dev.orne.http.client.engine.HttpRequest;
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-06
- * @param <E> The HTTP response body entity type.
  * @since 0.1
  */
 public interface HttpRequestBodyProducer {

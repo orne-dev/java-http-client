@@ -54,8 +54,9 @@ extends StatusDependentOperation<P, R, S> {
 
     /**
      * {@inheritDoc}
-     * @throws AuthenticationFailedException If the authentication attempt
-     * failed
+     * <p>
+     * If the authentication operation fails the returned future rejects
+     * with an {@link AuthenticationFailedException} exception.
      */
     @Override
     public CompletionStage<R> execute(

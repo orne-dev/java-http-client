@@ -45,6 +45,13 @@ public abstract class AbstractHttpResponseBodyMediaTypeParser<E>
 implements HttpResponseBodyMediaTypeParser<E> {
 
     /**
+     * Creates a new instance.
+     */
+    protected AbstractHttpResponseBodyMediaTypeParser() {
+        super();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

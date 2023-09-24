@@ -151,6 +151,13 @@ public interface Cookie {
      */
     boolean isHttpOnly();
 
+    /**
+     * Validation constraint for cookie names.
+     * 
+     * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+     * @version 1.0, 2023-06
+     * @since 0.1
+     */
     @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
     @Retention(RUNTIME)
     @Documented
@@ -171,13 +178,35 @@ public interface Cookie {
         public static final String REGEXP =
                 "^[^" + INVALID_CHARACTER + "]*$";
 
+        /**
+         * Returns the error message template.
+         * 
+         * @return The error message template.
+         */
         String message() default "{dev.orne.http.client.cookie.Cookie.CookieName.message}";
 
+        /**
+         * Returns the groups the constraint belongs to.
+         * 
+         * @return The groups the constraint belongs to.
+         */
         Class<?>[] groups() default { };
 
+        /**
+         * Returns the payload associated to the constraint.
+         * 
+         * @return The payload associated to the constraint.
+         */
         Class<? extends Payload>[] payload() default { };
     }
 
+    /**
+     * Validation constraint for cookie values.
+     * 
+     * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
+     * @version 1.0, 2023-06
+     * @since 0.1
+     */
     @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
     @Retention(RUNTIME)
     @Documented
@@ -192,10 +221,25 @@ public interface Cookie {
         public static final String REGEXP =
                 "^([^" + INVALID_CHARACTER + "]*|\\\"[^" + INVALID_CHARACTER + "]*\\\")$";
 
+        /**
+         * Returns the error message template.
+         * 
+         * @return The error message template.
+         */
         String message() default "{dev.orne.http.client.cookie.Cookie.CookieName.message}";
 
+        /**
+         * Returns the groups the constraint belongs to.
+         * 
+         * @return The groups the constraint belongs to.
+         */
         Class<?>[] groups() default { };
 
+        /**
+         * Returns the payload associated to the constraint.
+         * 
+         * @return The payload associated to the constraint.
+         */
         Class<? extends Payload>[] payload() default { };
     }
 }

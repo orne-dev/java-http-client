@@ -44,8 +44,8 @@ public interface CookieStore {
      * If the given cookie has already expired it will not be added, but
      * existing values will still be removed.
      * 
-     * @param The cookie to be added.
-     * @throws If an error occurs storing the cookie.
+     * @param cookie The cookie to be added.
+     * @throws HttpClientException If an error occurs storing the cookie.
      */
     void addCookie(
             @NotNull Cookie cookie)
@@ -55,7 +55,7 @@ public interface CookieStore {
      * Returns all cookies contained in this store.
      * 
      * @return All cookies contained in this store.
-     * @throws If an error occurs retrieving the cookies.
+     * @throws HttpClientException If an error occurs retrieving the cookies.
      */
     @NotNull Collection<Cookie> getCookies()
     throws HttpClientException;
@@ -63,8 +63,9 @@ public interface CookieStore {
     /**
      * Returns the stored cookie with the specified name, if any.
      * 
+     * @param name The cookie name.
      * @return The stored cookie, or {@code null} if not found.
-     * @throws If an error occurs retrieving the cookies.
+     * @throws HttpClientException If an error occurs retrieving the cookies.
      */
     default Cookie getCookie(
             @NotNull String name)

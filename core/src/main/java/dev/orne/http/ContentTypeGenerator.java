@@ -75,6 +75,13 @@ extends AbstractTypedGenerator<ContentType> {
     }
 
     /**
+     * Creates a new instance.
+     */
+    public ContentTypeGenerator() {
+        super();
+    }
+
+    /**
      * Scans the {@code static final String} constants of the specified class.
      * 
      * @param type The class to scan for {@code String} constants.

@@ -40,6 +40,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apiguardian.api.API;
 
 /**
+ * Interface for builders of URIs.
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-09
@@ -49,6 +50,8 @@ public interface UriBuilder {
 
     /**
      * Creates a new empty instance.
+     * 
+     * @return The created URI builder.
      */
     static @NotNull UriBuilder create() {
         return FactoryLoader.getFactory().create();
@@ -58,6 +61,7 @@ public interface UriBuilder {
      * Creates a new instance from the string which must be a valid URI.
      *
      * @param uri A valid URI in string form.
+     * @return The created URI builder.
      * @throws URISyntaxException If the input is not a valid URI.
      */
     static @NotNull UriBuilder create(
@@ -71,6 +75,7 @@ public interface UriBuilder {
      *
      * @param uri A valid URI in string form.
      * @param charset The encoding of the encoded parts of the URI.
+     * @return The created URI builder.
      * @throws URISyntaxException If the input is not a valid URI.
      */
     static @NotNull UriBuilder create(
@@ -86,6 +91,7 @@ public interface UriBuilder {
      * Creates a new instance from the provided URI.
      * 
      * @param uri A starting URI.
+     * @return The created URI builder.
      */
     static @NotNull UriBuilder create(
             @NotNull URI uri) {
@@ -97,6 +103,7 @@ public interface UriBuilder {
      * 
      * @param uri A starting URI.
      * @param charset The encoding of the encoded parts of the URI.
+     * @return The created URI builder.
      */
     static @NotNull UriBuilder create(
             @NotNull URI uri,
@@ -452,6 +459,8 @@ public interface UriBuilder {
 
         /**
          * Creates a new empty instance.
+         * 
+         * @return The created URI builder.
          */
         @NotNull UriBuilder create();
 
@@ -460,6 +469,7 @@ public interface UriBuilder {
          *
          * @param uri A valid URI in string form.
          * @param charset The encoding of the encoded parts of the URI.
+         * @return The created URI builder.
          * @throws URISyntaxException If the input is not a valid URI.
          */
         @NotNull UriBuilder create(
@@ -472,6 +482,7 @@ public interface UriBuilder {
          * 
          * @param uri A starting URI.
          * @param charset The encoding of the encoded parts of the URI.
+         * @return The created URI builder.
          */
         @NotNull UriBuilder create(
                 @NotNull URI uri,

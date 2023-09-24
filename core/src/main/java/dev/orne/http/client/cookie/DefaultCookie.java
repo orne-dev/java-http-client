@@ -75,8 +75,8 @@ implements Cookie, Serializable {
     /**
      * Creates a new instance.
      * 
-     * @param name
-     * @param value
+     * @param name The cookie name.
+     * @param value The cookie value.
      */
     public DefaultCookie(
             final @NotNull String name,
@@ -127,7 +127,7 @@ implements Cookie, Serializable {
     /**
      * Sets the max age, in seconds, of the cookie.
      * 
-     * @param expiryTime The cookie's expiration instant.
+     * @param maxAge The max age, in seconds.
      */
     public void setMaxAge(
             final long maxAge) {

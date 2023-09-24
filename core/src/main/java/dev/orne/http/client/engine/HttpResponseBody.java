@@ -84,8 +84,6 @@ public interface HttpResponseBody {
      * <p>
      * The calling method is responsible of closing the reader.
      * 
-     * @param type The HTTP response body content type.
-     * @param is The HTTP response body stream.
      * @return The created reader.
      * @throws HttpResponseHandlingException If an error occurs retrieving
      * the response body content.

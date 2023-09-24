@@ -81,18 +81,18 @@ extends HttpClientException {
 
     /**
      * Constructs a new exception with the specified cause and a detail
-     * message of <tt>(cause==null ? null : cause.toString())</tt> (which
-     * typically contains the class and detail message of <tt>cause</tt>).
+     * message of {@code (cause==null ? null : cause.toString())} (which
+     * typically contains the class and detail message of {@code cause}).
      * This constructor is useful for exceptions that are little more than
      * wrappers for other throwables (for example, {@link
      * java.security.PrivilegedActionException}).
      *
-     * @param   statusCode      The HTTP response's status code.
-     * @param   statusReason    The HTTP response's status reason phrase.
-     * @param   cause           The cause (which is saved for later retrieval
-     *          by the {@link #getCause()} method).  (A <tt>null</tt> value is
-     *          permitted, and indicates that the cause is nonexistent or
-     *          unknown.)
+     * @param  statusCode      The HTTP response's status code.
+     * @param  statusReason    The HTTP response's status reason phrase.
+     * @param  cause The cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A {@code null} value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
      */
     public HttpResponseStatusException(
             final int statusCode,
@@ -107,18 +107,19 @@ extends HttpClientException {
 
     /**
      * Constructs a new exception with the specified detail message and
-     * cause.  <p>Note that the detail message associated with
-     * {@code cause} is <i>not</i> automatically incorporated in
-     * this exception's detail message.
+     * cause.
+     * <p>
+     * Note that the detail message associated with {@code cause} is
+     * not automatically incorporated in this exception's detail message.
      *
-     * @param   statusCode      The HTTP response's status code.
-     * @param   statusReason    The HTTP response's status reason phrase.
-     * @param   message         The detail message (which is saved for later
-     *          retrieval by the {@link #getMessage()} method).
-     * @param   cause           The cause (which is saved for later retrieval
-     *          by the {@link #getCause()} method).  (A <tt>null</tt> value is
-     *          permitted, and indicates that the cause is nonexistent or
-     *          unknown.)
+     * @param  statusCode      The HTTP response's status code.
+     * @param  statusReason    The HTTP response's status reason phrase.
+     * @param  message the detail message (which is saved for later retrieval
+     *         by the {@link #getMessage()} method).
+     * @param  cause The cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A {@code null} value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
      */
     public HttpResponseStatusException(
             final int statusCode,

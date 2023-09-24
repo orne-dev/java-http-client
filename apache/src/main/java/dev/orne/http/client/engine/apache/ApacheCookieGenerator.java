@@ -48,6 +48,13 @@ public class ApacheCookieGenerator
 extends AbstractTypedGenerator<BasicClientCookie> {
 
     /**
+     * Creates a new instance.
+     */
+    public ApacheCookieGenerator() {
+        super();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

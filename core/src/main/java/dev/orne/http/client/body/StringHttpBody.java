@@ -139,8 +139,6 @@ public final class StringHttpBody {
      * Creates a new HTTP response string body parser
      * with {@code text/plain;charset=UTF-8} as default content type.
      * 
-     * @param defaultContentType The default content type to use if the HTTP
-     * response does not specify one.
      * @return The created HTTP response body parser.
      */
     public static @NotNull StringHttpResponseBodyParser parser() {
@@ -177,10 +175,8 @@ public final class StringHttpBody {
         /**
          * Creates a new instance.
          * 
-         * @param entityType The HTTP response body entity type.
          * @param defaultContentType The default content type to use if the HTTP
          * response does not specify one.
-         * @param mapper The Jackson object mapper to use.
          */
         public StringBodyParser(
                 final @NotNull ContentType defaultContentType) {

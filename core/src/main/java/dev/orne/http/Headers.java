@@ -461,7 +461,7 @@ public final class Headers {
             public static final String X_HTTP_METHOD_OVERRIDE = "X-Http-Method-Override";
             /**
              * Allows easier parsing of the MakeModel/Firmware that is usually
-             * found in the User-Agent String of AT&T Devices.
+             * found in the User-Agent String of AT&amp;T Devices.
              */
             public static final String X_ATT_DEVICE_ID = "X-ATT-DeviceId";
             /**

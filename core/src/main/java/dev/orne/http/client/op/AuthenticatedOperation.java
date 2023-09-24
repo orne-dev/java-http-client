@@ -27,7 +27,7 @@ import java.util.concurrent.CompletionStage;
 import javax.validation.constraints.NotNull;
 
 import dev.orne.http.client.AuthenticableClientStatus;
-import dev.orne.http.client.AuthenticationRequiredException;
+import dev.orne.http.client.AuthenticableHttpServiceClient;
 import dev.orne.http.client.StatedHttpServiceClient;
 
 /**
@@ -50,8 +50,12 @@ extends StatusDependentOperation<P, R, S> {
 
     /**
      * {@inheritDoc}
-     * @throws AuthenticationRequiredException If client is not
-     * authenticated.
+     * <p>
+     * If client is not authenticated and cannot be authenticated with a
+     * {@code AuthenticableHttpServiceClient.authenticate()} call the returned
+     * future rejects with a {@code AuthenticationRequiredException} exception.
+     * 
+     * @see AuthenticableHttpServiceClient#authenticate()
      */
     @Override
     CompletionStage<R> execute(

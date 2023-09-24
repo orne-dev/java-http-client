@@ -34,7 +34,6 @@ import dev.orne.http.MediaTypes;
  * 
  * @author <a href="https://github.com/ihernaez">(w) Iker Hernaez</a>
  * @version 1.0, 2023-07
- * @param <E> The HTTP response body entity type.
  * @since 0.1
  */
 public interface StringHttpResponseBodyParser

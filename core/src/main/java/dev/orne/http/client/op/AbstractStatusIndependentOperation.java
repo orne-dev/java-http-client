@@ -52,6 +52,13 @@ extends AbstractHttpServiceOperation<R>
 implements StatusIndependentOperation<P, R> {
 
     /**
+     * Creates a new instance.
+     */
+    protected AbstractStatusIndependentOperation() {
+        super();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

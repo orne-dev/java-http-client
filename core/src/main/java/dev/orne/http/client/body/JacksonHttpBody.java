@@ -226,8 +226,6 @@ public final class JacksonHttpBody {
      * 
      * @param <E> The HTTP response body entity type.
      * @param entityType The HTTP response body entity type.
-     * @param defaultContentType The default content type to use if the HTTP
-     * response does not specify one.
      * @return The created HTTP response body parser.
      */
     public static <E> @NotNull JsonHttpResponseBodyParser<E> parser(

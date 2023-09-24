@@ -216,6 +216,7 @@ public class ContentType {
      * 
      * @param name The parameter name.
      * @param value The parameter value.
+     * @return The resulting content type.
      */
     public @NotNull ContentType withParameter(
             final @NotNull String name,
@@ -235,6 +236,7 @@ public class ContentType {
      * Returns a copy of this instance with the specified parameter removed.
      * 
      * @param name The parameter name.
+     * @return The resulting content type.
      */
     public @NotNull ContentType withoutParameter(
             final @NotNull String name) {

@@ -46,6 +46,13 @@ public class DefaultCookieGenerator
 extends AbstractTypedGenerator<DefaultCookie>  {
 
     /**
+     * Creates a new instance.
+     */
+    public DefaultCookieGenerator() {
+        super();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

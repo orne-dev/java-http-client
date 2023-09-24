@@ -188,8 +188,6 @@ public final class WWWFormHttpBody {
      * {@code application/x-www-form-urlencoded;charset=UTF-8} as default
      * content type.
      * 
-     * @param defaultContentType The default content type to use if the HTTP
-     * response does not specify one.
      * @return The created HTTP response body parser.
      */
     public static @NotNull WWWFormHttpResponseBodyParser parser() {

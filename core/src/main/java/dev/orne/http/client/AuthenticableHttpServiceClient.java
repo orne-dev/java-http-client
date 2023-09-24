@@ -99,10 +99,10 @@ extends StatedHttpServiceClient<S> {
 
     /**
      * Authenticates against the HTTP service using the stored credentials.
-     * If no credentials were stored
+     * If no credentials were stored in a previous
+     * {@link #authenticate(Object)} call the returned future rejects with a
+     * {@code CredentialsNotStoredException} exception.
      * 
-     * @throws AuthenticationRequiredException If no credentials have
-     * been store with a previous call to {@link #authenticate(Object)}.
      * @return The client's status.
      */
     @NotNull CompletionStage<@NotNull S> authenticate();

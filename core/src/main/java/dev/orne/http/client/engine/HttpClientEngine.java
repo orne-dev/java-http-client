@@ -44,7 +44,9 @@ public interface HttpClientEngine
 extends Closeable {
 
     /**
-     * @return The HTTP client's cookie store
+     * Returns the HTTP client's cookie store.
+     * 
+     * @return The HTTP client's cookie store.
      */
     @NotNull CookieStore getCookieStore();
 

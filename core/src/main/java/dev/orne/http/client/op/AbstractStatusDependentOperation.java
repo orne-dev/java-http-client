@@ -53,6 +53,13 @@ extends AbstractHttpServiceOperation<R>
 implements StatusDependentOperation<P, R, S> {
 
     /**
+     * Creates a new instance.
+     */
+    protected AbstractStatusDependentOperation() {
+        super();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

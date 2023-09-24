@@ -68,7 +68,7 @@ public interface HttpResponseBodyParser<E> {
      * <p>
      * The calling method is responsible of closing the reader.
      * 
-     * @param type The HTTP response body content type.
+     * @param contentType The HTTP response body content type.
      * @param input The HTTP response body stream.
      * @return The created reader.
      */

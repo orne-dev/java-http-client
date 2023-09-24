@@ -371,6 +371,13 @@ implements UriBuilder {
     implements UriBuilder.Factory {
 
         /**
+         * Creates a new instance.
+         */
+        public Factory() {
+            super();
+        }
+
+        /**
          * {@inheritDoc}
          */
         @Override

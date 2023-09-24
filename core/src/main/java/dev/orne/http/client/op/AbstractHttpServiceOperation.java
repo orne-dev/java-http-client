@@ -45,6 +45,13 @@ import dev.orne.http.client.engine.HttpResponse;
 public abstract class AbstractHttpServiceOperation<R> {
 
     /**
+     * Creates a new instance.
+     */
+    protected AbstractHttpServiceOperation() {
+        super();
+    }
+
+    /**
      * Returns the operation execution request URI against client's base URI.
      * 
      * @param requestURI The operation execution request URI
